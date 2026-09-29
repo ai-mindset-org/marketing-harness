@@ -71,7 +71,9 @@ export EXA_API_KEY="$(security find-generic-password -s EXA_API_KEY -w)"</code><
     [6, 'playwright', 'Playwright', 'PDF карусели, сбор страниц', '–', 'uv run --with playwright', 'node bin/render.mjs all --pdf', []],
   ];
   let live = null;
-  try { const r = await fetch('/api/tools', { cache: 'no-store' }); if (r.ok) live = (await r.json()).tools; } catch { /* static host */ }
+  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+    try { const r = await fetch('/api/tools', { cache: 'no-store' }); if (r.ok) live = (await r.json()).tools; } catch { /* static copy */ }
+  }
   if (live) document.getElementById('liveNote').textContent = 'статус этого компьютера · ключи: задан или нет';
   const state = (ids) => {
     if (!live || !ids.length) return '<span class="cap">–</span>';
