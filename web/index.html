@@ -14,12 +14,12 @@
 <header id="hd">
   <img class="logo" src="assets/aim-logo.png" alt="AI Mindset">
   <div class="brand">
-    <h1>marketing harness · live build</h1>
+    <h1>marketing harness · маркетинг-спринт</h1>
     <p>пустая папка → анкета → правила → нейминг → инструменты → скиллы → evals → дизайн → агенты → срез</p>
   </div>
   <div class="navs">
     <button id="searchBtn" class="search" title="поиск по файлам и фазам · ⌘K">⌕ поиск <kbd>⌘K</kbd></button>
-    <nav class="modes" aria-label="режим"><button data-mode="replay">повтор</button><button data-mode="live">живая папка</button></nav>
+    <nav class="modes" aria-label="режим"><button data-mode="replay" title="сборка по сценарию">повтор</button><button data-mode="live" title="папка на этом компьютере: правка и агенты">живая папка</button><button data-mode="team" title="рабочая папка спринта из git, видна всей команде">команда</button></nav>
     <nav class="pages" aria-label="страницы"><a class="pagelink" href="guide.html" title="как запустить, таймлайн блоков, сущности, агенты">гид</a><a class="pagelink" href="access.html" title="ключи и проверки инструментов">подключения</a></nav>
   </div>
   <div class="clock"><b id="phaseLabel">00 · пустая папка</b><span id="clock">00:00</span></div>
@@ -28,7 +28,7 @@
 <main id="grid">
   <section id="colL" class="panel">
     <h2><span>01 · папка</span><em id="fileCount">0</em></h2>
-    <div id="folderBar" class="liveonly"><div class="fb-path" id="fbPath">–</div><div class="fb-git" id="fbGit">git: –</div><div class="fb-act"><button id="openVault" title="открыть всю папку в Obsidian">Obsidian ↗</button><button id="openFinder" title="показать папку в Finder">Finder ↗</button></div></div>
+    <div id="folderBar" class="liveonly"><div class="fb-path" id="fbPath">–</div><div class="fb-git" id="fbGit">git: –</div><div class="fb-act localonly"><button id="openVault" title="открыть всю папку в Obsidian">Obsidian ↗</button><button id="openFinder" title="показать папку в Finder">Finder ↗</button></div></div>
     <div id="tree" class="scroll"></div>
     <h2 class="sub"><span>02 · коммиты</span><em id="commitCount">0</em></h2>
     <ol id="commits"></ol>
@@ -51,7 +51,7 @@
     <div class="panel" id="anketaP"><h2><span>04 · анкета</span><em id="qaCount">0/7</em></h2><dl id="qa"></dl></div>
     <div class="panel" id="lanesP"><h2><span>05 · агенты</span><em id="laneCount">0</em></h2><div id="lanes"></div></div>
     <div class="panel" id="dashP">
-      <div id="tabs"><button class="on" data-tab="dash">06 · срез</button><button data-tab="tools">инструменты</button><button data-tab="console" class="liveonly">консоль</button></div>
+      <div id="tabs"><button class="on" data-tab="dash">06 · срез</button><button data-tab="tools">инструменты</button><button data-tab="console" class="liveonly localonly">консоль</button></div>
       <div id="tabBody">
         <div class="tabpane" data-tab="dash"><div id="metrics"></div><div id="coverage"></div></div>
         <div class="tabpane" data-tab="tools" hidden><div id="tools"></div></div>
@@ -92,10 +92,10 @@
 <aside id="preview" hidden>
   <header><div><b id="pvTitle"></b><span id="pvPath"></span></div><button id="pvClose" aria-label="закрыть">×</button></header>
   <div id="pvBar">
-    <button id="pvFull" title="во весь экран · f">⤢</button><button id="pvView" class="on" title="как читается">вид</button><button id="pvRaw" title="исходный текст">исходник</button><button id="pvEdit" class="liveonly" title="править файл с живым превью">править</button>
+    <button id="pvFull" title="во весь экран · f">⤢</button><button id="pvView" class="on" title="как читается">вид</button><button id="pvRaw" title="исходный текст">исходник</button><button id="pvEdit" class="liveonly localonly" title="править файл с живым превью">править</button>
     <span class="sp"></span>
-    <button id="pvSave" class="liveonly" hidden title="сохранить и закоммитить · ⌘S">сохранить</button>
-    <button id="pvObs" class="liveonly" title="открыть файл в Obsidian">Obsidian</button><button id="pvApp" class="liveonly" title="открыть в приложении по умолчанию">приложение</button><button id="pvFinder" class="liveonly" title="показать в Finder">Finder</button>
+    <button id="pvSave" class="liveonly localonly" hidden title="сохранить и закоммитить · ⌘S">сохранить</button>
+    <button id="pvObs" class="liveonly localonly" title="открыть файл в Obsidian">Obsidian</button><button id="pvApp" class="liveonly localonly" title="открыть в приложении по умолчанию">приложение</button><button id="pvFinder" class="liveonly localonly" title="показать в Finder">Finder</button>
   </div>
   <div id="pvLinks"></div>
   <div id="pvWrap">

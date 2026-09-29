@@ -70,5 +70,51 @@ window.HDOC = (() => {
     if (e.target.closest('#drawer header button')) document.getElementById('drawer').hidden = true;
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.getElementById('drawer').hidden = true; });
+  // ---------- ⌘K: page sections and kit documents ----------
+  const box = document.createElement('div');
+  box.id = 'search'; box.hidden = true;
+  box.innerHTML = '<div class="box"><input id="q" autocomplete="off" spellcheck="false" placeholder="раздел страницы или файл набора…"><ol id="qres"></ol><div class="cap">↑↓ выбрать · Enter открыть · Esc закрыть</div></div>';
+  document.body.appendChild(box);
+  const QS = { list: [], i: 0 };
+  function run(q) {
+    const t = q.trim().toLowerCase();
+    const out = [];
+    document.querySelectorAll('section.panel > h2').forEach((h) => {
+      const label = (h.querySelector('span') || h).textContent.replace(/\s+/g, ' ').trim();
+      if (!t || label.toLowerCase().includes(t)) out.push({ kind: 'sec', el: h.parentElement, glyph: '§', label, sub: 'раздел', score: t ? 90 : 2 });
+    });
+    for (const [p, text] of Object.entries(DOCS)) {
+      const label = bare(base(p)); const low = label.toLowerCase();
+      let score = 0;
+      if (!t) score = 1; else if (low.startsWith(t)) score = 100; else if (low.includes(t)) score = 80; else if (p.toLowerCase().includes(t)) score = 60; else if (text.toLowerCase().includes(t)) score = 30;
+      if (score) out.push({ kind: 'doc', p, glyph: '▢', label, sub: p.split('/').slice(0, -1).join('/') || './', score });
+    }
+    QS.list = out.sort((a, b) => b.score - a.score || a.label.localeCompare(b.label)).slice(0, 40); QS.i = 0; paint();
+  }
+  function paint() {
+    const ol = document.getElementById('qres');
+    ol.innerHTML = QS.list.map((r, k) => `<li class="${k === QS.i ? 'on' : ''}" data-k="${k}"><span>${r.glyph}</span><span>${esc(r.label)}</span><small>${esc(r.sub)}</small></li>`).join('') || '<li><span></span><span>ничего не нашлось</span></li>';
+    const on = ol.querySelector('li.on'); if (on) on.scrollIntoView({ block: 'nearest' });
+  }
+  function pick(k) {
+    const r = QS.list[k]; if (!r) return; close();
+    if (r.kind === 'sec') r.el.scrollIntoView({ behavior: 'smooth', block: 'start' }); else openDoc(r.p);
+  }
+  function open() { box.hidden = false; const q = document.getElementById('q'); q.value = ''; run(''); q.focus(); }
+  function close() { box.hidden = true; }
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-search]')) open();
+    const li = e.target.closest('#qres li[data-k]'); if (li) pick(Number(li.dataset.k));
+    if (e.target === box) close();
+  });
+  document.getElementById('q').addEventListener('input', (e) => run(e.target.value));
+  document.getElementById('q').addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); QS.i = Math.min(QS.list.length - 1, QS.i + 1); paint(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); QS.i = Math.max(0, QS.i - 1); paint(); }
+    if (e.key === 'Enter') { e.preventDefault(); pick(QS.i); }
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); }
+  });
+  window.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); if (box.hidden) open(); else close(); } }, true);
+
   return { load, md, inline, esc, bare, base, openDoc, docs: () => DOCS, has: (p) => !!DOCS[p] };
 })();

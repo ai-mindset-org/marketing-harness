@@ -5,8 +5,11 @@
 (() => {
   'use strict';
   const qs = new URLSearchParams(location.search);
-  const MODE = qs.get('mode') === 'live' ? 'live' : 'replay';
-  document.body.classList.toggle('live', MODE === 'live');
+  // replay: scenario.json · live: this computer's folder via the local server · team: the sprint folder from git, static state.json
+  const MODE = ['live', 'team'].includes(qs.get('mode')) ? qs.get('mode') : 'replay';
+  const TEAM = MODE === 'team';
+  document.body.classList.toggle('live', MODE !== 'replay');
+  document.body.classList.toggle('team', TEAM);
   document.querySelectorAll('.modes button').forEach((b) => {
     b.classList.toggle('on', b.dataset.mode === MODE);
     b.onclick = () => { const u = new URL(location.href); u.searchParams.set('mode', b.dataset.mode); location.href = u.toString(); };
@@ -306,12 +309,17 @@
 
   // ---------- legend: click hides or shows a layer ----------
   const hiddenLayers = new Set();
+  const ALL_LAYERS = () => [...document.querySelectorAll('#legend span[data-l]')].map((x) => x.dataset.l);
+  function paintLegend() { document.querySelectorAll('#legend span[data-l]').forEach((x) => x.classList.toggle('off', hiddenLayers.has(x.dataset.l))); renderGraph(); }
   document.getElementById('legend').addEventListener('click', (e) => {
+    const all = e.target.closest('[data-all]');
+    if (all) { hiddenLayers.clear(); if (all.dataset.all === 'none') ALL_LAYERS().forEach((l) => hiddenLayers.add(l)); paintLegend(); return; }
     const el = e.target.closest('span[data-l]'); if (!el) return;
     const l = el.dataset.l;
-    if (hiddenLayers.has(l)) hiddenLayers.delete(l); else hiddenLayers.add(l);
-    el.classList.toggle('off', hiddenLayers.has(l));
-    renderGraph();
+    // alt or shift click: show only this layer
+    if (e.altKey || e.shiftKey) { hiddenLayers.clear(); ALL_LAYERS().filter((x) => x !== l).forEach((x) => hiddenLayers.add(x)); }
+    else if (hiddenLayers.has(l)) hiddenLayers.delete(l); else hiddenLayers.add(l);
+    paintLegend();
   });
   document.getElementById('legend').innerHTML = ['hub', 'context', 'rule', 'role', 'tool', 'code', 'guide', 'skill', 'eval', 'design', 'agent', 'source', 'research', 'nucleus', 'output', 'dashboard', 'automation', 'gate', 'ghost']
     .map((k) => {
@@ -319,8 +327,8 @@
       const d = d3.symbol(SYM[L.sym], Math.min(L.size, 110) * 0.8)();
       const fill = L.fill === true ? '#0a0a0a' : L.fill === 'accent' ? '#d7261e' : L.fill === 'hair' ? '#e6e6e6' : '#fff';
       const dash = k === 'ghost' ? ' stroke-dasharray="2 2" stroke="#aaa"' : ` stroke="${k === 'agent' ? '#d7261e' : '#0a0a0a'}"`;
-      return `<span data-l="${k}" title="скрыть или показать слой"><svg viewBox="-7 -7 14 14"><path d="${d}" fill="${fill}"${dash} stroke-width="1.2"/></svg>${L.label}</span>`;
-    }).join('');
+      return `<span data-l="${k}" title="клик – скрыть или показать · alt-клик – только этот слой"><svg viewBox="-7 -7 14 14"><path d="${d}" fill="${fill}"${dash} stroke-width="1.2"/></svg>${L.label}</span>`;
+    }).join('') + '<b class="lg-all"><button type="button" data-all="all" title="показать все слои">все</button><button type="button" data-all="none" title="скрыть все слои">ничего</button></b>';
 
   // ---------- panels ----------
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -780,9 +788,10 @@
       const sc = await fetch('scenario.json', { cache: 'no-store' }).then((r) => r.json());
       META = { questions: sc.questions, answers: sc.answers, phases: sc.phases, duration: sc.duration };
     } catch { /* live works without scenario */ }
-    try { SESSION = await fetch('/api/session').then((r) => r.json()); document.getElementById('consoleHost').textContent = SESSION.serverHost; folderBar(); } catch { /* static host */ }
+    if (!TEAM) { try { SESSION = await fetch('/api/session').then((r) => r.json()); document.getElementById('consoleHost').textContent = SESSION.serverHost; folderBar(); } catch { /* static host */ } }
     if (introWanted) {
-      $('inTitle').textContent = 'живая папка: харнесс на этом компьютере';
+      $('inTitle').textContent = TEAM ? 'командный вид: рабочая папка спринта из git' : 'живая папка: харнесс на этом компьютере';
+      if (TEAM) $('inPoints').innerHTML = '<li>граф собран из репозитория ai-mindset-org/marketing-harness-sprint и обновляется после каждого push</li><li>правка и агенты – у себя: клонируй репозиторий, bin/open.sh, коммит, push</li><li>клик по узлу открывает файл; ⌘K – поиск; пробел – заморозить картинку</li>';
       $('inGo').textContent = 'открыть граф →'; $('inEnd').hidden = true;
       $('intro').hidden = false; $('inGo').focus();
       $('inGo').onclick = () => introClose();
@@ -790,8 +799,10 @@
     const hint = document.getElementById('liveHint');
     let started = null, fails = 0, liveSeen = new Set();
     async function poll() {
+      if (LIVE_FROZEN) { setTimeout(poll, 700); return; }
       try {
-        const st = await fetch('/api/state', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+        const st = await fetch(TEAM ? 'team/state.json' : '/api/state', { cache: TEAM ? 'no-cache' : 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+        if (TEAM && st.git) { SESSION_T = st; teamBar(st); }
         fails = 0; hint.hidden = true;
         const h = st.harness || {};
         if (h.questions) META.questions = h.questions;
@@ -828,15 +839,15 @@
         const cur = META.phases.findIndex((p) => p.id === S.phase);
         const progress = S.phase === 'done' || !h.phase ? 1 : cur < 0 ? 0 : (cur + 0.5) / META.phases.length;
         if (!h.phase) S.phase = 'done';
-        document.getElementById('clock').textContent = `live · ${started ? fmt(Date.now() - started) : '–'} · ${st.name}`;
+        document.getElementById('clock').textContent = TEAM ? `команда · ${st.name} · ${st.head || ''} · ${String(st.exported || '').slice(11, 16)} UTC` : `live · ${started ? fmt(Date.now() - started) : '–'} · ${st.name}`;
         renderAll(progress);
       } catch (err) {
         if (++fails >= 2) {
           hint.hidden = false;
-          hint.innerHTML = 'живой режим читает папку через локальный сервер.<br>в терминале:<br><code>bin/open.sh ~/harness/marketing</code><br>или сборка с нуля: <code>bin/demo.sh ~/Demos/новая-папка</code><br>или открой <a href="?mode=replay">повтор</a>.';
+          hint.innerHTML = TEAM ? 'командный вид ещё не опубликован.<br>кто держит рабочую папку: <code>bin/publish-team.sh ~/harness/marketing-sprint</code><br>или открой <a href="?mode=replay">повтор</a>.' : 'живой режим читает папку через локальный сервер.<br>в терминале:<br><code>bin/open.sh ~/harness/marketing</code><br>или сборка с нуля: <code>bin/demo.sh ~/Demos/новая-папка</code><br>или открой <a href="?mode=replay">повтор</a>.';
         }
       }
-      setTimeout(poll, 700);
+      setTimeout(poll, TEAM ? 20000 : 700);
     }
     poll();
     setInterval(treeTick, 500);
@@ -922,6 +933,18 @@
     if (e.key === 'f' && !$('preview').hidden && !['INPUT', 'TEXTAREA'].includes(e.target.tagName) && PV.mode !== 'edit') $('pvFull').click();
   }, true);
 
+  // ---------- space pauses everywhere; clicked buttons never keep focus ----------
+  let LIVE_FROZEN = false;
+  document.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b && e.detail > 0) b.blur(); });
+  window.addEventListener('keydown', (e) => {
+    if (e.code !== 'Space' || ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName) || !$('search').hidden) return;
+    if (MODE !== 'live' || !$('intro').hidden || stopOpen) return; // replay has its own handler; cards take space as «дальше»
+    e.preventDefault();
+    LIVE_FROZEN = !LIVE_FROZEN;
+    $('narrTag').textContent = LIVE_FROZEN ? 'пауза' : 'сейчас';
+    $('narrText').textContent = LIVE_FROZEN ? 'граф заморожен: папка меняется, картинка стоит. пробел – продолжить' : S.narr || '–';
+  }, true);
+
   // ---------- intro: what this is, before the build starts ----------
   const introWanted = qs.get('intro') !== '0' && !qs.get('at') && !qs.get('phase');
   function introClose(go) { $('intro').hidden = true; if (go) go(); }
@@ -935,7 +958,13 @@
     $('fbGit').innerHTML = g.remote ? `git: ${esc(g.branch || 'main')} → <a href="${esc(g.remote)}" target="_blank" rel="noopener">${esc(g.remote.replace(/^https:\/\/github\.com\//, 'github/'))}</a>` : `git: ${esc(g.branch || '–')} · только локально (remote не задан)`;
   }
   $('openFinder').onclick = () => openIn('finder', '');
+  let SESSION_T = null;
+  function teamBar(st) {
+    const g = st.git || {};
+    $('fbPath').textContent = `${st.name} · общий вид`;
+    $('fbGit').innerHTML = g.remote ? `git: ${esc(g.branch || 'main')} → <a href="${esc(g.remote)}" target="_blank" rel="noopener">${esc(g.remote.replace(/^https:\/\/github\.com\//, 'github/'))}</a>` : 'git: –';
+  }
 
   resize();
-  if (MODE === 'live') startLive(); else startReplay();
+  if (MODE === 'replay') startReplay(); else startLive();
 })();

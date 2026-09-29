@@ -331,3 +331,8 @@ kbd{font:inherit; font-size:10px; border:1px solid var(--soft); padding:0 4px; c
 @media (max-width:760px){ .navs{grid-column:1 / -1; justify-content:flex-start} }
 body:not(.live) #folderBar{display:none}
 code,kbd,pre,textarea{font-family:inherit}
+#legend .lg-all{display:inline-flex; margin-left:auto; font-weight:400}
+#legend .lg-all button{padding:0 6px; font-size:10px; border-color:var(--soft); color:var(--muted)}
+#legend .lg-all button + button{border-left:none}
+#legend .lg-all button:hover{border-color:var(--ink); color:var(--ink); background:var(--bg)}
+body.team .localonly{display:none !important}

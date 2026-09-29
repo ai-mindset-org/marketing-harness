@@ -17,6 +17,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { walk, redact, readJson, sh, gitLog, gitInfo } from './folder-state.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = Object.fromEntries(
@@ -29,37 +30,6 @@ const SERVER_HOST = process.env.HARNESS_SERVER_HOST || 'ws-povalyaev';
 const SERVER_BASE = process.env.HARNESS_SERVER_BASE || '~/harness';
 const TOKEN = crypto.randomBytes(16).toString('hex');
 const DEFAULT_CLAUDE_MODEL = process.env.HARNESS_CLAUDE_MODEL || 'opus';
-
-const SKIP_DIRS = new Set(['.git', '.obsidian', '.claude', '.agents', '.harness', 'node_modules', '.trash']);
-const KEEP_DOT_FILES = new Set(['.mcp.json']);
-const SHOW = /\.(md|json|canvas|css|html|mjs)$/;
-const MAX_CONTENT = 20000;
-
-function walk(base, rel = '', out = []) {
-  let entries = [];
-  try { entries = fs.readdirSync(path.join(base, rel), { withFileTypes: true }); } catch { return out; }
-  for (const e of entries) {
-    const r = rel ? `${rel}/${e.name}` : e.name;
-    if (e.isDirectory()) {
-      if (e.name === '.githooks' && !rel) { walk(base, r, out); continue; }
-      if (e.name === '.claude' && !rel) { const sp = path.join(base, r, 'settings.json'); if (fs.existsSync(sp)) out.push({ path: `${r}/settings.json`, mtime: fs.statSync(sp).mtimeMs, content: fs.readFileSync(sp, 'utf8').slice(0, MAX_CONTENT) }); continue; }
-      if (SKIP_DIRS.has(e.name) || e.name.startsWith('.')) continue;
-      walk(base, r, out);
-    } else if ((SHOW.test(e.name) || rel === '.githooks') && (!e.name.startsWith('.') || KEEP_DOT_FILES.has(e.name))) {
-      const full = path.join(base, r);
-      const st = fs.statSync(full);
-      out.push({ path: r, mtime: st.mtimeMs, content: fs.readFileSync(full, 'utf8').slice(0, MAX_CONTENT) });
-    }
-  }
-  return out;
-}
-const readJson = (p, fallback) => { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return fallback; } };
-const sh = (cmd, a, opts = {}) => { try { return execFileSync(cmd, a, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 6000, ...opts }).trim(); } catch { return null; } };
-
-function gitLog() {
-  const raw = sh('git', ['-C', dir, 'log', '--reverse', '--format=%h\t%s', '-n', '60']);
-  return raw ? raw.split('\n').filter(Boolean).map((l) => { const [hash, msg] = l.split('\t'); return { hash, msg }; }) : [];
-}
 
 // ---------- tools status (presence only, values never leave the process) ----------
 const ENV_TOOLS = [
@@ -93,7 +63,7 @@ function toolsStatus() {
 const runs = new Map();
 const runsDir = path.join(dir, '.harness', 'runs');
 function logTail(id, n = 40) {
-  try { return fs.readFileSync(path.join(runsDir, `${id}.log`), 'utf8').split('\n').slice(-n).join('\n'); } catch { return ''; }
+  try { return redact(fs.readFileSync(path.join(runsDir, `${id}.log`), 'utf8').split('\n').slice(-n).join('\n')); } catch { return ''; }
 }
 function runtimeMcpConfig() {
   // keep only servers whose ${VARS} are set, so a missing key never breaks a run
@@ -235,13 +205,6 @@ function openOnMac({ path: rel, app }) {
   return { error: 'app' };
 }
 
-// the same folder lives in git: branch and remote (as a browser link) for the folder bar
-function gitInfo() {
-  const raw = sh('git', ['-C', dir, 'remote', 'get-url', 'origin']);
-  const remote = raw ? raw.replace(/^git@github\.com:/, 'https://github.com/').replace(/\.git$/, '') : null;
-  return { branch: sh('git', ['-C', dir, 'branch', '--show-current']), remote };
-}
-
 function publicRuns() {
   return [...runs.values()].slice(-12).map(({ proc, stopRemote, ...r }) => ({ ...r, tail: logTail(r.id, 30) }));
 }
@@ -251,7 +214,7 @@ function state() {
     dir, name: path.basename(dir),
     files: walk(dir),
     harness: readJson(path.join(dir, '.harness', 'state.json'), {}),
-    commits: gitLog(),
+    commits: gitLog(dir),
     runs: publicRuns(),
     now: Date.now(),
   };
@@ -264,7 +227,7 @@ const json = (res, code, obj) => { res.writeHead(code, { 'content-type': 'applic
 http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
   if (url.pathname === '/api/state') return json(res, 200, state());
-  if (url.pathname === '/api/session') return json(res, 200, { token: TOKEN, dir, name: path.basename(dir), serverHost: SERVER_HOST, claudeModel: DEFAULT_CLAUDE_MODEL, git: gitInfo() });
+  if (url.pathname === '/api/session') return json(res, 200, { token: TOKEN, dir, name: path.basename(dir), serverHost: SERVER_HOST, claudeModel: DEFAULT_CLAUDE_MODEL, git: gitInfo(dir) });
   if (url.pathname === '/api/tools') return json(res, 200, { tools: toolsStatus() });
   if (req.method === 'POST' && url.pathname.startsWith('/api/')) {
     if (req.headers['x-harness-token'] !== TOKEN) return json(res, 403, { error: 'token' });
@@ -290,10 +253,15 @@ http.createServer(async (req, res) => {
   const isFolder = rel.startsWith('f/');
   const base = isFolder ? dir : web;
   const file = path.join(base, isFolder ? rel.slice(2) : rel);
-  if (!file.startsWith(base) || file.includes(`${path.sep}.git`) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
+  // folder files: hidden ones stay hidden except the few the graph shows
+  const relF = isFolder ? path.relative(dir, file) : '';
+  const hidden = isFolder && relF.split(path.sep).some((seg) => seg.startsWith('.')) && !['.mcp.json', path.join('.claude', 'settings.json')].includes(relF) && !relF.startsWith(`.githooks${path.sep}`);
+  if (!file.startsWith(base) || hidden || file.includes(`${path.sep}.git${path.sep}`) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
     res.writeHead(404); return res.end('not found');
   }
-  res.writeHead(200, { 'content-type': TYPES[path.extname(file)] || 'text/plain; charset=utf-8', 'cache-control': 'no-store' });
+  const type = TYPES[path.extname(file)] || 'text/plain; charset=utf-8';
+  res.writeHead(200, { 'content-type': type, 'cache-control': 'no-store' });
+  if (isFolder && /^(text\/|application\/json)/.test(type)) return res.end(redact(fs.readFileSync(file, 'utf8')));
   fs.createReadStream(file).pipe(res);
 }).listen(port, '127.0.0.1', () => {
   console.log(`harness · http://localhost:${port}/?mode=live · папка ${dir}`);

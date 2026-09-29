@@ -20,6 +20,23 @@
 
 Рабочая папка Алекса: `~/harness/marketing-sprint` (развёрнута из набора, 10 коммитов). Открывается в Obsidian как vault.
 
+## три режима
+- **повтор** – `index.html`: сборка по `web/scenario.json`, карточки фаз, клик по фазе внизу возвращает к её карточке;
+- **живая папка** – `bin/open.sh <папка>` → `?mode=live`: папка этого компьютера через локальный сервер, правка, агенты, Obsidian; пробел замораживает картинку;
+- **команда** – `?mode=team`: рабочая папка спринта из git (`ai-mindset-org/marketing-harness-sprint`), статичный `team/state.json`, опрос раз в 20 с, без консоли и правки. Публикация: `bin/publish-team.sh [папка] [клон lab-sites]` – экспорт через `tools/export-state.mjs`, push в lab-sites только при новом HEAD папки. На сервере это делает таймер (предложено инфраструктуре, узел сначала в реестр).
+
+## ключи не уходят из процесса
+`tools/folder-state.mjs` читает папку одинаково для сервера и экспорта и маскирует всё, что похоже на ключ (sk-, ghp_, github_pat_, токены ботов Telegram, Google, Apify, Krisp, Bearer, `api_key=…`, `exaApiKey=…`) в содержимом файлов, журналах агентов и раздаче `/f/`. Плейсхолдеры `${ИМЯ}` остаются. Скрытые файлы папки (`.env` и другие) сервер не отдаёт, кроме `.mcp.json`, `.githooks/`, `.claude/settings.json`.
+
+## выкладка во внутренний контур
+```bash
+node tools/build-scenario.mjs
+rsync -a --delete --exclude marketing-harness-kit.zip --exclude team/ web/ ~/repos/lab-sites/internal-sites/marketing-harness/
+git archive --prefix=marketing-harness-sim/ -o ~/repos/lab-sites/internal-sites/marketing-harness/marketing-harness-kit.zip HEAD
+cd ~/repos/lab-sites && gitleaks detect --no-git --source internal-sites/marketing-harness && git add internal-sites/marketing-harness && git commit -m "…" && git push
+bin/publish-team.sh ~/harness/marketing-sprint    # командный вид
+```
+
 ## остановки
 После каждой фазы – карточка человеческим языком: что появилось в папке, зачем это, какие файлы (клик открывает файл). Тексты – поле `stop` у фазы в `kit/manifest.json`. В повторе остановки включены по умолчанию; в живой сборке – флаг `--stops`: раннер ждёт, пока в браузере нажмут «продолжить» (`POST /api/continue` пишет `.harness/continue`).
 

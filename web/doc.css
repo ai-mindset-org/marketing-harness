@@ -93,3 +93,29 @@ pre.md code{background:none; padding:0}
 .cols > div{min-width:0}
 td code{overflow-wrap:anywhere}
 code,kbd,pre{font-family:inherit}
+/* shared shell: the same header as the instrument (index.html) */
+#hd{grid-template-columns:34px minmax(0,1fr) auto auto}
+#hd .logo{width:34px; height:34px; object-fit:contain}
+.brand h1{font-size:19px; font-weight:700; letter-spacing:.01em; margin:0}
+.brand p{color:var(--muted); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; margin:2px 0 0}
+.navs{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
+.navs nav{display:flex}
+.mlink,.pagelink{border:1px solid var(--ink); padding:5px 10px; text-decoration:none; color:var(--ink); letter-spacing:.04em; font-size:12px; background:var(--bg)}
+.mlink + .mlink,.pagelink + .pagelink{border-left:none}
+.mlink:hover,.pagelink:hover,.pagelink.on{background:var(--ink); color:var(--bg)}
+button.search{font:inherit; font-size:12px; border:1px solid var(--soft); background:var(--bg); color:var(--muted); padding:5px 10px; cursor:pointer; display:flex; gap:8px; align-items:center}
+button.search:hover{border-color:var(--ink); color:var(--ink)}
+kbd{font-size:10px; border:1px solid var(--soft); padding:0 4px; color:var(--muted); background:var(--paper)}
+.clock{display:flex; flex-direction:column; align-items:flex-end; gap:1px; min-width:190px}
+.clock b{font-size:12px}
+.clock span{color:var(--muted); font-size:11px}
+nav.pages a.on{background:var(--ink); color:var(--bg)}
+#search{position:fixed; inset:0; z-index:10; background:rgba(255,255,255,.7); backdrop-filter:blur(2px); display:grid; justify-items:center; align-items:start; padding-top:12vh}
+#search[hidden]{display:none}
+#search .box{width:min(640px,calc(100vw - 32px)); background:var(--bg); border:1px solid var(--ink); box-shadow:10px 10px 0 rgba(0,0,0,.08); padding:10px 12px}
+#q{width:100%; font:inherit; font-size:15px; border:none; border-bottom:1px solid var(--ink); padding:6px 2px 8px; outline:none}
+#qres{list-style:none; margin:6px 0; padding:0; max-height:52vh; overflow:auto}
+#qres li{display:grid; grid-template-columns:18px minmax(0,1fr) auto; gap:8px; padding:5px 6px; cursor:pointer; border-bottom:1px dotted var(--hair)}
+#qres li.on{background:var(--ink); color:var(--bg)}
+#qres li small{color:var(--muted); font-size:10px}
+@media (max-width:760px){ #hd{grid-template-columns:30px minmax(0,1fr)} .navs,.clock{grid-column:1 / -1; justify-content:flex-start; align-items:flex-start} }

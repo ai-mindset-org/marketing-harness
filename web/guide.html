@@ -14,11 +14,16 @@
 <div class="wrap">
 <header id="hd">
   <img class="logo" src="assets/aim-logo.png" alt="AI Mindset">
-  <div><h1>marketing harness · гид</h1><p>запуск · живая папка · таймлайн блоков · агенты · ресёрч · роли · рутины</p></div>
-  <nav class="pages"><a href="index.html">инструмент</a><a class="on" href="guide.html">гид</a><a href="access.html">подключения</a></nav>
+  <div class="brand"><h1>marketing harness · гид</h1><p>запуск · живая папка · таймлайн · сущности · гейты · кейсы · команда</p></div>
+  <div class="navs">
+    <button class="search" data-search title="поиск по файлам и разделам · ⌘K">⌕ поиск <kbd>⌘K</kbd></button>
+    <nav class="modes" aria-label="режим"><a class="mlink" href="index.html">повтор</a><a class="mlink" href="index.html?mode=live">живая папка</a><a class="mlink" href="index.html?mode=team">команда</a></nav>
+    <nav class="pages" aria-label="страницы"><a class="pagelink on" href="guide.html">гид</a><a class="pagelink" href="access.html">подключения</a></nav>
+  </div>
+  <div class="clock"><b>гид харнесса</b><span>маркетинг-спринт AI Mindset · n25</span></div>
 </header>
 
-<p class="lead">харнесс – папка с контекстом, правилами, скиллами и проверками, внутри которой работают агенты. Инструмент рисует эту папку графом и показывает, как она растёт: из <b>пустой папки</b> за десять фаз вырастает машина, которая сама пишет, проверяет и учится на своих ошибках.</p>
+<p class="lead">маркетинг-харнесс – рабочая папка <b>маркетинг-спринта AI Mindset</b> (n25, сентябрь–октябрь 2026). в ней собраны механики спикеров спринта – Кумара, Урбана и Булаева – и контент-машина команды: контекст продукта, правила, роли, скиллы, проверки, гейты и агенты. инструмент рисует папку графом: из пустой папки за десять фаз вырастает машина, которая пишет, проверяет и учится на своих ошибках.</p>
 
 <section class="panel">
   <h2><span>01 · как запустить</span><em>терминал, папка движка</em></h2>
@@ -120,6 +125,28 @@
   </div>
   <details class="doc"><summary>канон Анки: токены и где используется</summary><div class="md" data-render="design/{design} anca field journal.md"></div></details>
   <details class="doc"><summary>плашка 3:1: бриф и рендер</summary><div class="md" data-render="design/{design} cover 3x1.md"></div></details>
+</section>
+
+<section class="panel">
+  <h2><span>12 · командная работа и доступ</span><em>один репозиторий, три режима</em></h2>
+  <table class="t">
+    <tr><th>режим</th><th>где</th><th>кто видит</th><th>что можно</th></tr>
+    <tr><td><b>повтор</b></td><td>эта страница, <code>index.html</code></td><td>команда в Tailscale</td><td>смотреть сборку по сценарию, карточки фаз, файлы набора</td></tr>
+    <tr><td><b>команда</b></td><td><code>index.html?mode=team</code></td><td>команда в Tailscale</td><td>граф рабочей папки спринта из git: что появилось, коммиты, файлы; обновляется после push</td></tr>
+    <tr><td><b>живая папка</b></td><td><code>bin/open.sh</code> на своём компьютере</td><td>только ты</td><td>правка файлов, агенты claude · codex · сотник, Obsidian, коммиты</td></tr>
+  </table>
+  <div class="cols" style="margin-top:12px">
+    <div><h3>подхватить и доделать</h3><p><code>gh repo clone ai-mindset-org/marketing-harness-sprint ~/harness/marketing-sprint</code>, затем движок <code>gh repo clone ai-mindset-org/marketing-harness</code> и <code>bin/open.sh ~/harness/marketing-sprint</code>. перед работой <code>git pull</code>, после – коммит на шаг и <code>git push</code>.</p></div>
+    <div><h3>кто пишет куда</h3><p>одна ветка папки – один писатель за раз: ресёрч, нуклеусы, черновики, гейты. правка <code>context/</code> и <code>rules/</code> – через короткое сообщение в чате маркетинга. pre-commit не пропустит ключ и черновик без проверок.</p></div>
+    <div><h3>общий вид</h3><p>после push держатель папки запускает <code>bin/publish-team.sh</code>: состояние уходит в <code>team/state.json</code>, командный граф обновляется. таймер на сервере команды делает то же сам – предложен инфраструктуре.</p></div>
+    <div><h3>ключи</h3><p>ключи живут у каждого в окружении. сервер инструмента и командный вид маскируют всё, что похоже на ключ, в файлах и журналах агентов.</p></div>
+  </div>
+  <table class="t" style="margin-top:12px">
+    <tr><th>кто</th><th>доступ</th><th>как получить</th></tr>
+    <tr><td>команда AI Mindset</td><td>оба репозитория, показ, командный вид</td><td>участник орги <code>ai-mindset-org</code> и Tailscale</td></tr>
+    <tr><td>ведущие воркшопа</td><td>то же</td><td>через команду, если нет орги – приглашение в репозиторий по логину GitHub</td></tr>
+    <tr><td>участники спринта</td><td>набор без рабочих данных команды: шаблон, гайд, три пресета</td><td>решение открыто: публичный шаблон-репозиторий, приглашение по логину или архив в LMS; в наборе конспекты занятий спикеров – для публичной версии нужно их согласие</td></tr>
+  </table>
 </section>
 
 <footer><span>marketing harness · AI Mindset · маркетинг-спринт n25</span><span id="gen">–</span></footer>
