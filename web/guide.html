@@ -83,6 +83,45 @@
   <details class="doc"><summary>как правило становится скиллом</summary><div class="md" data-render="guides/{guide} rules to skills.md"></div></details>
 </section>
 
+<section class="panel">
+  <h2><span>07 · сущности и связи</span><em>онтология харнесса</em></h2>
+  <p>каждая сущность – файл в своей папке, тип стоит в имени, <code>id</code> во frontmatter; связь – ссылка в поле или в тексте. граф инструмента рисует именно эти связи.</p>
+  <table class="t" id="entities"></table>
+  <details class="doc"><summary>онтология: типы, связи, как растёт</summary><div class="md" data-render="guides/{guide} ontology.md"></div></details>
+</section>
+
+<section class="panel">
+  <h2><span>08 · гейты и хуки</span><em>код, который останавливает действие</em></h2>
+  <div class="cols">
+    <div><h3>правило и гейт</h3><p>правило – текст для агента. гейт – код, который срабатывает на событие (коммит, запись файла, команда) и блокирует действие двумя каналами: код выхода 2 и отказ в JSON.</p></div>
+    <div><h3>пять гейтов набора</h3><p>секрет-скан перед коммитом · approved только после зелёных проверок · публикует человек · агент пишет в свою ветку · перед созданием – поиск похожего.</p></div>
+    <div><h3>проверка</h3><p><code>node bin/gate-tests.mjs</code> гоняет гейт через ту же команду, что записана в <code>.claude/settings.json</code>: 6 случаев, allow и deny.</p></div>
+  </div>
+  <div class="chips" id="gateChips"></div>
+  <details class="doc"><summary>хуки и гейты: события, два канала, урок обёртки</summary><div class="md" data-render="guides/{guide} hooks and gates.md"></div></details>
+</section>
+
+<section class="panel">
+  <h2><span>09 · как сетапить скилл</span></h2>
+  <details class="doc" open><summary>скилл по шагам на примере email-digest</summary><div class="md" data-render="guides/{guide} setup a skill.md"></div></details>
+</section>
+
+<section class="panel">
+  <h2><span>10 · маркетинговые кейсы</span><em>операции команды и механики спикеров</em></h2>
+  <details class="doc" open><summary>12 кейсов: ситуация → сущности → первый шаг</summary><div class="md" data-render="guides/{guide} marketing cases.md"></div></details>
+</section>
+
+<section class="panel">
+  <h2><span>11 · дизайн</span><em>канон Анки · плашки 3:1 · язык инструмента</em></h2>
+  <div class="cols">
+    <div><h3>канон Анки Ставенски</h3><p>field journal из hero lab: бумага, чернила, глина, Inter, Lora, IBM Plex Mono. из него рендерятся карусель и превью LinkedIn. <a href="https://eppelas.github.io/s26-flow-hero-lab/10-field-journal.html" target="_blank" rel="noopener">файл 10 ↗</a></p></div>
+    <div><h3>язык инструмента</h3><p>моно, рамки 1px, сетка, один красный акцент. в нём граф, гид, подключения, лендинг набора и плашки 3:1.</p></div>
+    <div><h3>плашка 3:1</h3><p>3000×1000 для поста: заголовок до 6 слов, код креатива, номер нуклеуса. <code>node bin/render.mjs cover &lt;бриф&gt;</code>.</p></div>
+  </div>
+  <details class="doc"><summary>канон Анки: токены и где используется</summary><div class="md" data-render="design/{design} anca field journal.md"></div></details>
+  <details class="doc"><summary>плашка 3:1: бриф и рендер</summary><div class="md" data-render="design/{design} cover 3x1.md"></div></details>
+</section>
+
 <footer><span>marketing harness · AI Mindset · маркетинг-спринт n25</span><span id="gen">–</span></footer>
 </div>
 
@@ -97,6 +136,28 @@
   const docs = H.docs();
   document.getElementById('roleChips').innerHTML = Object.keys(docs).filter((p) => p.startsWith('roles/') || p.startsWith('automations/'))
     .map((p) => `<span class="chip" data-doc="${H.esc(p)}">${p.startsWith('roles/') ? '⬡' : '⧗'} ${H.esc(H.bare(H.base(p)))}</span>`).join('');
+  const ENT = [
+    ['◆', 'хаб', 'README · AGENTS · CLAUDE', 'роутер: карта веток и какой скилл когда', 'ссылается на всё'],
+    ['■', 'контекст', 'context/', '{context} product', 'uses ← скиллы'],
+    ['◇', 'правило', 'rules/', '{rule} anti-slop', 'uses ← скиллы · checks ← гейты'],
+    ['⬡', 'роль', 'roles/', '{role} marketer', 'owns → рутины, скиллы'],
+    ['△', 'инструмент', 'tools/ · .mcp.json', '{tool} exa', 'uses ← скиллы'],
+    ['○', 'скилл', 'skills/', '{skill} linkedin-post', 'uses → правила, инструменты, дизайн'],
+    ['⊓', 'гейт', 'gates/ · bin/gate-*', '{gate} approved needs checks', 'checks → черновики'],
+    ['▲', 'eval', 'evals/', '{eval} golden-set', 'checks → черновики · learns_into → правила'],
+    ['☆', 'дизайн', 'design/', '{design} cover 3x1', 'renders → черновики'],
+    ['□', 'сырьё', 'sources/', '{source} kumar creative machine', '← derived_from нуклеусов'],
+    ['Y', 'ресёрч', 'research/', '{research} linkedin 2026', '← derived_from нуклеусов'],
+    ['•', 'нуклеус', 'nuclei/', '{nucleus} n02 fake winner', 'derived_from → источник'],
+    ['▢', 'черновик', 'outputs/', '{post} li-01 fake winner', 'derived_from → нуклеус'],
+    ['✚', 'срез', 'dashboards/', '{dashboard} weekly', 'learns_into → правила, golden set'],
+    ['⧗', 'рутина', 'automations/', '{automation} weekly loop', 'calls → скилл'],
+    ['●', 'агент', 'запуск консоли', 'agent(claude)', 'пишет в свою ветку, коммит'],
+  ];
+  document.getElementById('entities').innerHTML = '<tr><th></th><th>сущность</th><th>где</th><th>пример</th><th>связи</th></tr>'
+    + ENT.map(([g, n, where, ex, rel]) => `<tr><td>${g}</td><td><b>${n}</b></td><td><code>${H.esc(where)}</code></td><td>${H.esc(ex)}</td><td>${H.esc(rel)}</td></tr>`).join('');
+  document.getElementById('gateChips').innerHTML = Object.keys(docs).filter((p) => p.startsWith('gates/'))
+    .map((p) => `<span class="chip" data-doc="${H.esc(p)}">⊓ ${H.esc(H.bare(H.base(p)))}</span>`).join('');
   const sc = await fetch('scenario.json', { cache: 'no-store' }).then((r) => r.json());
   const files = {};
   let cur = null;

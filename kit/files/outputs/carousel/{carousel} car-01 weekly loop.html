@@ -3,8 +3,9 @@
    (ivory paper, heavy grotesk, serif italic accent, one warm accent). */
 :root{
   --paper:#faf9f5; --paper-2:#f0eee6; --ink:#141413; --slate:#5e5d59; --cloud:#87867f; --hair:#d1cfc5;
-  --star:#e9b400;   /* accent: Anca canon yellow, one dose per surface */
-  --clay:#d97757;   /* secondary: underline of the key word, figure lines */
+  --star:#e9b400;   /* yellow accent from Anca's hero lab files 07/09 (mono yellow); field journal (file 10) has none. One dose per surface */
+  --clay:#d97757;   /* field journal (file 10) accent: underline of the key word, figure lines */
+  --ember:#c6613f;  /* field journal (file 10): darker clay */
   --night:#141413;  /* dark panel */
   --display:"Inter", system-ui, sans-serif;
   --serif:"Lora", Georgia, serif;
@@ -31,47 +32,72 @@ body{background:#d9d7cf;display:flex;flex-direction:column;align-items:center;ga
 .slide{width:1080px;height:1350px;padding:72px;display:flex;flex-direction:column;justify-content:space-between;border:var(--frame);page-break-after:always;break-after:page}
 .slide header,.slide footer{display:flex;justify-content:space-between;align-items:center;gap:24px}
 .slide .fig{font-size:22px}.slide .chip{font-size:20px}.slide .label{font-size:16px}
+.mid{display:grid;gap:56px}
 .txt{font-weight:800;font-size:64px;line-height:1.06;letter-spacing:-.02em;max-width:900px}
-.txt.big{font-size:92px}
+.txt.big{font-size:92px}.txt.with{font-size:54px}
 .night .label{color:var(--cloud)} .night .chip{color:var(--ink)}
+.rail{display:flex;gap:8px}.rail i{width:34px;height:6px;background:var(--hair)}.rail i.on{background:var(--clay)}
+.night .rail i{background:#3a3935}.night .rail i.on{background:var(--star)}
+.fg-t{border-collapse:collapse;font-family:var(--mono);font-size:22px;width:100%;background:var(--paper)}
+.fg-t th{border:var(--frame);padding:14px 12px;text-align:left;font-weight:500;background:var(--ink);color:var(--paper)}
+.fg-t td{border:var(--frame);padding:16px 12px;height:64px}
+.fg-t td i{display:block;height:12px;background:var(--hair)}
+.fg-t td i.on{background:var(--clay);width:70%}
+.fg-t.full td{font-size:20px}
+.fg-code{display:flex;align-items:stretch;gap:10px;font-family:var(--mono)}
+.fg-code > div{border:var(--frame);background:var(--paper);padding:22px 26px;display:grid;gap:10px;min-width:170px}
+.fg-code b{font-size:64px;font-weight:500;letter-spacing:-.02em}
+.fg-code span{font-size:20px;color:var(--slate);letter-spacing:.08em;text-transform:uppercase}
+.fg-code em{font-style:normal;font-size:64px;align-self:center;color:var(--clay)}
+.fg-stamps{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;font-family:var(--mono)}
+.fg-stamps div{border:2px solid var(--ink);padding:24px 26px;font-size:34px;display:flex;gap:18px;align-items:center;background:var(--paper);text-transform:uppercase;letter-spacing:.04em}
+.fg-stamps div.inv{background:var(--ink);color:var(--paper)}
+.fg-stamps i{font-style:normal;font-size:40px}
+.fg-btn{display:flex;flex-wrap:wrap;gap:16px;font-family:var(--mono)}
+.fg-btn span{border:2px solid var(--ink);padding:22px 30px;font-size:32px;background:var(--paper)}
+.fg-btn span.hot{background:var(--clay);border-color:var(--clay);color:#fff}
+.fg-cal{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;font-family:var(--mono)}
+.fg-cal div{border:2px dashed var(--hair);height:260px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;font-size:26px;color:var(--cloud);background:var(--paper)}
+.fg-cal div.hot{border:2px solid var(--ink);color:var(--ink)}
+.fg-cal b{font-size:30px;color:var(--clay);font-weight:500}
 @media print{body{background:none;padding:0;gap:0}.slide{border:none}}
 @media (max-width:1100px){.slide{transform:scale(.34);transform-origin:top center;margin-bottom:-890px}}</style></head><body><section class="slide night">
   <header><span class="fig">fig. 01/08 · <b>недельная петля</b></span><span class="chip star">P3-H1-A2-F2</span></header>
-  <div class="txt big">один markdown в пятницу – <span class="key">ТЗ</span> на всю следующую неделю</div>
-  <footer><span class="label">обложка, штамп кода</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+  <div class="mid"><div class="txt big">один markdown в пятницу – <span class="key">ТЗ</span> на всю следующую неделю</div></div>
+  <footer><span class="rail"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
 </section>
 <section class="slide grid-bg">
   <header><span class="fig">fig. 02/08 · <b>недельная петля</b></span><span class="chip ">P3-H1-A2-F2</span></header>
-  <div class="txt ">понедельник: пачка контента снова с нуля, выводы прошлой недели потерялись в чате</div>
-  <footer><span class="label">пустой календарь</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+  <div class="mid"><div class="txt with">понедельник: пачка контента снова с нуля, выводы прошлой недели потерялись в чате</div><div class="fg-cal"><div class="hot"><span>пн</span><b>с нуля</b></div><div class=""><span>вт</span></div><div class=""><span>ср</span></div><div class=""><span>чт</span></div><div class=""><span>пт</span></div></div></div>
+  <footer><span class="rail"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
 </section>
 <section class="slide grid-bg">
   <header><span class="fig">fig. 03/08 · <b>недельная петля</b></span><span class="chip ">P3-H1-A2-F2</span></header>
-  <div class="txt ">шаг 1 · <span class="key">снапшот</span>: каждая единица × охват × клики × регистрации × оплаты</div>
-  <footer><span class="label">таблица из пяти колонок</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+  <div class="mid"><div class="txt with">шаг 1 · <span class="key">снапшот</span>: каждая единица × охват × клики × регистрации × оплаты</div><table class="fg-t"><tr><th>каждая единица</th><th>охват</th><th>клики</th><th>регистрации</th><th>оплаты</th></tr><tr><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr><tr><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr><tr><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr></table></div>
+  <footer><span class="rail"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
 </section>
 <section class="slide grid-bg">
   <header><span class="fig">fig. 04/08 · <b>недельная петля</b></span><span class="chip ">P3-H1-A2-F2</span></header>
-  <div class="txt ">шаг 2 · разметка: сегмент, хук, энгл, формат – код <span class="it">P-H-A-F</span></div>
-  <footer><span class="label">карточка с кодом</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+  <div class="mid"><div class="txt with">шаг 2 · разметка: сегмент, хук, энгл, формат – код <span class="it">P-H-A-F</span></div><div class="fg-code"><div><b>P3</b><span>сегмент</span></div><em>-</em><div><b>H1</b><span>хук</span></div><em>-</em><div><b>A2</b><span>энгл</span></div><em>-</em><div><b>F2</b><span>формат</span></div></div></div>
+  <footer><span class="rail"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
 </section>
 <section class="slide grid-bg">
   <header><span class="fig">fig. 05/08 · <b>недельная петля</b></span><span class="chip ">P3-H1-A2-F2</span></header>
-  <div class="txt ">шаг 3 · вердикт: winner, fake winner, loser, testing</div>
-  <footer><span class="label">четыре штампа</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+  <div class="mid"><div class="txt with">шаг 3 · вердикт: winner, fake winner, loser, testing</div><div class="fg-stamps"><div class="inv"><i>▲</i>winner</div><div class=""><i>◇</i>fake winner</div><div class=""><i>▽</i>loser</div><div class=""><i>○</i>testing</div></div></div>
+  <footer><span class="rail"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
 </section>
 <section class="slide grid-bg">
   <header><span class="fig">fig. 06/08 · <b>недельная петля</b></span><span class="chip ">P3-H1-A2-F2</span></header>
-  <div class="txt ">шаг 4 · одна строка решения: повторить, переписать хук, <span class="key">снять</span></div>
-  <footer><span class="label">три кнопки</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+  <div class="mid"><div class="txt with">шаг 4 · одна строка решения: повторить, переписать хук, <span class="key">снять</span></div><div class="fg-btn"><span class="">повторить</span><span class="">переписать хук</span><span class="hot">снять</span></div></div>
+  <footer><span class="rail"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
 </section>
 <section class="slide grid-bg">
   <header><span class="fig">fig. 07/08 · <b>недельная петля</b></span><span class="chip ">P3-H1-A2-F2</span></header>
-  <div class="txt ">завтра: таблица из пяти колонок, заполненная за прошлую неделю</div>
-  <footer><span class="label">пустой шаблон</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+  <div class="mid"><div class="txt with">завтра: таблица из пяти колонок, заполненная за прошлую неделю</div><table class="fg-t full"><tr><th>каждая единица</th><th>охват</th><th>клики</th><th>регистрации</th><th>оплаты</th><th>вердикт</th></tr><tr><td>li-01</td><td><i class="on"></i></td><td><i class="on"></i></td><td><i class="on"></i></td><td><i class="on"></i></td><td>winner</td></tr><tr><td>tg-01</td><td><i class="on"></i></td><td><i class="on"></i></td><td><i class="on"></i></td><td><i class="on"></i></td><td>testing</td></tr><tr><td>car-01</td><td><i class="on"></i></td><td><i class="on"></i></td><td><i class="on"></i></td><td><i class="on"></i></td><td>fake winner</td></tr></table></div>
+  <footer><span class="rail"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
 </section>
 <section class="slide night">
   <header><span class="fig">fig. 08/08 · <b>недельная петля</b></span><span class="chip star">P3-H1-A2-F2</span></header>
-  <div class="txt big">механику разбирали на маркетинг-спринте AI Mindset</div>
-  <footer><span class="label">подпись и код в utm</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+  <div class="mid"><div class="txt big">механику разбирали на маркетинг-спринте AI Mindset</div></div>
+  <footer><span class="rail"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
 </section></body></html>

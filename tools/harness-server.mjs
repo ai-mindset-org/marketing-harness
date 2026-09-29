@@ -41,9 +41,11 @@ function walk(base, rel = '', out = []) {
   for (const e of entries) {
     const r = rel ? `${rel}/${e.name}` : e.name;
     if (e.isDirectory()) {
+      if (e.name === '.githooks' && !rel) { walk(base, r, out); continue; }
+      if (e.name === '.claude' && !rel) { const sp = path.join(base, r, 'settings.json'); if (fs.existsSync(sp)) out.push({ path: `${r}/settings.json`, mtime: fs.statSync(sp).mtimeMs, content: fs.readFileSync(sp, 'utf8').slice(0, MAX_CONTENT) }); continue; }
       if (SKIP_DIRS.has(e.name) || e.name.startsWith('.')) continue;
       walk(base, r, out);
-    } else if (SHOW.test(e.name) && (!e.name.startsWith('.') || KEEP_DOT_FILES.has(e.name))) {
+    } else if ((SHOW.test(e.name) || rel === '.githooks') && (!e.name.startsWith('.') || KEEP_DOT_FILES.has(e.name))) {
       const full = path.join(base, r);
       const st = fs.statSync(full);
       out.push({ path: r, mtime: st.mtimeMs, content: fs.readFileSync(full, 'utf8').slice(0, MAX_CONTENT) });
@@ -233,6 +235,13 @@ function openOnMac({ path: rel, app }) {
   return { error: 'app' };
 }
 
+// the same folder lives in git: branch and remote (as a browser link) for the folder bar
+function gitInfo() {
+  const raw = sh('git', ['-C', dir, 'remote', 'get-url', 'origin']);
+  const remote = raw ? raw.replace(/^git@github\.com:/, 'https://github.com/').replace(/\.git$/, '') : null;
+  return { branch: sh('git', ['-C', dir, 'branch', '--show-current']), remote };
+}
+
 function publicRuns() {
   return [...runs.values()].slice(-12).map(({ proc, stopRemote, ...r }) => ({ ...r, tail: logTail(r.id, 30) }));
 }
@@ -255,7 +264,7 @@ const json = (res, code, obj) => { res.writeHead(code, { 'content-type': 'applic
 http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
   if (url.pathname === '/api/state') return json(res, 200, state());
-  if (url.pathname === '/api/session') return json(res, 200, { token: TOKEN, dir, name: path.basename(dir), serverHost: SERVER_HOST, claudeModel: DEFAULT_CLAUDE_MODEL });
+  if (url.pathname === '/api/session') return json(res, 200, { token: TOKEN, dir, name: path.basename(dir), serverHost: SERVER_HOST, claudeModel: DEFAULT_CLAUDE_MODEL, git: gitInfo() });
   if (url.pathname === '/api/tools') return json(res, 200, { tools: toolsStatus() });
   if (req.method === 'POST' && url.pathname.startsWith('/api/')) {
     if (req.headers['x-harness-token'] !== TOKEN) return json(res, 403, { error: 'token' });

@@ -1,0 +1,34 @@
+#!/bin/sh
+# Pre-commit gate: secret scan, big files, checks for staged outputs/*.md.
+# Enable: git config core.hooksPath .githooks
+
+# 1. secret scan
+if command -v gitleaks >/dev/null 2>&1; then
+  if ! gitleaks protect --staged --redact; then
+    echo "pre-commit: gitleaks нашёл секрет. Перевыпусти ключ, убери его из файла, добавь заново." >&2
+    exit 1
+  fi
+else
+  echo "pre-commit: gitleaks не установлен, секрет-скан пропущен (brew install gitleaks)" >&2
+fi
+
+# 2. files over 50 MB
+limit=52428800
+for f in $(git diff --cached --name-only --diff-filter=AM); do
+  [ -f "$f" ] || continue
+  size=$(wc -c < "$f" | tr -d ' ')
+  if [ "$size" -gt "$limit" ]; then
+    echo "pre-commit: файл больше 50 МБ: $f ($size байт). Держи его вне git." >&2
+    exit 1
+  fi
+done
+
+# 3. checks when a draft in outputs/ is staged
+if git diff --cached --name-only --diff-filter=AM | grep -q '^outputs/.*\.md$'; then
+  if ! node bin/check.mjs; then
+    echo "pre-commit: проверки провалены, отчёт в evals/ (файл «{eval} checks – <дата>.md»)." >&2
+    exit 1
+  fi
+fi
+
+exit 0

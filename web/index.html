@@ -17,18 +17,18 @@
     <h1>marketing harness · live build</h1>
     <p>пустая папка → анкета → правила → нейминг → инструменты → скиллы → evals → дизайн → агенты → срез</p>
   </div>
-  <nav class="modes" aria-label="режим">
-    <button data-mode="replay">повтор</button>
-    <button data-mode="live">живая папка</button>
-    <button id="openVault" class="liveonly" title="открыть всю папку в Obsidian">папка в Obsidian ↗</button>
-    <a class="pagelink" href="guide.html" title="как запустить, таймлайн блоков, агенты, ресёрч">гид</a><a class="pagelink" href="access.html" title="ключи и проверки инструментов">подключения</a>
-  </nav>
+  <div class="navs">
+    <button id="searchBtn" class="search" title="поиск по файлам и фазам · ⌘K">⌕ поиск <kbd>⌘K</kbd></button>
+    <nav class="modes" aria-label="режим"><button data-mode="replay">повтор</button><button data-mode="live">живая папка</button></nav>
+    <nav class="pages" aria-label="страницы"><a class="pagelink" href="guide.html" title="как запустить, таймлайн блоков, сущности, агенты">гид</a><a class="pagelink" href="access.html" title="ключи и проверки инструментов">подключения</a></nav>
+  </div>
   <div class="clock"><b id="phaseLabel">00 · пустая папка</b><span id="clock">00:00</span></div>
 </header>
 
 <main id="grid">
   <section id="colL" class="panel">
     <h2><span>01 · папка</span><em id="fileCount">0</em></h2>
+    <div id="folderBar" class="liveonly"><div class="fb-path" id="fbPath">–</div><div class="fb-git" id="fbGit">git: –</div><div class="fb-act"><button id="openVault" title="открыть всю папку в Obsidian">Obsidian ↗</button><button id="openFinder" title="показать папку в Finder">Finder ↗</button></div></div>
     <div id="tree" class="scroll"></div>
     <h2 class="sub"><span>02 · коммиты</span><em id="commitCount">0</em></h2>
     <ol id="commits"></ol>
@@ -92,7 +92,7 @@
 <aside id="preview" hidden>
   <header><div><b id="pvTitle"></b><span id="pvPath"></span></div><button id="pvClose" aria-label="закрыть">×</button></header>
   <div id="pvBar">
-    <button id="pvView" class="on" title="как читается">вид</button><button id="pvRaw" title="исходный текст">исходник</button><button id="pvEdit" class="liveonly" title="править файл с живым превью">править</button>
+    <button id="pvFull" title="во весь экран · f">⤢</button><button id="pvView" class="on" title="как читается">вид</button><button id="pvRaw" title="исходный текст">исходник</button><button id="pvEdit" class="liveonly" title="править файл с живым превью">править</button>
     <span class="sp"></span>
     <button id="pvSave" class="liveonly" hidden title="сохранить и закоммитить · ⌘S">сохранить</button>
     <button id="pvObs" class="liveonly" title="открыть файл в Obsidian">Obsidian</button><button id="pvApp" class="liveonly" title="открыть в приложении по умолчанию">приложение</button><button id="pvFinder" class="liveonly" title="показать в Finder">Finder</button>
@@ -106,6 +106,29 @@
   </div>
   <div id="pvNote" class="cap"></div>
 </aside>
+
+<div id="search" hidden role="dialog" aria-label="поиск">
+  <div class="box">
+    <input id="q" autocomplete="off" spellcheck="false" placeholder="файл, скилл, правило, фаза…">
+    <ol id="qres"></ol>
+    <div class="cap">↑↓ выбрать · Enter открыть · Esc закрыть</div>
+  </div>
+</div>
+
+<div id="intro" hidden role="dialog" aria-modal="true" aria-labelledby="inTitle">
+  <div class="card">
+    <div class="st-hd"><span>AI Mindset · маркетинг-спринт n25 · сентябрь 2026</span><span>fig. 0</span></div>
+    <h3 id="inTitle">маркетинг-харнесс: папка, которая помнит продукт</h3>
+    <p>система родилась в маркетинг-спринте AI Mindset: из разборов Кумара, Урбана и Булаева, анкет 66 участников и контент-машины команды. экран показывает, как из пустой папки за десять фаз вырастает харнесс: контекст, правила, роли, инструменты, скиллы, проверки, дизайн, агенты и недельный срез.</p>
+    <ul id="inPoints">
+      <li>каждая фигура на графе – файл; стрелки – ссылки между файлами; красное – то, что появилось только что</li>
+      <li>после каждой фазы – карточка с объяснением и кнопка «продолжить»; клик по фазе внизу возвращает к её карточке</li>
+      <li>клик по узлу открывает файл; <kbd>⌘K</kbd> – поиск; пробел – пауза; ← → – фазы</li>
+      <li>«живая папка» – та же картина для настоящей папки на компьютере: правка, агенты, Obsidian</li>
+    </ul>
+    <div class="st-ft"><button id="inEnd" type="button">сразу финал</button><a class="pagelink2" href="guide.html">гид</a><span class="sp"></span><button id="inGo" type="button" class="go">смотреть сборку →</button></div>
+  </div>
+</div>
 
 <div id="stop" hidden role="dialog" aria-modal="true" aria-labelledby="stTitle">
   <div class="card">

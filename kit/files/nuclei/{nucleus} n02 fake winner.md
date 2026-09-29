@@ -3,6 +3,7 @@ id: n02
 source: "[[{source} kumar creative machine – 2026-09-23]]"
 segment: P1
 confidence: high
+status: reuse
 ---
 # дешёвый лид без оплаты – fake winner, его ловим до масштабирования
 - триггер: посев дал рекордно дешёвые регистрации, а продаж нет

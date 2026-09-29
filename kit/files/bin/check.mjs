@@ -94,7 +94,8 @@ function golden() {
 if (argv.includes('--golden')) golden();
 
 // ---------- run over outputs ----------
-const drafts = walk('outputs').filter((f) => f.endsWith('.md'));
+// plates 3:1 are design briefs, their words are checked inside the post they illustrate
+const drafts = walk('outputs').filter((f) => f.endsWith('.md') && !f.includes('/covers/'));
 const results = drafts.map(checkDraft);
 if (argv.includes('--json')) { console.log(JSON.stringify(results, null, 2)); process.exit(0); }
 

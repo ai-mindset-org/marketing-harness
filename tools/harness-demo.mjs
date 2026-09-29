@@ -67,7 +67,7 @@ function initFolder() {
       group('path:skills', 0x2b2b2b), group('path:evals', 0x8a1a14), group('path:design OR path:guides', 0xd97757),
       group('path:sources OR path:research', 0x9a9a9a), group('path:nuclei', 0x444444),
       group('path:outputs', 0xd7261e), group('path:dashboards', 0xe9b400),
-      group('path:roles', 0x3a3a3a), group('path:automations', 0xb05a3c),
+      group('path:roles', 0x3a3a3a), group('path:automations', 0xb05a3c), group('path:gates', 0x1f5fbf),
     ],
   }, null, 2));
   save();

@@ -1,0 +1,45 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>два *конвейера*, одно топливо · плашка 3:1</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Lora:ital@1&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"><style>/* field instrument · design tokens of the marketing harness
+   instrument grammar (mono labels, 1px frames, fig.N, grid) + Anca's field journal
+   (ivory paper, heavy grotesk, serif italic accent, one warm accent). */
+:root{
+  --paper:#faf9f5; --paper-2:#f0eee6; --ink:#141413; --slate:#5e5d59; --cloud:#87867f; --hair:#d1cfc5;
+  --star:#e9b400;   /* yellow accent from Anca's hero lab files 07/09 (mono yellow); field journal (file 10) has none. One dose per surface */
+  --clay:#d97757;   /* field journal (file 10) accent: underline of the key word, figure lines */
+  --ember:#c6613f;  /* field journal (file 10): darker clay */
+  --night:#141413;  /* dark panel */
+  --display:"Inter", system-ui, sans-serif;
+  --serif:"Lora", Georgia, serif;
+  --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --unit:8px; --frame:1px solid var(--ink); --hairline:1px solid var(--hair);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper); color:var(--ink); font-family:var(--display); -webkit-font-smoothing:antialiased}
+.mono{font-family:var(--mono); letter-spacing:.04em}
+.label{font-family:var(--mono); font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--cloud)}
+.fig{font-family:var(--mono); font-size:13px; color:var(--slate)}
+.fig b{color:var(--clay); font-weight:400}
+.key{background:linear-gradient(transparent 88%, var(--clay) 88%)}
+.it{font-family:var(--serif); font-style:italic; font-weight:400; color:var(--clay)}
+.chip{display:inline-block; font-family:var(--mono); font-size:13px; border:var(--frame); padding:4px 10px; letter-spacing:.06em}
+.chip.star{background:var(--star); border-color:var(--star)}
+.grid-bg{background-image:linear-gradient(var(--paper-2) 1px,transparent 1px),linear-gradient(90deg,var(--paper-2) 1px,transparent 1px); background-size:40px 40px}
+.night{background:var(--night); color:var(--paper)}
+.night .fig{color:var(--cloud)}
+
+:root{--m:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;--acc:#d7261e}
+html,body{margin:0;background:#0a0a0a}
+.plate{width:1500px;height:500px;box-sizing:border-box;padding:34px 44px;font-family:var(--m);display:grid;grid-template-rows:auto 1fr auto;
+ background:#0a0a0a;color:#f0efe9;
+ background-image:linear-gradient(#161616 1px,transparent 1px),linear-gradient(90deg,#161616 1px,transparent 1px);background-size:50px 50px;
+ border:1px solid #2a2a2a}
+.top,.bot{display:flex;justify-content:space-between;align-items:center;font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:#8a8a8a}
+.stamp{border:1px solid currentColor;padding:4px 10px;letter-spacing:.08em;color:#f0efe9}
+h1{align-self:center;margin:0;font-size:78px;line-height:1.02;font-weight:800;letter-spacing:-.04em;text-transform:lowercase;max-width:1250px}
+h1 .key{background:none;box-shadow:inset 0 -6px 0 var(--acc)} h1 .it{font-family:var(--m);font-style:normal;color:var(--acc)}
+.sub{font-size:24px;letter-spacing:-.01em;text-transform:none;color:#c9c8c2}
+.nuc{display:flex;gap:10px;align-items:center}.nuc i{font-style:normal;font-size:20px;color:#f0efe9}</style><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;800&display=swap" rel="stylesheet"></head><body><div class="plate">
+<div class="top"><span>AI MINDSET · telegram · 29.09</span><span class="stamp">P1-H2-A2-F1</span></div>
+<h1>два <span class="key">конвейера</span>, одно топливо</h1>
+<div class="bot"><span class="sub">креативы и воронки едят одни данные</span><span class="nuc"><i>•</i>n01 two conveyors</span></div>
+</div></body></html>

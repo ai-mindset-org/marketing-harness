@@ -4,6 +4,7 @@
 //   node bin/render.mjs carousel "outputs/carousel/{carousel} car-01 weekly loop.md"
 //   node bin/render.mjs linkedin "outputs/linkedin/{post} li-01 fake winner.md"
 //   node bin/render.mjs landing  "outputs/landing/{landing} harness kit.md"
+//   node bin/render.mjs cover    "outputs/covers/{cover} tg-01 two conveyors.md"   plate 3:1, 1500×500 @2x
 //   node bin/render.mjs all [--pdf]      every brief in outputs/; --pdf needs Playwright
 // Brief syntax: *word* → underlined key word, _word_ → serif italic accent.
 import fs from 'node:fs';
@@ -23,18 +24,47 @@ function frontmatter(t) {
 const page = (title, css, body, extraHead = '') => `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>${FONTS}<style>${tokens}\n${css}</style>${extraHead}</head><body>${body}</body></html>`;
 
 // ---------- carousel: 1080×1350 slides, print = one slide per page ----------
+// The «визуал» column of the brief is a command for the renderer:
+// таблица · шаблон · код · штампы · кнопки · календарь; anything else stays a caption.
+const STAMP_GLYPH = { winner: '▲', 'fake winner': '◇', loser: '▽', testing: '○' };
+function slideFigure(kind, text, fm, memo) {
+  const k = (kind || '').toLowerCase();
+  const clean = (x) => x.replace(/[*_]/g, '').trim();
+  const tail = clean(text.includes(':') ? text.slice(text.indexOf(':') + 1) : text);
+  const list = (sep) => tail.split(sep).map((x) => x.trim()).filter(Boolean);
+  if (/таблиц/.test(k) && /×/.test(tail)) {
+    memo.cols = list('×');
+    return `<table class="fg-t"><tr>${memo.cols.map((c) => `<th>${esc(c)}</th>`).join('')}</tr>${[1, 2, 3].map(() => `<tr>${memo.cols.map(() => '<td><i></i></td>').join('')}</tr>`).join('')}</table>`;
+  }
+  if (/шаблон|таблиц/.test(k)) {
+    const cols = memo.cols || ['единица', 'охват', 'клики', 'регистрации', 'оплаты'];
+    return `<table class="fg-t full"><tr>${cols.map((c) => `<th>${esc(c)}</th>`).join('')}<th>вердикт</th></tr>${['li-01', 'tg-01', 'car-01'].map((u, r) => `<tr><td>${u}</td>${cols.slice(1).map(() => '<td><i class="on"></i></td>').join('')}<td>${['winner', 'testing', 'fake winner'][r]}</td></tr>`).join('')}</table>`;
+  }
+  if (/код/.test(k)) {
+    const parts = String(fm.code || 'P1-H1-A1-F1').split('-');
+    const names = ['сегмент', 'хук', 'энгл', 'формат'];
+    return `<div class="fg-code">${parts.map((x, i) => `<div><b>${esc(x)}</b><span>${names[i] || ''}</span></div>`).join('<em>-</em>')}</div>`;
+  }
+  if (/штамп/.test(k)) return `<div class="fg-stamps">${list(',').map((x, i) => `<div class="${i === 0 ? 'inv' : ''}"><i>${STAMP_GLYPH[x] || '□'}</i>${esc(x)}</div>`).join('')}</div>`;
+  if (/кнопк/.test(k)) { const b = list(','); return `<div class="fg-btn">${b.map((x, i) => `<span class="${i === b.length - 1 ? 'hot' : ''}">${esc(x)}</span>`).join('')}</div>`; }
+  if (/календар/.test(k)) return `<div class="fg-cal">${['пн', 'вт', 'ср', 'чт', 'пт'].map((d, i) => `<div class="${i === 0 ? 'hot' : ''}"><span>${d}</span>${i === 0 ? '<b>с нуля</b>' : ''}</div>`).join('')}</div>`;
+  return '';
+}
 function carousel(file) {
   const { fm, body } = frontmatter(fs.readFileSync(file, 'utf8'));
   const rows = body.split('\n').filter((l) => /^\|\s*\d+\s*\|/.test(l)).map((l) => l.split('|').slice(1, -1).map((c) => c.trim()));
   const title = (/^#\s+(.+)/m.exec(body) || [])[1] || path.basename(file, '.md');
   const n = rows.length;
+  const memo = {};
   const slides = rows.map(([num, text, visual], i) => {
     const dark = i === 0 || i === n - 1;
     const big = i === 0 || i === n - 1;
+    const fig = big ? '' : slideFigure(visual, text, fm, memo);
+    const rail = rows.map((_, k) => `<i class="${k <= i ? 'on' : ''}"></i>`).join('');
     return `<section class="slide ${dark ? 'night' : 'grid-bg'}">
   <header><span class="fig">fig. ${String(num).padStart(2, '0')}/${String(n).padStart(2, '0')} · <b>${esc(title.replace(/·.*$/, '').trim())}</b></span><span class="chip ${dark ? 'star' : ''}">${esc(fm.code || '')}</span></header>
-  <div class="txt ${big ? 'big' : ''}">${inline(text)}</div>
-  <footer><span class="label">${esc(visual || '')}</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+  <div class="mid"><div class="txt ${big ? 'big' : fig ? 'with' : ''}">${inline(text)}</div>${fig}</div>
+  <footer><span class="rail">${rail}</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
 </section>`;
   }).join('\n');
   const css = `@page{size:1080px 1350px;margin:0}
@@ -42,12 +72,67 @@ body{background:#d9d7cf;display:flex;flex-direction:column;align-items:center;ga
 .slide{width:1080px;height:1350px;padding:72px;display:flex;flex-direction:column;justify-content:space-between;border:var(--frame);page-break-after:always;break-after:page}
 .slide header,.slide footer{display:flex;justify-content:space-between;align-items:center;gap:24px}
 .slide .fig{font-size:22px}.slide .chip{font-size:20px}.slide .label{font-size:16px}
+.mid{display:grid;gap:56px}
 .txt{font-weight:800;font-size:64px;line-height:1.06;letter-spacing:-.02em;max-width:900px}
-.txt.big{font-size:92px}
+.txt.big{font-size:92px}.txt.with{font-size:54px}
 .night .label{color:var(--cloud)} .night .chip{color:var(--ink)}
+.rail{display:flex;gap:8px}.rail i{width:34px;height:6px;background:var(--hair)}.rail i.on{background:var(--clay)}
+.night .rail i{background:#3a3935}.night .rail i.on{background:var(--star)}
+.fg-t{border-collapse:collapse;font-family:var(--mono);font-size:22px;width:100%;background:var(--paper)}
+.fg-t th{border:var(--frame);padding:14px 12px;text-align:left;font-weight:500;background:var(--ink);color:var(--paper)}
+.fg-t td{border:var(--frame);padding:16px 12px;height:64px}
+.fg-t td i{display:block;height:12px;background:var(--hair)}
+.fg-t td i.on{background:var(--clay);width:70%}
+.fg-t.full td{font-size:20px}
+.fg-code{display:flex;align-items:stretch;gap:10px;font-family:var(--mono)}
+.fg-code > div{border:var(--frame);background:var(--paper);padding:22px 26px;display:grid;gap:10px;min-width:170px}
+.fg-code b{font-size:64px;font-weight:500;letter-spacing:-.02em}
+.fg-code span{font-size:20px;color:var(--slate);letter-spacing:.08em;text-transform:uppercase}
+.fg-code em{font-style:normal;font-size:64px;align-self:center;color:var(--clay)}
+.fg-stamps{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;font-family:var(--mono)}
+.fg-stamps div{border:2px solid var(--ink);padding:24px 26px;font-size:34px;display:flex;gap:18px;align-items:center;background:var(--paper);text-transform:uppercase;letter-spacing:.04em}
+.fg-stamps div.inv{background:var(--ink);color:var(--paper)}
+.fg-stamps i{font-style:normal;font-size:40px}
+.fg-btn{display:flex;flex-wrap:wrap;gap:16px;font-family:var(--mono)}
+.fg-btn span{border:2px solid var(--ink);padding:22px 30px;font-size:32px;background:var(--paper)}
+.fg-btn span.hot{background:var(--clay);border-color:var(--clay);color:#fff}
+.fg-cal{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;font-family:var(--mono)}
+.fg-cal div{border:2px dashed var(--hair);height:260px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;font-size:26px;color:var(--cloud);background:var(--paper)}
+.fg-cal div.hot{border:2px solid var(--ink);color:var(--ink)}
+.fg-cal b{font-size:30px;color:var(--clay);font-weight:500}
 @media print{body{background:none;padding:0;gap:0}.slide{border:none}}
 @media (max-width:1100px){.slide{transform:scale(.34);transform-origin:top center;margin-bottom:-890px}}`;
   return page(`${title} · карусель`, css, slides);
+}
+
+// ---------- cover 3:1: post plate 1500×500 (render @2x = 3000×1000) ----------
+function cover(file) {
+  const { fm, body } = frontmatter(fs.readFileSync(file, 'utf8'));
+  const s = sections(body);
+  const title = (s.title || [])[0] || fm.title || path.basename(file, '.md');
+  const sub = (s.sub || [])[0] || '';
+  const tag = (s.tag || [])[0] || fm.channel || '';
+  const dark = fm.theme === 'dark';
+  const nuc = String(fm.nucleus || '').replace(/^\[\[\{nucleus\} /, '').replace(/\]\]$/, '').replace(/"/g, '');
+  const css = `:root{--m:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;--acc:#d7261e}
+html,body{margin:0;background:${dark ? '#0a0a0a' : '#e9e9e6'}}
+.plate{width:1500px;height:500px;box-sizing:border-box;padding:34px 44px;font-family:var(--m);display:grid;grid-template-rows:auto 1fr auto;
+ background:${dark ? '#0a0a0a' : '#ffffff'};color:${dark ? '#f0efe9' : '#0a0a0a'};
+ background-image:linear-gradient(${dark ? '#161616' : '#f1f1f1'} 1px,transparent 1px),linear-gradient(90deg,${dark ? '#161616' : '#f1f1f1'} 1px,transparent 1px);background-size:50px 50px;
+ border:1px solid ${dark ? '#2a2a2a' : '#0a0a0a'}}
+.top,.bot{display:flex;justify-content:space-between;align-items:center;font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:${dark ? '#8a8a8a' : '#8a8a8a'}}
+.stamp{border:1px solid currentColor;padding:4px 10px;letter-spacing:.08em;color:${dark ? '#f0efe9' : '#0a0a0a'}}
+h1{align-self:center;margin:0;font-size:78px;line-height:1.02;font-weight:800;letter-spacing:-.04em;text-transform:lowercase;max-width:1250px}
+h1 .key{background:none;box-shadow:inset 0 -6px 0 var(--acc)} h1 .it{font-family:var(--m);font-style:normal;color:var(--acc)}
+.sub{font-size:24px;letter-spacing:-.01em;text-transform:none;color:${dark ? '#c9c8c2' : '#333'}}
+.nuc{display:flex;gap:10px;align-items:center}.nuc i{font-style:normal;font-size:20px;color:${dark ? '#f0efe9' : '#0a0a0a'}}`;
+  const MONO_LINK = '<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;800&display=swap" rel="stylesheet">';
+  const html = `<div class="plate">
+<div class="top"><span>AI MINDSET · ${esc(tag)}</span><span class="stamp">${esc(fm.code || '')}</span></div>
+<h1>${inline(title)}</h1>
+<div class="bot"><span class="sub">${inline(sub)}</span><span class="nuc"><i>•</i>${esc(nuc)}</span></div>
+</div>`;
+  return page(`${title} · плашка 3:1`, css, html, MONO_LINK);
 }
 
 // ---------- LinkedIn preview: card with the fold at ~210 characters ----------
@@ -201,8 +286,10 @@ const wantPdf = process.argv.includes('--pdf');
 if (mode === 'carousel') { const p = out(target, carousel(target)); if (wantPdf) await pdf(p); }
 else if (mode === 'linkedin') out(target, linkedin(target));
 else if (mode === 'landing') out(target, landing(target));
+else if (mode === 'cover') out(target, cover(target));
 else if (mode === 'all') {
   for (const f of list('outputs/carousel', /\.md$/)) { const p = out(f, carousel(f)); if (wantPdf) await pdf(p); }
   for (const f of list('outputs/linkedin', /^\{post\} li-.*\.md$/)) out(f, linkedin(f));
   for (const f of list('outputs/landing', /\.md$/)) out(f, landing(f));
-} else { console.error('режимы: carousel <file> | linkedin <file> | landing <file> | all [--pdf]'); process.exit(2); }
+  for (const f of list('outputs/covers', /\.md$/)) out(f, cover(f));
+} else { console.error('режимы: carousel <file> | linkedin <file> | landing <file> | cover <file> | all [--pdf]'); process.exit(2); }

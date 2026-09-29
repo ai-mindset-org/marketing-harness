@@ -36,7 +36,7 @@ for (const e of tl.events) { if (e.type === 'file') paths.add(e.path); if (e.typ
 // documents for guide.html and access.html: kit markdown rendered with the default answers
 const { renderTemplate } = await import('./timeline.mjs');
 const answers = JSON.parse(fs.readFileSync(path.join(kit, 'answers.json'), 'utf8'));
-const DOC_DIRS = ['tools', 'guides', 'roles', 'automations'];
+const DOC_DIRS = ['tools', 'guides', 'roles', 'automations', 'gates', 'design'];
 const DOC_FILES = ['README.md', 'AGENTS.md', 'sources/{source} index.md', 'rules/{rule} principles.md', 'rules/{rule} boundaries.md', 'rules/{rule} naming.md',
   'skills/{skill} harness-principles.md', 'skills/{skill} research-exa.md', 'skills/{skill} fact-check.md', 'skills/{skill} adlib-recon.md', 'skills/{skill} trendwatch.md', 'skills/{skill} harness-evolve.md'];
 const docs = {};

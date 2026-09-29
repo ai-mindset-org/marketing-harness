@@ -28,6 +28,7 @@ aliases: [нейминг-конвенция]
 | `{nucleus}` | nuclei/ | живой, с номером: `{nucleus} n01 two conveyors` |
 | `{post}` | outputs/linkedin, outputs/telegram | живой, с номером: `{post} li-01 fake winner` |
 | `{carousel}` · `{landing}` | outputs/carousel, outputs/landing | живой |
+| `{cover}` | outputs/covers | живой, с номером: `{cover} tg-01 two conveyors` |
 | `{dashboard}` | dashboards/ | снимок |
 
 ## исключения

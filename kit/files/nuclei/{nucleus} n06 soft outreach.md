@@ -4,6 +4,7 @@ source: "[[{source} bulaev linkedin – 2026-09-25]]"
 timecode: "40:55"
 segment: P1
 confidence: high
+status: refine
 ---
 # в B2B LinkedIn пост и комментарии начинают переписку, продаёт она
 - триггер: посты выходят, лайки ставят коллеги по цеху, ЛПР не пишут

@@ -92,3 +92,4 @@ pre.md{background:var(--paper); border:1px solid var(--hair); padding:6px 8px; m
 pre.md code{background:none; padding:0}
 .cols > div{min-width:0}
 td code{overflow-wrap:anywhere}
+code,kbd,pre{font-family:inherit}

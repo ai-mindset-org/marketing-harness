@@ -224,7 +224,7 @@ body.live #bar i{background:var(--accent)}
 /* phase stop: plain-language card between phases */
 #stop{position:fixed; inset:0; z-index:9; display:grid; place-items:center; background:rgba(255,255,255,.72); backdrop-filter:blur(2px)}
 #stop[hidden]{display:none}
-#stop .card{width:min(620px,calc(100vw - 32px)); max-height:calc(100vh - 40px); overflow:auto; background:var(--bg); border:1px solid var(--ink); box-shadow:10px 10px 0 rgba(0,0,0,.08); padding:16px 18px 14px; animation:rise .35s var(--ease)}
+#stop .card,#intro .card{width:min(620px,calc(100vw - 32px)); max-height:calc(100vh - 40px); overflow:auto; background:var(--bg); border:1px solid var(--ink); box-shadow:10px 10px 0 rgba(0,0,0,.08); padding:16px 18px 14px; animation:rise .35s var(--ease)}
 .st-hd{display:flex; justify-content:space-between; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); border-bottom:1px dashed var(--soft); padding-bottom:6px}
 .st-hd #stNum{color:var(--accent)}
 #stTitle{font-size:19px; font-weight:700; line-height:1.25; margin:12px 0 8px; letter-spacing:-.01em}
@@ -233,10 +233,11 @@ body.live #bar i{background:var(--accent)}
 #stPoints li{padding:6px 0 6px 18px; border-bottom:1px dotted var(--soft); position:relative; font-size:12px; line-height:1.5}
 #stPoints li::before{content:"→"; position:absolute; left:0; color:var(--accent)}
 #stop code{background:var(--hair); padding:0 3px}
-#stFiles{font-size:10.5px; color:var(--muted); line-height:1.9; margin-bottom:10px}
-#stFiles b{color:var(--ink); font-weight:500; letter-spacing:.1em; text-transform:uppercase; margin-right:6px}
-#stFiles a{color:var(--ink); border-bottom:1px solid var(--soft); margin-right:8px; cursor:pointer; white-space:nowrap}
-#stFiles a:hover{border-bottom-color:var(--accent)}
+#stFiles{font-size:11px; color:var(--muted); margin-bottom:10px}
+#stFiles b{display:block; color:var(--muted); font-weight:500; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:6px}
+#stFiles .chips{display:flex; flex-wrap:wrap; gap:4px; max-height:112px; overflow:auto}
+#stFiles a{color:var(--ink); border:1px solid var(--soft); padding:1px 6px; cursor:pointer; white-space:nowrap; text-decoration:none}
+#stFiles a:hover{border-color:var(--ink)}
 .st-ft{display:flex; gap:8px; align-items:center; border-top:1px solid var(--ink); padding-top:10px}
 .st-ft .sp{flex:1}
 .st-ft .go{background:var(--ink); color:var(--bg); padding:7px 16px}
@@ -280,3 +281,53 @@ body.live #bar i{background:var(--accent)}
 .pagelink{border:1px solid var(--ink); border-left:none; padding:5px 10px; text-decoration:none; color:var(--ink); letter-spacing:.04em}
 .pagelink:hover{background:var(--ink); color:var(--bg)}
 .modes{display:flex; flex-wrap:wrap}
+
+/* v4: header groups, folder bar, legend row, search, intro, selection, full preview */
+#hd{grid-template-columns:34px minmax(0,1fr) auto auto}
+.navs{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
+.navs nav{display:flex}
+.navs .pagelink:first-child{border-left:1px solid var(--ink)}
+button.search{border-color:var(--soft); color:var(--muted); display:flex; gap:8px; align-items:center}
+button.search:hover{border-color:var(--ink); background:var(--bg); color:var(--ink)}
+kbd{font:inherit; font-size:10px; border:1px solid var(--soft); padding:0 4px; color:var(--muted); background:var(--paper)}
+#folderBar{border:1px solid var(--ink); padding:6px 8px; margin:0 0 8px; font-size:10.5px; display:grid; gap:3px}
+.fb-path{color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.fb-git{color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.fb-git a{color:var(--ink); border-bottom:1px solid var(--accent); text-decoration:none}
+.fb-act{display:flex; margin-top:3px}
+.fb-act button{padding:2px 7px; font-size:10.5px}
+.fb-act button + button{border-left:none}
+.gh{flex-direction:column; align-items:stretch; gap:4px}
+.gh h2{border-bottom:none; margin-bottom:0; padding-bottom:0}
+#legend{justify-content:flex-start; gap:3px 12px; padding-bottom:7px}
+.node.sel path{stroke:var(--accent) !important; stroke-width:3}
+.node.sel text{fill:var(--accent); font-weight:700}
+.file.sel{background:var(--ink); color:var(--bg)}
+.file.sel .g{color:var(--bg)}
+#preview.full{top:12px; left:12px; right:12px; bottom:12px; width:auto; z-index:8}
+#pvFull{margin-right:6px !important; border-color:var(--ink) !important}
+#search{position:fixed; inset:0; z-index:10; background:rgba(255,255,255,.7); backdrop-filter:blur(2px); display:grid; justify-items:center; align-items:start; padding-top:12vh}
+#search[hidden]{display:none}
+#search .box{width:min(640px,calc(100vw - 32px)); background:var(--bg); border:1px solid var(--ink); box-shadow:10px 10px 0 rgba(0,0,0,.08); padding:10px 12px}
+#q{width:100%; font:inherit; font-size:15px; border:none; border-bottom:1px solid var(--ink); padding:6px 2px 8px; outline:none}
+#qres{list-style:none; margin:6px 0; padding:0; max-height:52vh; overflow:auto}
+#qres li{display:grid; grid-template-columns:18px minmax(0,1fr) auto; gap:8px; padding:5px 6px; cursor:pointer; border-bottom:1px dotted var(--hair); align-items:baseline}
+#qres li.on{background:var(--ink); color:var(--bg)}
+#qres li small{color:var(--muted); font-size:10px}
+#qres li.on small{color:#bbb}
+#qres li .hit{grid-column:2 / -1; font-size:10.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+#qres li.on .hit{color:#ccc}
+#intro{position:fixed; inset:0; z-index:11; display:grid; place-items:center; background:rgba(255,255,255,.86); backdrop-filter:blur(3px)}
+#intro[hidden]{display:none}
+#intro h3{font-size:24px; font-weight:800; line-height:1.15; letter-spacing:-.02em; margin:14px 0 10px}
+#intro p{font-size:13px; line-height:1.6; margin:0 0 10px}
+#intro ul{margin:0 0 12px; padding:0; list-style:none; border-top:1px solid var(--ink)}
+#intro li{padding:6px 0 6px 18px; border-bottom:1px dotted var(--soft); position:relative; font-size:12px}
+#intro li::before{content:"→"; position:absolute; left:0; color:var(--accent)}
+.pagelink2{border:1px solid var(--ink); padding:5px 10px; text-decoration:none; color:var(--ink)}
+.pagelink2:hover{background:var(--ink); color:var(--bg)}
+.ph:hover{background:var(--hair)}
+.ph.now:hover{background:var(--ink)}
+@media (max-width:760px){ .navs{grid-column:1 / -1; justify-content:flex-start} }
+body:not(.live) #folderBar{display:none}
+code,kbd,pre,textarea{font-family:inherit}

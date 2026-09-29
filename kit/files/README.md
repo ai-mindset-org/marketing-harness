@@ -29,6 +29,8 @@ layer: hub
 | дизайн | токены, карусель, LinkedIn, лендинг | [[{design} system]] |
 | сырьё → результат | `sources/` → `research/` → `nuclei/` → `outputs/` → `evals/` → `dashboards/` | [[{source} index]] · [[{guide} nuclei]] · [[{guide} content types]] |
 | автоматизация | три рутины по расписанию: утренний LinkedIn, сбор трендов, пятничный срез | [[{guide} automation]] |
+| гейты | секрет-скан, approved после проверок, публикует человек, своя ветка, поиск дубля | [[{guide} hooks and gates]] |
+| устройство | сущности и связи, как сетапить скилл, маркетинговые кейсы | [[{guide} ontology]] · [[{guide} setup a skill]] · [[{guide} marketing cases]] |
 
 ## три маршрута
 - **только чат** – копируй скиллы в проект claude.ai и работай с файлами руками по [[{guide} first-hour]];

@@ -233,6 +233,11 @@
      "type": "rename-all",
      "dwell": 5500,
      "note": "файлы переименовываются: product → {context} product, anti-slop → {rule} anti-slop. ссылки правятся в том же коммите, как в Obsidian"
+    },
+    {
+     "path": "guides/{guide} ontology.md",
+     "dwell": 2800,
+     "note": "онтология: тип в имени, id во frontmatter, связи – ссылки в полях; граф рисует именно их"
     }
    ],
    "stop": {
@@ -241,7 +246,8 @@
     "points": [
      "`{rule} anti-slop`, `{skill} linkedin-post`, `{post} li-01` – агент находит нужное по типу, человек по имени",
      "у снимков дата в конце: `{research} linkedin 2026 – 2026-09-29`",
-     "правило появилось, и вся папка привела себя к нему; git хранит историю переименований"
+     "правило появилось, и вся папка привела себя к нему; git хранит историю переименований",
+     "онтология: у файла тип в имени и `id` во frontmatter; связи – ссылки в полях `source` и `nucleus`, граф рисует их стрелками"
     ]
    }
   },
@@ -443,6 +449,11 @@
      "note": "как правило становится скиллом: voice + anti-slop → linkedin-post → content-factory"
     },
     {
+     "path": "guides/{guide} setup a skill.md",
+     "dwell": 2400,
+     "note": "как сетапить скилл: дубль → файл → описание с триггерами → зеркала → проверка на одном нуклеусе"
+    },
+    {
      "path": "bin/sync-skills.mjs",
      "dwell": 2400,
      "note": "скрипт зеркал: skills/ – единый источник, .claude/skills и .agents/skills пишет код"
@@ -513,15 +524,62 @@
      "path": "bin/check.mjs",
      "dwell": 3000,
      "note": "bin/check.mjs: уровень 1, без модели, секунды; --golden запускает регрессию"
+    },
+    {
+     "path": "guides/{guide} hooks and gates.md",
+     "dwell": 2800,
+     "note": "гейты: код, который останавливает действие; блок двумя каналами, тест через ту же команду"
+    },
+    {
+     "path": "gates/{gate} secret scan.md",
+     "dwell": 1600
+    },
+    {
+     "path": "gates/{gate} approved needs checks.md",
+     "dwell": 1600
+    },
+    {
+     "path": "gates/{gate} human publishes.md",
+     "dwell": 1500
+    },
+    {
+     "path": "gates/{gate} own branch.md",
+     "dwell": 1500
+    },
+    {
+     "path": "gates/{gate} ask before create.md",
+     "dwell": 1500
+    },
+    {
+     "path": ".githooks/pre-commit",
+     "dwell": 1400
+    },
+    {
+     "path": ".claude/settings.json",
+     "dwell": 1400
+    },
+    {
+     "path": "bin/gate-approved.mjs",
+     "dwell": 1600
+    },
+    {
+     "path": "bin/guard-new.mjs",
+     "dwell": 1400
+    },
+    {
+     "path": "bin/gate-tests.mjs",
+     "dwell": 1600,
+     "note": "матрица гейтов: 6 случаев allow и deny, все PASS"
     }
    ],
    "stop": {
-    "title": "проверка в три слоя",
-    "lead": "текст уходит наружу только после проверки. код ловит измеримое, модель-судья оценивает вкус по рубрике, рынок голосует деньгами и ответами.",
+    "title": "проверка в три слоя и гейты",
+    "lead": "текст уходит наружу только после проверки. код ловит измеримое, модель-судья оценивает вкус по рубрике, рынок голосует деньгами и ответами. гейты – код, который останавливает действие: секрет в коммите, approved без зелёных проверок.",
     "points": [
      "`bin/check.mjs` – длина, тире, запрещённые слова, ссылка на нуклеус: быстро и одинаково каждый раз",
      "`judge` и `rubric` – судья в отдельном контексте ставит балл 0–100 с цитатами",
-     "`golden-set` – эталоны, хорошие и плохие; на них проверяют сам харнесс после каждой правки правил"
+     "`golden-set` – эталоны, хорошие и плохие; на них проверяют сам харнесс после каждой правки правил",
+     "`.githooks/pre-commit` и `bin/gate-approved.mjs` – гейты: блок двумя каналами, проверка `node bin/gate-tests.mjs`"
     ]
    }
   },
@@ -556,6 +614,16 @@
      "note": "лендинг: каркас Анки, квиз по правилу Урбана"
     },
     {
+     "path": "design/{design} anca field journal.md",
+     "dwell": 2400,
+     "note": "канон Анки Ставенски: field journal – бумага, чернила, глина; из него карусель и превью"
+    },
+    {
+     "path": "design/{design} cover 3x1.md",
+     "dwell": 2000,
+     "note": "плашка 3:1 для поста: 3000×1000, код креатива, номер нуклеуса"
+    },
+    {
      "path": "bin/render.mjs",
      "dwell": 3000,
      "note": "bin/render.mjs – дизайнер без модели: бриф → HTML в дизайн-системе"
@@ -582,7 +650,8 @@
     "points": [
      "`design/assets/tokens.css` – цвета, шрифты, сетка",
      "`node bin/render.mjs all` – HTML, по желанию PDF через Playwright",
-     "клик по узлу карусели или лендинга открывает готовую страницу"
+     "клик по узлу карусели или лендинга открывает готовую страницу",
+     "канон Анки Ставенски (field journal) – для карусели и превью; лендинг и плашки 3:1 – в языке инструмента"
     ]
    }
   },
@@ -751,6 +820,22 @@
     },
     {
      "lane": "writer",
+     "path": "outputs/covers/{cover} car-01 weekly loop.md",
+     "dwell": 2600,
+     "note": "брифы плашек 3:1 к постам"
+    },
+    {
+     "lane": "writer",
+     "path": "outputs/covers/{cover} li-01 fake winner.md",
+     "dwell": 2600
+    },
+    {
+     "lane": "writer",
+     "path": "outputs/covers/{cover} tg-01 two conveyors.md",
+     "dwell": 2600
+    },
+    {
+     "lane": "writer",
      "type": "wait",
      "dwell": 7000,
      "note": "автор ждёт оценку критика"
@@ -790,6 +875,22 @@
      "path": "outputs/landing/{landing} harness kit.html",
      "dwell": 2800,
      "note": "лендинг с квизом из трёх вопросов"
+    },
+    {
+     "lane": "designer",
+     "path": "outputs/covers/{cover} car-01 weekly loop.html",
+     "dwell": 2200,
+     "note": "плашки 3:1 отрендерены кодом"
+    },
+    {
+     "lane": "designer",
+     "path": "outputs/covers/{cover} li-01 fake winner.html",
+     "dwell": 2200
+    },
+    {
+     "lane": "designer",
+     "path": "outputs/covers/{cover} tg-01 two conveyors.html",
+     "dwell": 2200
     },
     {
      "lane": "designer",
@@ -890,6 +991,11 @@
      "dwell": 1800
     },
     {
+     "path": "guides/{guide} marketing cases.md",
+     "dwell": 2800,
+     "note": "кейсы: 12 маркетинговых сценариев – ситуация → скилл, рутина, гейт, срез"
+    },
+    {
      "type": "narrate",
      "dwell": 5000,
      "note": "харнесс собран: 10 коммитов. дальше – своя папка: bin/open.sh <папка> и консоль агентов, или пресет архетипа"
@@ -901,7 +1007,8 @@
     "points": [
      "автоматизация: рутина по расписанию (Claude Desktop, cron на сервере) вызывает скилл, человек получает список на модерацию",
      "консоль агентов: задача в одну строку, Claude или Сотник дописывают скилл, граф растёт вживую",
-     "дальше папка растёт сама, человек правит правила и утверждает публикации"
+     "дальше папка растёт сама, человек правит правила и утверждает публикации",
+     "кейсы: 12 маркетинговых сценариев команды и спикеров – ситуация → скилл, рутина, гейт, срез"
     ]
    }
   }

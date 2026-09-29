@@ -31,14 +31,16 @@
     output:    { label: 'черновик',   sym: 'square',   fill: 'hair',  size: 140, glyph: '▢', ax: 0.28,  ay: 0.84 },
     dashboard: { label: 'срез',       sym: 'cross',    fill: true,    size: 160, glyph: '✚', ax: 0.86,  ay: -0.12 },
     automation:{ label: 'рутина',     sym: 'hourglass', fill: false,  size: 130, glyph: '⧗', ax: 0.34,  ay: -0.9 },
+    gate:      { label: 'гейт',       sym: 'gate',     fill: false,   size: 140, glyph: '⊓', ax: 0.66,  ay: 0.06 },
     ghost:     { label: 'план',       sym: 'circle',   fill: false,   size: 60,  glyph: '◌' },
   };
   // two shapes d3 lacks: a hexagon for roles, an hourglass for scheduled routines
   const hexagon = { draw(c, size) { const r = Math.sqrt(size / 2.598); for (let k = 0; k < 6; k++) { const a = Math.PI / 6 + (k * Math.PI) / 3; c[k ? 'lineTo' : 'moveTo'](r * Math.cos(a), r * Math.sin(a)); } c.closePath(); } };
   const hourglass = { draw(c, size) { const a = Math.sqrt(size) / 2; c.moveTo(-a, -a); c.lineTo(a, -a); c.lineTo(-a, a); c.lineTo(a, a); c.closePath(); } };
-  const SYM = { hexagon, hourglass, diamond: d3.symbolDiamond, square: d3.symbolSquare, triangle: d3.symbolTriangle, circle: d3.symbolCircle, wye: d3.symbolWye,
+  const gate = { draw(c, size) { const a = Math.sqrt(size) / 2; c.moveTo(-a, a); c.lineTo(-a, -a); c.lineTo(a, -a); c.lineTo(a, a); c.moveTo(-a * 0.35, a); c.lineTo(-a * 0.35, -a * 0.2); c.lineTo(a * 0.35, -a * 0.2); c.lineTo(a * 0.35, a); } };
+  const SYM = { hexagon, hourglass, gate, diamond: d3.symbolDiamond, square: d3.symbolSquare, triangle: d3.symbolTriangle, circle: d3.symbolCircle, wye: d3.symbolWye,
     cross: d3.symbolCross, star: d3.symbolStar, times: d3.symbolTimes || d3.symbolCross, asterisk: d3.symbolAsterisk || d3.symbolStar };
-  const FOLDER_ORDER = ['', 'context', 'rules', 'roles', 'tools', 'skills', 'evals', 'design', 'guides', 'bin', 'sources', 'research', 'nuclei', 'outputs', 'dashboards', 'automations'];
+  const FOLDER_ORDER = ['', 'context', 'rules', 'roles', 'tools', 'skills', 'evals', 'design', 'guides', 'bin', 'sources', 'research', 'nuclei', 'outputs', 'dashboards', 'automations', 'gates'];
   const LANE_ORDER = ['ingest', 'researcher', 'extractor', 'writer', 'designer', 'critic'];
   const LANE_META = {
     ingest: { title: 'загрузчик', skill: 'lms-ingest' }, researcher: { title: 'исследователь', skill: 'research-exa' },
@@ -51,9 +53,10 @@
     if (p === 'README.md' || p === 'CLAUDE.md' || p === 'AGENTS.md') return 'hub';
     if (p === '.mcp.json') return 'tool';
     const top = p.split('/')[0];
+    if (/^bin\/(gate|guard)-/.test(p) || p.startsWith('.githooks/') || p === '.claude/settings.json') return 'gate';
     if (top === 'bin' || /\.(mjs|css)$/.test(p)) return top === 'design' ? 'design' : 'code';
     return ({ context: 'context', rules: 'rule', tools: 'tool', skills: 'skill', sources: 'source', research: 'research', nuclei: 'nucleus',
-      outputs: 'output', evals: 'eval', dashboards: 'dashboard', design: 'design', guides: 'guide', roles: 'role', automations: 'automation' })[top] || 'source';
+      outputs: 'output', evals: 'eval', dashboards: 'dashboard', design: 'design', guides: 'guide', roles: 'role', automations: 'automation', gates: 'gate' })[top] || 'source';
   }
   function frontmatter(text) {
     const m = /^---\n([\s\S]*?)\n---/.exec(text || '');
@@ -71,7 +74,7 @@
     let title = bare(base(path));
     if (layer === 'skill') title = fm.name || title;
     if (layer === 'nucleus') title = fm.id || title.split(' ')[0];
-    if (layer === 'output') title = title.split(' ').slice(0, path.includes('/landing/') ? 3 : 1).join(' ') + (path.endsWith('.html') ? ' ⧉' : '');
+    if (layer === 'output') title = (path.includes('/covers/') ? '3:1 ' : '') + title.split(' ').slice(0, path.includes('/landing/') ? 3 : 1).join(' ') + (path.endsWith('.html') ? ' ⧉' : '');
     if (path === '.mcp.json') title = '.mcp.json';
     const links = [];
     if (isMd) {
@@ -140,7 +143,18 @@
   const gLinks = root.append('g');
   const gNodes = root.append('g');
   const gFx = root.append('g');
-  svg.call(d3.zoom().scaleExtent([0.35, 3]).on('zoom', (e) => root.attr('transform', e.transform)));
+  const zoom = d3.zoom().scaleExtent([0.35, 3]).on('zoom', (e) => root.attr('transform', e.transform));
+  svg.call(zoom);
+  let SEL = null; // path of the file open in the side panel, highlighted on graph and tree
+  let jumpToPhase = null; // set by replay: phase index → its end state and card
+  function select(p, focus) {
+    SEL = p;
+    if (nodeSel) nodeSel.classed('sel', (d) => d.id === SEL);
+    renderTree();
+    const row = document.querySelector('#tree .file.sel'); if (row) row.scrollIntoView({ block: 'nearest' });
+    const n = p && nodeById.get(p);
+    if (focus && n && Number.isFinite(n.x)) svg.transition().duration(500).call(zoom.translateTo, n.x, n.y);
+  }
   let W = 800, H = 600;
   const nodeById = new Map();
   function linkStrength(l) {
@@ -249,6 +263,7 @@
     const dense = next.length > 70;
     svg.classed('dense', dense);
     nodeSel.attr('class', (d) => `node ${d.layer === 'ghost' ? 'ghost' : ''} ${d.layer === 'agent' ? 'agent' : ''} ${hiddenLayers.has(d.layer) ? 'off' : ''} L-${d.layer}`);
+    nodeSel.classed('sel', (d) => d.id === SEL);
     linkSel.classed('off', (l) => hiddenLayers.has((nodeById.get(l.source.id || l.source) || {}).layer) || hiddenLayers.has((nodeById.get(l.target.id || l.target) || {}).layer));
     nodeSel.select('path').attr('d', (d) => d3.symbol(SYM[LAYERS[d.layer].sym], LAYERS[d.layer].size)())
       .attr('fill', (d) => { const f = LAYERS[d.layer].fill; return f === true ? '#0a0a0a' : f === 'accent' ? (d.running ? '#d7261e' : '#0a0a0a') : f === 'hair' ? '#e6e6e6' : '#fff'; })
@@ -298,7 +313,7 @@
     el.classList.toggle('off', hiddenLayers.has(l));
     renderGraph();
   });
-  document.getElementById('legend').innerHTML = ['hub', 'context', 'rule', 'role', 'tool', 'code', 'guide', 'skill', 'eval', 'design', 'agent', 'source', 'research', 'nucleus', 'output', 'dashboard', 'automation', 'ghost']
+  document.getElementById('legend').innerHTML = ['hub', 'context', 'rule', 'role', 'tool', 'code', 'guide', 'skill', 'eval', 'design', 'agent', 'source', 'research', 'nucleus', 'output', 'dashboard', 'automation', 'gate', 'ghost']
     .map((k) => {
       const L = LAYERS[k];
       const d = d3.symbol(SYM[L.sym], Math.min(L.size, 110) * 0.8)();
@@ -324,7 +339,7 @@
       return `<div class="fold"><b>${g ? `${esc(g)}/` : './'}</b> ${files.length}</div>` + files.map((f) => {
         const isNew = S.fresh.has(f.path) && t - S.fresh.get(f.path) < 1800;
         const name = g ? f.path.slice(g.length + 1) : f.path;
-        return `<div class="file${isNew ? ' new' : ''}" data-p="${esc(f.path)}" title="${esc(f.path)}"><span class="g">${LAYERS[f.layer].glyph}</span><span>${esc(name)}</span></div>`;
+        return `<div class="file${isNew ? ' new' : ''}${f.path === SEL ? ' sel' : ''}" data-p="${esc(f.path)}" title="${esc(f.path)}"><span class="g">${LAYERS[f.layer].glyph}</span><span>${esc(name)}</span></div>`;
       }).join('');
     }).join('');
     document.getElementById('fileCount').textContent = S.files.size;
@@ -420,9 +435,14 @@
   function renderPhases(progress) {
     const cur = META.phases.findIndex((p) => p.id === S.phase);
     const box = document.getElementById('phases');
-    box.style.gridTemplateColumns = `repeat(${META.phases.length || 1}, minmax(0,1fr))`;
-    box.innerHTML = META.phases.map((p, i) =>
-      `<div class="ph ${i < cur || S.phase === 'done' ? 'done' : i === cur ? 'now' : ''}" data-i="${i}" title="${esc(p.title)}">${p.id.slice(1)} · ${esc(p.title)}</div>`).join('');
+    // build the chips once, then only flip classes: re-creating them every frame swallowed clicks
+    const sig = META.phases.map((p) => p.id).join();
+    if (box.dataset.sig !== sig) {
+      box.dataset.sig = sig;
+      box.style.gridTemplateColumns = `repeat(${META.phases.length || 1}, minmax(0,1fr))`;
+      box.innerHTML = META.phases.map((p, i) => `<div class="ph" data-i="${i}" title="${esc(p.title)} · клик – к карточке фазы">${p.id.slice(1)} · ${esc(p.title)}</div>`).join('');
+    }
+    [...box.children].forEach((el, i) => { const cls = i < cur || S.phase === 'done' ? 'ph done' : i === cur ? 'ph now' : 'ph'; if (el.className !== cls) el.className = cls; });
     const ph = META.phases[cur];
     document.getElementById('phaseLabel').textContent = S.phase === 'done' ? 'готово · харнесс собран' : ph ? `${ph.id.slice(1)} · ${ph.title}` : '00 · пустая папка';
     document.querySelector('#bar i').style.width = `${Math.min(100, progress * 100)}%`;
@@ -449,15 +469,19 @@
   const post = (url, body) => fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-harness-token': SESSION ? SESSION.token : '' }, body: JSON.stringify(body || {}) })
     .then((r) => r.json()).catch(() => ({ error: 'сеть' }));
   const unesc = (s) => s.replace(/&amp;/g, '&').replace(/&quot;/g, '"');
+  const autolink = (h) => h.replace(/(^|[\s(«])((?:https?:\/\/)?(?:[a-z0-9-]+\.)+(?:ai|com|org|io|dev|app|co|me)(?:\/[^\s)<»,;]*)?)/gi,
+    (m, pre, url) => (/^\S+@/.test(url) ? m : `${pre}<a href="${/^https?:/.test(url) ? url : `https://${url}`}" target="_blank" rel="noopener">${url}</a>`));
   function mdInline(s, idx) {
-    return esc(s)
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
+    return String(s).split(/(`[^`]+`)/).map((part) => (/^`[^`]+`$/.test(part) ? `<code>${esc(part.slice(1, -1))}</code>` : mdText(part, idx))).join('');
+  }
+  function mdText(s, idx) {
+    return autolink(esc(s)
       .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
       .replace(/\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]+))?\]\]/g, (m, t, label) => {
         const hit = idx && idx.get(norm(unesc(t)));
         return hit ? `<a class="wl" data-p="${esc(hit)}">${label || esc(bare(unesc(t)))}</a>` : `<a class="wl miss" title="файла ещё нет">${label || t}</a>`;
       })
-      .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+      .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')).replace(/(<a [^>]*>)<a [^>]*>([^<]*)<\/a>/g, '$1$2');
   }
   const BLOCK = /^(#{1,3}\s|```|\s*[-*]\s|\s*\d+[.)]\s|\s*\||>|---+\s*$)/;
   function mdRender(text) {
@@ -538,12 +562,17 @@
     $('pvLinks').innerHTML = `→ ${out.length ? out.map(a).join('') : '–'}<br>← ${back.length ? back.map(a).join('') : '–'}`;
     PV.path = p; PV.mode = 'view'; PV.mtime = f.mtime; PV.escArmed = false;
     $('preview').hidden = false;
+    $('preview').classList.toggle('full', !!(PV.full && p.endsWith('.html')));
     pvRender();
+    select(p, true);
   }
   function closePreview() {
     if (PV.mode === 'edit' && PV.buffer !== PV.base && !PV.escArmed) { PV.escArmed = true; pvNote('есть несохранённые правки: ⌘S – сохранить, Esc ещё раз – закрыть без них'); return; }
+    if ($('preview').classList.contains('full')) { $('preview').classList.remove('full'); PV.full = false; return; }
     PV.mode = 'view'; PV.escArmed = false; $('preview').hidden = true; $('preview').classList.remove('editing', 'dirty');
+    select(null, false);
   }
+  $('pvFull').onclick = () => { PV.full = !$('preview').classList.contains('full'); $('preview').classList.toggle('full', PV.full); };
   // the open file changed on disk (agent, Obsidian, another editor)
   function pvSync() {
     if ($('preview').hidden || !PV.path) return;
@@ -615,7 +644,7 @@
     $('stLead').innerHTML = mdInline(ph.stop.lead, idx);
     $('stPoints').innerHTML = (ph.stop.points || []).map((x) => `<li>${mdInline(x, idx)}</li>`).join('');
     const shown = files.filter((p) => S.files.has(p));
-    $('stFiles').innerHTML = shown.length ? `<b>${id === 'p03' ? 'переименовано' : 'появилось'} · ${shown.length}</b>${shown.slice(0, 48).map((p) => `<a data-p="${esc(p)}">${esc(bare(base(p)))}</a>`).join('')}${shown.length > 48 ? ` … ещё ${shown.length - 48}` : ''}` : '';
+    $('stFiles').innerHTML = shown.length ? `<b>${id === 'p03' ? 'переименовано' : 'появилось'} · ${shown.length} файлов</b><div class="chips">${shown.map((p) => `<a data-p="${esc(p)}" title="${esc(p)}">${LAYERS[layerOf(p)].glyph} ${esc(bare(base(p)))}</a>`).join('')}</div>` : '';
     const nxt = META.phases[i + 1];
     $('stGo').textContent = nxt ? `дальше: ${nxt.title} →` : 'к финалу →';
     stopOpen = id; onStopGo = go;
@@ -686,7 +715,13 @@
     const speeds = [1, 2, 4, 0.5];
     btnSpeed.textContent = `${R.speed}×`;
     btnSpeed.onclick = () => { R.speed = speeds[(speeds.indexOf(R.speed) + 1) % speeds.length]; btnSpeed.textContent = `${R.speed}×`; };
-    document.getElementById('phases').addEventListener('click', (e) => { const el = e.target.closest('.ph'); if (el) { seek(sc.phases[Number(el.dataset.i)].start + 1); setPlay(true); } });
+    // a phase chip jumps to the end of that phase and opens its card; «продолжить» plays on from there
+    jumpToPhase = (i) => {
+      const ph = sc.phases[i]; if (!ph) return;
+      seek(ph.end); setPlay(false);
+      if (!showStop(ph.id, [...(phaseFiles[ph.id] || [])], () => setPlay(true))) setPlay(true);
+    };
+    document.getElementById('phases').addEventListener('click', (e) => { const el = e.target.closest('.ph'); if (el) jumpToPhase(Number(el.dataset.i)); });
     document.getElementById('bar').addEventListener('click', (e) => { const r = e.currentTarget.getBoundingClientRect(); seek(((e.clientX - r.left) / r.width) * sc.duration); });
     window.addEventListener('keydown', (e) => {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
@@ -703,8 +738,15 @@
       if (e.key === 'r') { seek(0); setPlay(true); }
       if (e.key === 'Escape') closePreview();
     });
+    if (introWanted) {
+      R.playing = false;
+      $('intro').hidden = false; $('inGo').focus();
+      $('inGo').onclick = () => introClose(() => setPlay(true));
+      $('inEnd').onclick = () => introClose(() => { seek(sc.duration); setPlay(false); });
+      window.addEventListener('keydown', function onIntroKey(e) { if ($('intro').hidden) { window.removeEventListener('keydown', onIntroKey, true); return; } if (e.key === 'Enter' || e.code === 'Space') { e.preventDefault(); e.stopPropagation(); $('inGo').click(); } }, true);
+    }
     const startPhase = sc.phases.find((x) => x.id === qs.get('phase'));
-    if (qs.get('at') === 'end') { seek(sc.duration); setPlay(false); } else if (startPhase) { seek(startPhase.start + 1); setPlay(true); } else setPlay(R.playing);
+    if (qs.get('at') === 'end') { seek(sc.duration); setPlay(false); } else if (startPhase) { jumpToPhase(sc.phases.indexOf(startPhase)); } else setPlay(R.playing);
     function frame(t) {
       const dt = Math.min(200, t - R.last); R.last = t;
       if (R.playing) {
@@ -738,7 +780,13 @@
       const sc = await fetch('scenario.json', { cache: 'no-store' }).then((r) => r.json());
       META = { questions: sc.questions, answers: sc.answers, phases: sc.phases, duration: sc.duration };
     } catch { /* live works without scenario */ }
-    try { SESSION = await fetch('/api/session').then((r) => r.json()); document.getElementById('consoleHost').textContent = SESSION.serverHost; } catch { /* static host */ }
+    try { SESSION = await fetch('/api/session').then((r) => r.json()); document.getElementById('consoleHost').textContent = SESSION.serverHost; folderBar(); } catch { /* static host */ }
+    if (introWanted) {
+      $('inTitle').textContent = 'живая папка: харнесс на этом компьютере';
+      $('inGo').textContent = 'открыть граф →'; $('inEnd').hidden = true;
+      $('intro').hidden = false; $('inGo').focus();
+      $('inGo').onclick = () => introClose();
+    }
     const hint = document.getElementById('liveHint');
     let started = null, fails = 0, liveSeen = new Set();
     async function poll() {
@@ -819,6 +867,74 @@
       await fetch(`/api/runs/${b.dataset.stop}/stop`, { method: 'POST', headers: { 'x-harness-token': SESSION.token } });
     });
   }
+
+  // ---------- search: ⌘K over files and phases ----------
+  const QS = { list: [], i: 0 };
+  function searchRun(q) {
+    const t = q.trim().toLowerCase();
+    const out = [];
+    for (const f of S.files.values()) {
+      const title = f.title.toLowerCase(), path = f.path.toLowerCase();
+      let score = 0, hit = '';
+      if (!t) score = 1;
+      else if (title.startsWith(t)) score = 100;
+      else if (title.includes(t)) score = 80;
+      else if (String(f.fm.aliases || '').toLowerCase().includes(t)) score = 75;
+      else if (path.includes(t)) score = 60;
+      else {
+        const k = (f.content || '').toLowerCase().indexOf(t);
+        if (k >= 0) { score = 30; hit = f.content.slice(Math.max(0, k - 30), k + 70).replace(/\s+/g, ' '); }
+      }
+      if (score) out.push({ kind: 'file', p: f.path, glyph: LAYERS[f.layer].glyph, label: f.title, sub: f.path, hit, score });
+    }
+    META.phases.forEach((ph, i) => {
+      const hay = `${ph.id} ${ph.title} ${ph.stop ? ph.stop.title + ' ' + ph.stop.lead : ''}`.toLowerCase();
+      if (!t || hay.includes(t)) out.push({ kind: 'phase', i, glyph: '▸', label: `фаза ${ph.id.slice(1)} · ${ph.title}`, sub: ph.stop ? ph.stop.title : '', hit: '', score: t ? 70 : 0.5 });
+    });
+    QS.list = out.sort((a, b) => b.score - a.score || a.label.localeCompare(b.label)).slice(0, 40);
+    QS.i = 0;
+    searchPaint();
+  }
+  function searchPaint() {
+    $('qres').innerHTML = QS.list.map((r, k) => `<li class="${k === QS.i ? 'on' : ''}" data-k="${k}"><span>${r.glyph}</span><span>${esc(r.label)}</span><small>${esc(r.kind === 'file' ? r.sub.split('/').slice(0, -1).join('/') || './' : 'карточка фазы')}</small>${r.hit ? `<span class="hit">…${esc(r.hit)}…</span>` : ''}</li>`).join('') || '<li><span></span><span>ничего не нашлось</span></li>';
+    const on = $('qres').querySelector('li.on'); if (on) on.scrollIntoView({ block: 'nearest' });
+  }
+  function searchPick(k) {
+    const r = QS.list[k]; if (!r) return;
+    searchClose();
+    if (r.kind === 'file') openPreview(r.p);
+    else if (jumpToPhase) jumpToPhase(r.i);
+  }
+  function searchOpen() { $('search').hidden = false; $('q').value = ''; searchRun(''); $('q').focus(); }
+  function searchClose() { $('search').hidden = true; }
+  $('searchBtn').onclick = searchOpen;
+  $('q').addEventListener('input', (e) => searchRun(e.target.value));
+  $('q').addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); QS.i = Math.min(QS.list.length - 1, QS.i + 1); searchPaint(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); QS.i = Math.max(0, QS.i - 1); searchPaint(); }
+    if (e.key === 'Enter') { e.preventDefault(); searchPick(QS.i); }
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); searchClose(); }
+  });
+  $('qres').addEventListener('click', (e) => { const li = e.target.closest('li[data-k]'); if (li) searchPick(Number(li.dataset.k)); });
+  $('search').addEventListener('click', (e) => { if (e.target.id === 'search') searchClose(); });
+  window.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); if ($('search').hidden) searchOpen(); else searchClose(); return; }
+    if (e.key === 'f' && !$('preview').hidden && !['INPUT', 'TEXTAREA'].includes(e.target.tagName) && PV.mode !== 'edit') $('pvFull').click();
+  }, true);
+
+  // ---------- intro: what this is, before the build starts ----------
+  const introWanted = qs.get('intro') !== '0' && !qs.get('at') && !qs.get('phase');
+  function introClose(go) { $('intro').hidden = true; if (go) go(); }
+
+  // ---------- live folder bar: local path and its git remote ----------
+  async function folderBar() {
+    if (!SESSION) return;
+    $('fbPath').textContent = SESSION.dir.replace(/^\/Users\/[^/]+/, '~');
+    $('fbPath').title = SESSION.dir;
+    const g = SESSION.git || {};
+    $('fbGit').innerHTML = g.remote ? `git: ${esc(g.branch || 'main')} → <a href="${esc(g.remote)}" target="_blank" rel="noopener">${esc(g.remote.replace(/^https:\/\/github\.com\//, 'github/'))}</a>` : `git: ${esc(g.branch || '–')} · только локально (remote не задан)`;
+  }
+  $('openFinder').onclick = () => openIn('finder', '');
 
   resize();
   if (MODE === 'live') startLive(); else startReplay();
