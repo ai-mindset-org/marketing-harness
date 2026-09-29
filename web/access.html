@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harness Access Map</title>
+<meta name="description" content="Подключения маркетинг-харнесса: какой инструмент зачем, где взять ключ, как проверить одной командой и что уже готово на этом компьютере.">
+<link rel="icon" href="assets/aim-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="doc.css">
+</head>
+<body>
+<div class="wrap">
+<header id="hd">
+  <img class="logo" src="assets/aim-logo.png" alt="AI Mindset">
+  <div><h1>marketing harness · подключения</h1><p>инструмент · ключ · где взять · проверка · готовность</p></div>
+  <nav class="pages"><a href="index.html">инструмент</a><a href="guide.html">гид</a><a class="on" href="access.html">подключения</a></nav>
+</header>
+
+<p class="lead">для первого часа ключи не нужны: хватает Claude Code и папки. остальное подключается по одному, когда появилась задача. ключ живёт <b>только на твоём компьютере</b>, в папку и в git попадает имя переменной.</p>
+
+<section class="panel">
+  <h2><span>01 · инструменты</span><em id="liveNote">статус – только при локальном запуске</em></h2>
+  <table class="t" id="tbl"></table>
+  <p class="cap">клик по строке открывает карточку инструмента из набора: зачем, где включить, проверка, цена и границы.</p>
+</section>
+
+<section class="panel">
+  <h2><span>02 · как хранить ключ</span></h2>
+  <div class="cols">
+    <div><h3>просто: ~/.zshrc</h3><pre class="md"><code>echo 'export EXA_API_KEY=&lt;ключ&gt;' &gt;&gt; ~/.zshrc
+source ~/.zshrc</code></pre><p>новый терминал видит ключ; Claude Code и MCP подхватывают его при запуске.</p></div>
+    <div><h3>надёжнее: связка ключей macOS</h3><pre class="md"><code>security add-generic-password -s EXA_API_KEY -a "$USER" -w
+# в ~/.zshrc:
+export EXA_API_KEY="$(security find-generic-password -s EXA_API_KEY -w)"</code></pre><p>значение не лежит в файле открытым текстом.</p></div>
+    <div><h3>что уходит в git</h3><p><code>.mcp.json</code> с <code>${EXA_API_KEY}</code> на месте ключа. перед push – <code>gitleaks detect --no-git --source .</code>. ключ, вставленный в чат, считается засвеченным: перевыпусти.</p></div>
+    <div><h3>порядок подключения</h3><p>1 · Claude Code → 2 · Exa (ресёрч) → 3 · LMS (транскрипты занятий) → 4 · LinkedIn руками → дальше Gemini, Apify, Telegram по задаче.</p></div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2><span>03 · установка целиком</span></h2>
+  <details class="doc" open><summary>гайд установки</summary><div class="md" data-render="guides/{guide} setup.md"></div></details>
+  <details class="doc"><summary>границы: что агенту можно и нельзя</summary><div class="md" data-render="rules/{rule} boundaries.md"></div></details>
+</section>
+
+<footer><span>marketing harness · AI Mindset · маркетинг-спринт n25</span><span>значения ключей эта страница не видит и не хранит</span></footer>
+</div>
+
+<aside id="drawer" hidden><header><div><b></b><span></span></div><button aria-label="закрыть">×</button></header><div class="md"></div></aside>
+
+<script src="doc.js"></script>
+<script>
+(async () => {
+  const H = window.HDOC;
+  await H.load();
+  document.querySelectorAll('[data-render]').forEach((el) => { const d = H.docs()[el.dataset.render]; el.innerHTML = d ? H.md(d) : '<p class="cap">файла нет в наборе</p>'; });
+  // step · tool · why · variable · where to get it · check · status ids from /api/tools
+  const T = [
+    [1, 'claude-code', 'Claude Code', 'основной агент в папке', '–', 'подписка claude.ai · <code>curl -fsSL https://claude.ai/install.sh | bash</code>', 'claude --version', ['claude']],
+    [2, 'exa', 'Exa', 'поиск по смыслу для ресёрча', 'EXA_API_KEY', 'dashboard.exa.ai → API Keys', '/mcp в сессии: exa connected', ['exa']],
+    [3, 'lms', 'LMS AI Mindset', 'транскрипты и чаты занятий', 'AIM_LMS_TOKEN', 'learn.aimindset.org/cabinet/api-keys', 'node tools/mcp/lms.mjs cli me', ['lms', 'lms-api']],
+    [4, 'linkedin', 'LinkedIn', 'B2B-канал, посты и карусели', 'LINKEDIN_ACCESS_TOKEN (уровень 3)', 'по умолчанию руками; linkedin.com/developers', 'токен живёт 60 дней', ['linkedin']],
+    [5, 'gemini', 'Gemini', 'разбор роликов и картинок', 'GEMINI_API_KEY', 'aistudio.google.com → Get API key', 'список моделей по x-goog-api-key', ['gemini']],
+    [5, 'apify', 'Apify', 'сбор Ads Library и соцсетей', 'APIFY_TOKEN', 'console.apify.com → Settings → API & Integrations', 'users/me → имя аккаунта', ['apify']],
+    [5, 'telegram', 'Telegram', 'посты канала, бот для черновиков', 'TELEGRAM_BOT_TOKEN', '@BotFather → /newbot', 'getMe → только имя бота', ['telegram']],
+    [6, 'codex', 'Codex', 'второй агент, код харнесса', '–', 'аккаунт ChatGPT · codex login', 'codex --version', ['codex']],
+    [6, 'git-github', 'git и GitHub', 'история и приватный репозиторий', '–', 'gh auth login', 'git log --oneline', ['gh']],
+    [6, 'obsidian', 'Obsidian', 'чтение и граф папки', '–', 'obsidian.md, бесплатно', 'Open folder as vault', ['obsidian']],
+    [6, 'playwright', 'Playwright', 'PDF карусели, сбор страниц', '–', 'uv run --with playwright', 'node bin/render.mjs all --pdf', []],
+  ];
+  let live = null;
+  try { const r = await fetch('/api/tools', { cache: 'no-store' }); if (r.ok) live = (await r.json()).tools; } catch { /* static host */ }
+  if (live) document.getElementById('liveNote').textContent = 'статус этого компьютера · ключи: задан или нет';
+  const state = (ids) => {
+    if (!live || !ids.length) return '<span class="cap">–</span>';
+    return ids.map((id) => { const t = live.find((x) => x.id === id); return t ? `<span class="dot ${t.ready ? 'ok' : 'no'}" title="${H.esc(t.what)}"></span>` : ''; }).join(' ');
+  };
+  document.getElementById('tbl').innerHTML = '<tr><th>шаг</th><th>инструмент</th><th>зачем</th><th>переменная</th><th>где взять</th><th>проверка</th><th>готов</th></tr>'
+    + T.map(([step, id, name, why, env, where, check, ids]) => {
+      const card = `tools/{tool} ${id}.md`;
+      return `<tr ${H.has(card) ? `data-doc="${H.esc(card)}" style="cursor:pointer"` : ''}><td>${step}</td><td><b>${H.esc(name)}</b></td><td>${H.esc(why)}</td><td>${env === '–' ? '–' : `<code>${H.esc(env)}</code>`}</td><td>${where}</td><td><code>${H.esc(check)}</code></td><td>${state(ids)}</td></tr>`;
+    }).join('');
+})();
+</script>
+</body>
+</html>

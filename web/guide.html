@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marketing Harness Guide</title>
+<meta name="description" content="Гид маркетинг-харнесса: как запустить живую папку, в каком порядке растут блоки, как агенты работают внутри, ресёрч, роли и автоматизации.">
+<link rel="icon" href="assets/aim-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="doc.css">
+</head>
+<body>
+<div class="wrap">
+<header id="hd">
+  <img class="logo" src="assets/aim-logo.png" alt="AI Mindset">
+  <div><h1>marketing harness · гид</h1><p>запуск · живая папка · таймлайн блоков · агенты · ресёрч · роли · рутины</p></div>
+  <nav class="pages"><a href="index.html">инструмент</a><a class="on" href="guide.html">гид</a><a href="access.html">подключения</a></nav>
+</header>
+
+<p class="lead">харнесс – папка с контекстом, правилами, скиллами и проверками, внутри которой работают агенты. Инструмент рисует эту папку графом и показывает, как она растёт: из <b>пустой папки</b> за десять фаз вырастает машина, которая сама пишет, проверяет и учится на своих ошибках.</p>
+
+<section class="panel">
+  <h2><span>01 · как запустить</span><em>терминал, папка движка</em></h2>
+  <table class="t">
+    <tr><th>что</th><th>команда</th><th>когда</th></tr>
+    <tr><td>повтор без папки</td><td><code>bin/replay.sh</code> или страница инструмента</td><td>показать сборку за 5 минут; пробел – пауза, ← → – фазы, s – остановки</td></tr>
+    <tr><td>сборка с остановками</td><td><code>bin/demo.sh ~/Demos/mh-0110 --pace 1 --stops</code></td><td>эфир: после каждой фазы карточка с объяснением, дальше по кнопке «продолжить»</td></tr>
+    <tr><td>мгновенная папка</td><td><code>bin/new.sh ~/harness/my-product b2b-consultant</code></td><td>свой харнесс за секунды; пресеты b2b-consultant · b2c-shop · saas-founder</td></tr>
+    <tr><td>живая папка</td><td><code>bin/open.sh ~/harness/marketing-sprint</code></td><td>работа каждый день: граф, редактор, консоль агентов</td></tr>
+    <tr><td>живые агенты</td><td><code>EXA_API_KEY=… bin/demo.sh ~/Demos/mh-live --agents</code></td><td>фазы 08–09 делают настоящие агенты claude, модель по умолчанию opus</td></tr>
+    <tr><td>остановить</td><td><code>bin/stop.sh</code></td><td>сервер на порту 4747</td></tr>
+  </table>
+</section>
+
+<section class="panel">
+  <h2><span>02 · живая папка</span><em>http://localhost:4747/?mode=live</em></h2>
+  <div class="cols">
+    <div><h3>где лежит</h3><p>обычная папка на своём компьютере под git: <code>~/harness/&lt;продукт&gt;</code>. копия уходит в приватный репозиторий GitHub. Dropbox и iCloud для неё не подходят: синк ломает git.</p><p>ключи в папку не попадают, только имена переменных: <a class="wl" data-doc="tools/{tool} git-github.md">git и GitHub</a>.</p></div>
+    <div><h3>меняется вживую</h3><p>сервер читает папку раз в 0,7 секунды. правка в Obsidian, в редакторе или агентом появляется на графе через секунду: новый файл – новый узел с красным кольцом, переименование – узел переезжает, удаление – узел исчезает, коммит – строка в ленте.</p></div>
+    <div><h3>правка файла</h3><p>клик по узлу или файлу в дереве → панель «вид · исходник · править». в режиме «править» слева текст, справа живое превью; ⌘S сохраняет и делает коммит <code>edit(human)</code>. если агент тронул тот же файл, панель предупредит.</p></div>
+    <div><h3>открыть снаружи</h3><p>кнопки панели: «Obsidian» открывает файл в хранилище, «приложение» – в программе по умолчанию, «Finder» показывает файл. «папка в Obsidian» в шапке открывает всю папку; в первый раз Obsidian попросит «Open folder as vault», путь уже в буфере.</p></div>
+    <div><h3>фильтры</h3><p>клик по слою в легенде графа прячет его вместе со связями: например, убрать план (◌) и код (×), оставить контекст, правила и скиллы.</p></div>
+    <div><h3>консоль агентов</h3><p>вкладка «консоль»: исполнитель claude (opus по умолчанию), codex или сотник на сервере команды, задача одной строкой. агент работает внутри папки, успешный запуск заканчивается коммитом <code>agent(&lt;исполнитель&gt;)</code>, на графе красный узел со связями к тронутым файлам.</p></div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2><span>03 · таймлайн блоков</span><em id="tlMeta">–</em></h2>
+  <div id="timeline"><div class="cap">загружаю сценарий…</div></div>
+</section>
+
+<section class="panel">
+  <h2><span>04 · как агенту работать с папкой</span></h2>
+  <div class="cols">
+    <div><h3>вход</h3><p>каждая задача начинается словами «Прочитай AGENTS.md». роутер знает карту веток и какой скилл когда: <a class="wl" data-doc="AGENTS.md">AGENTS.md</a>.</p></div>
+    <div><h3>один агент – одна ветка</h3><p>исследователь пишет в <code>research/</code>, экстрактор в <code>nuclei/</code>, автор в <code>outputs/</code>, критик в <code>evals/</code>. так они работают параллельно и не мешают друг другу: <a class="wl" data-doc="roles/{role} agent crew.md">агентские роли</a>.</p></div>
+    <div><h3>ворота</h3><p>черновик проходит <code>node bin/check.mjs</code> и критика в отдельном контексте. агент готовит, публикует человек: <a class="wl" data-doc="rules/{rule} boundaries.md">границы</a>.</p></div>
+    <div><h3>развитие</h3><p>новый скилл, правило или инструмент добавляются по <a class="wl" data-doc="skills/{skill} harness-evolve.md">harness-evolve</a>; раз в неделю папка сверяется с принципами по <a class="wl" data-doc="skills/{skill} harness-principles.md">harness-principles</a>.</p></div>
+  </div>
+  <table class="t" style="margin-top:12px">
+    <tr><th>задача в консоль</th><th>что появится</th></tr>
+    <tr><td><code>Прочитай AGENTS.md. По скиллу content-factory сделай пачку из двух черновиков LinkedIn из нуклеусов без черновика, потом node bin/check.mjs</code></td><td>два файла в <code>outputs/linkedin/</code> и отчёт проверок</td></tr>
+    <tr><td><code>Прочитай AGENTS.md. По скиллу harness-principles проведи аудит папки и запиши отчёт в evals/</code></td><td>таблица принцип · да/нет · что поправить</td></tr>
+    <tr><td><code>Прочитай AGENTS.md. По скиллу research-exa сделай скан «…» в research/</code></td><td>скан с датами и уровнями доказательности</td></tr>
+  </table>
+</section>
+
+<section class="panel">
+  <h2><span>05 · ресёрч</span><em>три скилла и очередь по веткам</em></h2>
+  <p>главные скиллы: <a class="wl" data-doc="skills/{skill} research-exa.md">research-exa</a> – скан рынка и практик с датами, <a class="wl" data-doc="skills/{skill} fact-check.md">fact-check</a> – сверка утверждений с источником, <a class="wl" data-doc="skills/{skill} adlib-recon.md">adlib-recon</a> – разведка рекламы конкурентов. очередь из шести ресёрчей готова к запуску из консоли:</p>
+  <details class="doc"><summary>очередь ресёрчей по веткам</summary><div class="md" data-render="guides/{guide} research queue.md"></div></details>
+  <details class="doc"><summary>перечень источников спринта</summary><div class="md" data-render="sources/{source} index.md"></div></details>
+</section>
+
+<section class="panel">
+  <h2><span>06 · роли и рутины</span></h2>
+  <div class="chips" id="roleChips"></div>
+  <details class="doc"><summary>агентские роли</summary><div class="md" data-render="roles/{role} agent crew.md"></div></details>
+  <details class="doc"><summary>автоматизация: три уровня и три рутины</summary><div class="md" data-render="guides/{guide} automation.md"></div></details>
+  <details class="doc"><summary>типы контента и где пустые клетки</summary><div class="md" data-render="guides/{guide} content types.md"></div></details>
+  <details class="doc"><summary>нуклеусы и направленные связи</summary><div class="md" data-render="guides/{guide} nuclei.md"></div></details>
+  <details class="doc"><summary>как правило становится скиллом</summary><div class="md" data-render="guides/{guide} rules to skills.md"></div></details>
+</section>
+
+<footer><span>marketing harness · AI Mindset · маркетинг-спринт n25</span><span id="gen">–</span></footer>
+</div>
+
+<aside id="drawer" hidden><header><div><b></b><span></span></div><button aria-label="закрыть">×</button></header><div class="md"></div></aside>
+
+<script src="doc.js"></script>
+<script>
+(async () => {
+  const H = window.HDOC;
+  await H.load();
+  document.querySelectorAll('[data-render]').forEach((el) => { const d = H.docs()[el.dataset.render]; el.innerHTML = d ? H.md(d) : '<p class="cap">файла нет в наборе</p>'; });
+  const docs = H.docs();
+  document.getElementById('roleChips').innerHTML = Object.keys(docs).filter((p) => p.startsWith('roles/') || p.startsWith('automations/'))
+    .map((p) => `<span class="chip" data-doc="${H.esc(p)}">${p.startsWith('roles/') ? '⬡' : '⧗'} ${H.esc(H.bare(H.base(p)))}</span>`).join('');
+  const sc = await fetch('scenario.json', { cache: 'no-store' }).then((r) => r.json());
+  const files = {};
+  let cur = null;
+  for (const e of sc.events) { if (e.type === 'phase') cur = e.id; if (cur && (e.type === 'file' || e.type === 'rename')) (files[cur] ||= new Set()).add(e.type === 'file' ? e.path : e.to); }
+  const fmt = (ms) => `${String(Math.floor(ms / 60000)).padStart(2, '0')}:${String(Math.floor(ms / 1000) % 60).padStart(2, '0')}`;
+  document.getElementById('tlMeta').textContent = `${sc.phases.length} фаз · ${fmt(sc.duration)} повтора`;
+  document.getElementById('gen').textContent = `сценарий собран ${String(sc.generated || '').slice(0, 10)}`;
+  const chip = (p) => { const key = p.replace(/^.*?\//, (m) => m); const known = H.has(p); return `<span class="chip ${known ? '' : 'dead'}" ${known ? `data-doc="${H.esc(p)}"` : ''} title="${H.esc(p)}">${H.esc(H.bare(H.base(p)))}</span>`; };
+  document.getElementById('timeline').innerHTML = sc.phases.map((ph) => {
+    const st = ph.stop || { title: ph.title, lead: '', points: [] };
+    const list = [...(files[ph.id] || [])];
+    return `<div class="ph"><div class="num">${ph.id.slice(1)}<small>${H.esc(ph.title)}</small></div><div>
+      <h3>${H.esc(st.title)}</h3><p>${H.inline(st.lead)}</p>
+      <ul>${(st.points || []).map((x) => `<li>${H.inline(x)}</li>`).join('')}</ul>
+      <div class="cap">${ph.id === 'p03' ? 'переименовано' : 'появилось'} · ${list.length} · с ${fmt(ph.start)} · <a class="go" href="index.html?phase=${ph.id}">смотреть в инструменте →</a></div>
+      <div class="chips">${list.map(chip).join('')}</div></div></div>`;
+  }).join('');
+})();
+</script>
+</body>
+</html>

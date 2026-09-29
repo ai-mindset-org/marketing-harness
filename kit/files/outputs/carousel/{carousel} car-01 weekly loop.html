@@ -1,0 +1,77 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>недельная петля · бриф карусели · карусель</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Lora:ital@1&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"><style>/* field instrument · design tokens of the marketing harness
+   instrument grammar (mono labels, 1px frames, fig.N, grid) + Anca's field journal
+   (ivory paper, heavy grotesk, serif italic accent, one warm accent). */
+:root{
+  --paper:#faf9f5; --paper-2:#f0eee6; --ink:#141413; --slate:#5e5d59; --cloud:#87867f; --hair:#d1cfc5;
+  --star:#e9b400;   /* accent: Anca canon yellow, one dose per surface */
+  --clay:#d97757;   /* secondary: underline of the key word, figure lines */
+  --night:#141413;  /* dark panel */
+  --display:"Inter", system-ui, sans-serif;
+  --serif:"Lora", Georgia, serif;
+  --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --unit:8px; --frame:1px solid var(--ink); --hairline:1px solid var(--hair);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper); color:var(--ink); font-family:var(--display); -webkit-font-smoothing:antialiased}
+.mono{font-family:var(--mono); letter-spacing:.04em}
+.label{font-family:var(--mono); font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--cloud)}
+.fig{font-family:var(--mono); font-size:13px; color:var(--slate)}
+.fig b{color:var(--clay); font-weight:400}
+.key{background:linear-gradient(transparent 88%, var(--clay) 88%)}
+.it{font-family:var(--serif); font-style:italic; font-weight:400; color:var(--clay)}
+.chip{display:inline-block; font-family:var(--mono); font-size:13px; border:var(--frame); padding:4px 10px; letter-spacing:.06em}
+.chip.star{background:var(--star); border-color:var(--star)}
+.grid-bg{background-image:linear-gradient(var(--paper-2) 1px,transparent 1px),linear-gradient(90deg,var(--paper-2) 1px,transparent 1px); background-size:40px 40px}
+.night{background:var(--night); color:var(--paper)}
+.night .fig{color:var(--cloud)}
+
+@page{size:1080px 1350px;margin:0}
+body{background:#d9d7cf;display:flex;flex-direction:column;align-items:center;gap:40px;padding:40px 0}
+.slide{width:1080px;height:1350px;padding:72px;display:flex;flex-direction:column;justify-content:space-between;border:var(--frame);page-break-after:always;break-after:page}
+.slide header,.slide footer{display:flex;justify-content:space-between;align-items:center;gap:24px}
+.slide .fig{font-size:22px}.slide .chip{font-size:20px}.slide .label{font-size:16px}
+.txt{font-weight:800;font-size:64px;line-height:1.06;letter-spacing:-.02em;max-width:900px}
+.txt.big{font-size:92px}
+.night .label{color:var(--cloud)} .night .chip{color:var(--ink)}
+@media print{body{background:none;padding:0;gap:0}.slide{border:none}}
+@media (max-width:1100px){.slide{transform:scale(.34);transform-origin:top center;margin-bottom:-890px}}</style></head><body><section class="slide night">
+  <header><span class="fig">fig. 01/08 · <b>недельная петля</b></span><span class="chip star">P3-H1-A2-F2</span></header>
+  <div class="txt big">один markdown в пятницу – <span class="key">ТЗ</span> на всю следующую неделю</div>
+  <footer><span class="label">обложка, штамп кода</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+</section>
+<section class="slide grid-bg">
+  <header><span class="fig">fig. 02/08 · <b>недельная петля</b></span><span class="chip ">P3-H1-A2-F2</span></header>
+  <div class="txt ">понедельник: пачка контента снова с нуля, выводы прошлой недели потерялись в чате</div>
+  <footer><span class="label">пустой календарь</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+</section>
+<section class="slide grid-bg">
+  <header><span class="fig">fig. 03/08 · <b>недельная петля</b></span><span class="chip ">P3-H1-A2-F2</span></header>
+  <div class="txt ">шаг 1 · <span class="key">снапшот</span>: каждая единица × охват × клики × регистрации × оплаты</div>
+  <footer><span class="label">таблица из пяти колонок</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+</section>
+<section class="slide grid-bg">
+  <header><span class="fig">fig. 04/08 · <b>недельная петля</b></span><span class="chip ">P3-H1-A2-F2</span></header>
+  <div class="txt ">шаг 2 · разметка: сегмент, хук, энгл, формат – код <span class="it">P-H-A-F</span></div>
+  <footer><span class="label">карточка с кодом</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+</section>
+<section class="slide grid-bg">
+  <header><span class="fig">fig. 05/08 · <b>недельная петля</b></span><span class="chip ">P3-H1-A2-F2</span></header>
+  <div class="txt ">шаг 3 · вердикт: winner, fake winner, loser, testing</div>
+  <footer><span class="label">четыре штампа</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+</section>
+<section class="slide grid-bg">
+  <header><span class="fig">fig. 06/08 · <b>недельная петля</b></span><span class="chip ">P3-H1-A2-F2</span></header>
+  <div class="txt ">шаг 4 · одна строка решения: повторить, переписать хук, <span class="key">снять</span></div>
+  <footer><span class="label">три кнопки</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+</section>
+<section class="slide grid-bg">
+  <header><span class="fig">fig. 07/08 · <b>недельная петля</b></span><span class="chip ">P3-H1-A2-F2</span></header>
+  <div class="txt ">завтра: таблица из пяти колонок, заполненная за прошлую неделю</div>
+  <footer><span class="label">пустой шаблон</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+</section>
+<section class="slide night">
+  <header><span class="fig">fig. 08/08 · <b>недельная петля</b></span><span class="chip star">P3-H1-A2-F2</span></header>
+  <div class="txt big">механику разбирали на маркетинг-спринте AI Mindset</div>
+  <footer><span class="label">подпись и код в utm</span><span class="label">AI Mindset · маркетинг-харнесс</span></footer>
+</section></body></html>

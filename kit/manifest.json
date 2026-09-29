@@ -1,0 +1,909 @@
+{
+ "questions": [
+  {
+   "key": "level",
+   "q": "где вы с AI?"
+  },
+  {
+   "key": "product",
+   "q": "что продаём?"
+  },
+  {
+   "key": "audience",
+   "q": "кому?"
+  },
+  {
+   "key": "promise",
+   "q": "что человек уносит?"
+  },
+  {
+   "key": "channels",
+   "q": "где живём?"
+  },
+  {
+   "key": "voice",
+   "q": "как звучим?"
+  },
+  {
+   "key": "proof",
+   "q": "чем доказываем?"
+  },
+  {
+   "key": "boundary",
+   "q": "чего агент не делает?"
+  }
+ ],
+ "lanes": {
+  "ingest": {
+   "title": "загрузчик",
+   "skill": "lms-ingest"
+  },
+  "researcher": {
+   "title": "исследователь",
+   "skill": "research-exa"
+  },
+  "extractor": {
+   "title": "экстрактор",
+   "skill": "nucleus-extract"
+  },
+  "writer": {
+   "title": "автор",
+   "skill": "content-factory"
+  },
+  "designer": {
+   "title": "дизайнер",
+   "skill": "carousel-brief"
+  },
+  "critic": {
+   "title": "критик",
+   "skill": "slop-check"
+  }
+ },
+ "phases": [
+  {
+   "id": "p00",
+   "title": "пустая папка",
+   "commit": "init: пустая папка",
+   "steps": [
+    {
+     "type": "narrate",
+     "dwell": 3500,
+     "note": "пустая папка и git init. каждая фаза заканчивается коммитом: любой шаг можно откатить и показать заново"
+    }
+   ],
+   "stop": {
+    "title": "папка – рабочее место агента",
+    "lead": "харнесс начинается с пустой папки и git. всё, что агент знает о продукте, будет лежать здесь файлами. git запоминает каждую правку, поэтому любую ошибку агента можно откатить одной командой.",
+    "points": [
+     "где живёт: на своём компьютере (`~/harness/<продукт>`), копия в приватном репозитории GitHub, при желании рабочая копия на сервере команды",
+     "на git уходит всё, кроме ключей и рабочих журналов агента (`.harness/`)",
+     "одна папка – один продукт; личные заметки держим в другом месте"
+    ]
+   }
+  },
+  {
+   "id": "p01",
+   "title": "анкета → контекст",
+   "commit": "p01: контекст из анкеты",
+   "steps": [
+    {
+     "type": "answers",
+     "dwell": 8500,
+     "note": "восемь вопросов анкеты: уровень, продукт, аудитория, обещание, каналы, голос, доказательства, граница агента. ответы становятся контекстом"
+    },
+    {
+     "path": "README.md",
+     "dwell": 4500,
+     "note": "README – карта харнесса: шаг ноль, шесть слов, ветки. ссылки на файлы, которых ещё нет, видны пунктиром: план виден раньше файлов"
+    },
+    {
+     "path": "context/{context} product.md",
+     "dwell": 3000,
+     "note": "паспорт продукта: смысл без цифр",
+     "early": "context/product.md"
+    },
+    {
+     "path": "context/{context} audience.md",
+     "dwell": 3200,
+     "note": "сегменты P1–P3 из анкет когорты: B2B-консультант, B2C-владелец, технический основатель",
+     "early": "context/audience.md"
+    },
+    {
+     "path": "context/{context} voice.md",
+     "dwell": 3000,
+     "note": "голос: пять правил, таблица по каналам, два образца",
+     "early": "context/voice.md"
+    },
+    {
+     "path": "context/{context} truth-pack.md",
+     "dwell": 3500,
+     "note": "truth-pack – единственный источник цифр; факты спикеров сверены с транскриптами по таймкодам",
+     "early": "context/truth-pack.md"
+    },
+    {
+     "path": "context/{context} glossary.md",
+     "dwell": 3000,
+     "note": "словарь: шесть слов для старта и дальше",
+     "early": "context/glossary.md"
+    }
+   ],
+   "stop": {
+    "title": "анкета превращается в контекст",
+    "lead": "семь ответов о продукте раскладываются в пять файлов. теперь агент читает `context/` и больше не спрашивает, что мы продаём и кому.",
+    "points": [
+     "`product` – что продаём, обещание результата, каналы, граница агента",
+     "`audience` – архетипы покупателя с болями и словами из анкет когорты",
+     "`voice` – как мы звучим: тон, длина, запреты, примеры фраз",
+     "`glossary` – словарь: одно слово означает одно, агент не подменяет термины",
+     "`truth-pack` – цифры и факты, которые разрешено цитировать, у каждого источник"
+    ]
+   }
+  },
+  {
+   "id": "p02",
+   "title": "правила и принципы",
+   "commit": "p02: роутер, принципы построения, evals, границы",
+   "steps": [
+    {
+     "path": "AGENTS.md",
+     "dwell": 4500,
+     "note": "AGENTS.md – роутер для Claude Code и Codex: карта веток, восемь правил, какой скилл когда"
+    },
+    {
+     "path": "CLAUDE.md",
+     "dwell": 2500,
+     "note": "CLAUDE.md импортирует AGENTS.md и добавляет только то, что нужно Claude Code"
+    },
+    {
+     "path": "rules/{rule} principles.md",
+     "dwell": 4500,
+     "note": "четырнадцать принципов построения: папка – интерфейс, роутер короткий, один источник на факт, у ветки один писатель",
+     "early": "rules/principles.md"
+    },
+    {
+     "path": "rules/{rule} evals.md",
+     "dwell": 4500,
+     "note": "принцип evals: код → судья → человек → рынок; golden set до правки, калибровка судьи раз в месяц",
+     "early": "rules/evals.md"
+    },
+    {
+     "path": "rules/{rule} anti-slop.md",
+     "dwell": 3500,
+     "note": "анти-слоп: стоп-листы для кода и судьи, пять осей, порог 80, две правки",
+     "early": "rules/anti-slop.md",
+     "src": "versions/anti-slop.v1.md"
+    },
+    {
+     "path": "rules/{rule} boundaries.md",
+     "dwell": 3200,
+     "note": "границы: человек публикует, имена скрыты, ключи вне папки, узкие разрешения",
+     "early": "rules/boundaries.md"
+    },
+    {
+     "path": "rules/{rule} sources-and-consent.md",
+     "dwell": 2800,
+     "note": "источники и согласия: у каждого тезиса source, цитата клиента – с согласием",
+     "early": "rules/sources-and-consent.md"
+    },
+    {
+     "path": "roles/{role} founder.md",
+     "early": "roles/founder.md",
+     "dwell": 2200,
+     "note": "роли: кто решает, кто пишет, кто принимает. фаундер держит контекст, бюджет и публикацию"
+    },
+    {
+     "path": "roles/{role} marketer.md",
+     "early": "roles/marketer.md",
+     "dwell": 1500
+    },
+    {
+     "path": "roles/{role} designer.md",
+     "early": "roles/designer.md",
+     "dwell": 1500
+    },
+    {
+     "path": "roles/{role} agent crew.md",
+     "early": "roles/agent crew.md",
+     "dwell": 2200,
+     "note": "агентские роли – шесть дорожек: у каждой свой скилл, своя папка и человек, который принимает результат"
+    }
+   ],
+   "stop": {
+    "title": "правила – конституция папки",
+    "lead": "что агент делает всегда и чего не делает никогда. пунктирные узлы на графе – ссылки на файлы, которых ещё нет: план виден раньше самих файлов.",
+    "points": [
+     "`principles` – 14 принципов построения харнесса",
+     "`anti-slop` – как не звучать как нейросеть: тире, антитезы, пустые рамки",
+     "`boundaries` – безопасность: ключи только в окружении, персональные данные в папку не кладём, публикует человек",
+     "`evals` – как проверяем результат до того, как он уйдёт наружу"
+    ]
+   }
+  },
+  {
+   "id": "p03",
+   "title": "нейминг",
+   "commit": "p03: нейминг-конвенция, файлы переименованы",
+   "steps": [
+    {
+     "path": "rules/{rule} naming.md",
+     "dwell": 4500,
+     "note": "появляется нейминг-конвенция: {тип} имя, снимки с датой. новый файл сразу живёт по ней"
+    },
+    {
+     "type": "rename-all",
+     "dwell": 5500,
+     "note": "файлы переименовываются: product → {context} product, anti-slop → {rule} anti-slop. ссылки правятся в том же коммите, как в Obsidian"
+    }
+   ],
+   "stop": {
+    "title": "папка разрослась – нужна нейминг-конвенция",
+    "lead": "двадцать файлов, и уже непонятно, где правило, а где черновик. появляется одно правило: тип в фигурных скобках в начале имени. файлы переименовываются на глазах, ссылки правятся в том же коммите.",
+    "points": [
+     "`{rule} anti-slop`, `{skill} linkedin-post`, `{post} li-01` – агент находит нужное по типу, человек по имени",
+     "у снимков дата в конце: `{research} linkedin 2026 – 2026-09-29`",
+     "правило появилось, и вся папка привела себя к нему; git хранит историю переименований"
+    ]
+   }
+  },
+  {
+   "id": "p04",
+   "title": "инструменты",
+   "commit": "p04: 12 инструментов, MCP к Exa и LMS",
+   "steps": [
+    {
+     "path": "tools/{tool} claude-code.md",
+     "dwell": 2600,
+     "note": "Claude Code: где включить, проверка /mcp и скиллов, разрешения"
+    },
+    {
+     "path": "tools/{tool} codex.md",
+     "dwell": 2600,
+     "note": "Codex локально и Сотник на сервере команды: папка уезжает на сервер, изменения возвращаются каждые 4 секунды"
+    },
+    {
+     "path": "tools/{tool} obsidian.md",
+     "dwell": 2600,
+     "note": "Obsidian читает ту же папку, граф по веткам, синк – только git"
+    },
+    {
+     "path": "tools/{tool} git-github.md",
+     "dwell": 2600,
+     "note": "git: коммит на шаг, приватный репозиторий, проверка секретов"
+    },
+    {
+     "path": ".mcp.json",
+     "dwell": 2600,
+     "note": ".mcp.json подключает Exa и LMS. ключи – ${ИМЯ} из окружения, в папке их нет"
+    },
+    {
+     "path": "tools/{tool} exa.md",
+     "dwell": 2600,
+     "note": "Exa: четыре инструмента, рецепт скана за 20 минут, уровни A/B/C"
+    },
+    {
+     "path": "tools/{tool} lms.md",
+     "dwell": 2600,
+     "note": "LMS AI Mindset: API v1 только на чтение, транскрипты со скрытыми именами, токен в кабинете"
+    },
+    {
+     "path": "tools/mcp/lms.mjs",
+     "dwell": 2600,
+     "note": "свой MCP-сервер к LMS: шесть инструментов, без зависимостей, CLI для проверки"
+    },
+    {
+     "path": "tools/{tool} linkedin.md",
+     "dwell": 2600,
+     "note": "LinkedIn: руками, набор скиллов Булаева или своё приложение с w_member_social"
+    },
+    {
+     "path": "tools/{tool} telegram.md",
+     "dwell": 2600,
+     "note": "Telegram: бот для канала или свой аккаунт с черновиками"
+    },
+    {
+     "path": "tools/{tool} gemini.md",
+     "dwell": 2600,
+     "note": "Gemini читает видео целиком: разбор креативов по Кумару и Урбану"
+    },
+    {
+     "path": "tools/{tool} apify.md",
+     "dwell": 2600,
+     "note": "Apify: Ads Library, Instagram, TikTok, LinkedIn – сборщики для трендвотчинга"
+    },
+    {
+     "path": "tools/{tool} playwright.md",
+     "dwell": 2600,
+     "note": "Playwright: карусель в PDF для LinkedIn, сбор Ads Library"
+    },
+    {
+     "path": "tools/{tool} video-stack.md",
+     "dwell": 2600,
+     "note": "видео-стек спикеров: Higgsfield, Seedance, Veo 3, Kling, CapCut, Weavy"
+    },
+    {
+     "path": "rules/{rule} creative-codes.md",
+     "dwell": 2600,
+     "note": "коды креатива P-H-A-F по механике Кумара: код идёт в utm_content"
+    }
+   ],
+   "stop": {
+    "title": "инструменты и доступы",
+    "lead": "каждый инструмент – карточка: зачем, где взять ключ, как проверить одной командой. MCP – розетка, через которую агент ходит в Exa и в LMS.",
+    "points": [
+     "`.mcp.json` лежит в папке и уходит на git: там записано, куда подключаться, на месте ключа стоит `${EXA_API_KEY}`",
+     "сам ключ живёт только на твоём компьютере: `~/.zshrc` или связка ключей macOS",
+     "вкладка «инструменты» показывает «задан или нет», значение ключа компьютер не покидает",
+     "свой MCP к LMS – 80 строк в `tools/mcp/`: транскрипты занятий приходят без имён участников"
+    ]
+   }
+  },
+  {
+   "id": "p05",
+   "title": "скиллы и правила спикеров",
+   "commit": "p05: 17 скиллов, зеркала, правила Булаева и Урбана",
+   "steps": [
+    {
+     "path": "skills/{skill} research-exa.md",
+     "dwell": 2200,
+     "note": "ресёрч через Exa и режим адвайз-пака по Кумару"
+    },
+    {
+     "path": "skills/{skill} lms-ingest.md",
+     "dwell": 2200,
+     "note": "загрузчик: занятие из LMS в sources/ через MCP"
+    },
+    {
+     "path": "skills/{skill} nucleus-extract.md",
+     "dwell": 2200,
+     "note": "нуклеус – одна проверяемая мысль с таймкодом источника"
+    },
+    {
+     "path": "guides/{guide} nuclei.md",
+     "dwell": 2600,
+     "note": "гайд нуклеусов: источник → нуклеус → форматы. стрелки на графе направленные, по ним видно, откуда цифра в посте"
+    },
+    {
+     "path": "skills/{skill} content-factory.md",
+     "dwell": 2200,
+     "note": "контент-завод: нуклеус → форматы → проверки → рендер → срез"
+    },
+    {
+     "path": "skills/{skill} linkedin-post.md",
+     "dwell": 2200,
+     "note": "LinkedIn: LLM-лента читает смысл, документы +16%, ссылка −7%"
+    },
+    {
+     "path": "skills/{skill} linkedin-profile.md",
+     "dwell": 2200,
+     "note": "профиль как лендинг, лид-магнит без кодового слова"
+    },
+    {
+     "path": "skills/{skill} linkedin-engage.md",
+     "dwell": 2200,
+     "note": "ежедневный цикл Булаева: посты ICP, черновики комментариев на утверждение"
+    },
+    {
+     "path": "skills/{skill} b2c-week.md",
+     "dwell": 2200,
+     "note": "неделя контента из каталога для B2C"
+    },
+    {
+     "path": "skills/{skill} carousel-brief.md",
+     "dwell": 2200,
+     "note": "бриф карусели: одна мысль на слайд, рендер кодом"
+    },
+    {
+     "path": "skills/{skill} raskadrovka.md",
+     "dwell": 2200,
+     "note": "скилл Кумара: кадр каждые 3 секунды"
+    },
+    {
+     "path": "skills/{skill} adlib-recon.md",
+     "dwell": 2200,
+     "note": "скилл Кумара: разведка рекламы в Ads Library"
+    },
+    {
+     "path": "skills/{skill} trendwatch.md",
+     "dwell": 2200,
+     "note": "трендвотчинг Урбана и Кумара: что залетело, какие хуки повторять"
+    },
+    {
+     "path": "skills/{skill} fact-check.md",
+     "dwell": 2200,
+     "note": "сообщённое, а не сгенерированное: цепочка «докажи, что это чушь»"
+    },
+    {
+     "path": "skills/{skill} slop-check.md",
+     "dwell": 2200,
+     "note": "судья в отдельном контексте, сам текст не правит"
+    },
+    {
+     "path": "skills/{skill} cross-llm-verify.md",
+     "dwell": 2200,
+     "note": "проверка другой моделью по Кумару"
+    },
+    {
+     "path": "skills/{skill} weekly-loop.md",
+     "dwell": 2200,
+     "note": "недельная петля: вердикт по оплатам, пары параметров"
+    },
+    {
+     "path": "skills/{skill} harness-evolve.md",
+     "dwell": 2200,
+     "note": "скилл развития самого харнесса: слой, дубль, файл, связь, проверка"
+    },
+    {
+     "path": "skills/{skill} harness-principles.md",
+     "dwell": 2200,
+     "note": "скилл аудита: папка сверяется с 14 принципами и практиками командного харнесса AI Mindset"
+    },
+    {
+     "path": "guides/{guide} rules to skills.md",
+     "dwell": 2600,
+     "note": "как правило становится скиллом: voice + anti-slop → linkedin-post → content-factory"
+    },
+    {
+     "path": "bin/sync-skills.mjs",
+     "dwell": 2400,
+     "note": "скрипт зеркал: skills/ – единый источник, .claude/skills и .agents/skills пишет код"
+    },
+    {
+     "type": "mirror",
+     "dwell": 2600,
+     "note": "зеркала обновлены: Claude Code и Codex видят одни и те же 17 скиллов"
+    },
+    {
+     "path": "rules/{rule} linkedin soft outreach.md",
+     "dwell": 2800,
+     "note": "правило Булаева: ICP → касания → утверждение → реангейдж → коннект, 20 в день и 200 в неделю"
+    },
+    {
+     "path": "rules/{rule} onboarding quiz.md",
+     "dwell": 2800,
+     "note": "правило Урбана: не больше двух вопросов подряд, пропуск, путь за 15 секунд"
+    },
+    {
+     "path": "rules/{rule} organic content factory.md",
+     "dwell": 2800,
+     "note": "правило Урбана: органика прогревает, 80% платных креативов из залетевшего"
+    },
+    {
+     "path": "rules/{rule} attribution first.md",
+     "dwell": 2800,
+     "note": "атрибуция раньше креативов: код в utm, вердикт по оплатам"
+    }
+   ],
+   "stop": {
+    "title": "правило упаковывается в скилл",
+    "lead": "правило, которое нужно под конкретную задачу, становится скиллом: шаги, вход, выход и ссылки на правила. агент грузит скилл, когда задача совпала, в остальное время скилл не занимает контекст.",
+    "points": [
+     "цепочка: правила `voice` и `anti-slop` → скилл `linkedin-post` → конвейер `content-factory`, который зовёт его на каждый нуклеус",
+     "методы спикеров стали скиллами: утренний цикл Булаева, контент-завод Урбана, раскадровка и разведка рекламы Кумара",
+     "`skills/` зеркалится в `.claude/skills` и `.agents/skills`: одна правка, и её видят Claude и Codex"
+    ]
+   }
+  },
+  {
+   "id": "p06",
+   "title": "evals",
+   "commit": "p06: рубрика, судья, golden set, проверки кодом",
+   "steps": [
+    {
+     "path": "evals/{eval} rubric.md",
+     "dwell": 3200,
+     "note": "рубрика ворот: чистота и форма – код, факты, голос и попадание – судья"
+    },
+    {
+     "path": "evals/{eval} judge.md",
+     "dwell": 3000,
+     "note": "промпт судьи: цитаты находок, пять осей, факты с таймкодом, вердикт"
+    },
+    {
+     "path": "evals/{eval} golden-set.md",
+     "dwell": 3200,
+     "note": "golden set: хорошие проходят, плохие падают. регрессия перед правкой скилла",
+     "src": "versions/golden-set.v1.md"
+    },
+    {
+     "path": "evals/{eval} checks.md",
+     "dwell": 2800,
+     "note": "что проверяет код: тире, антитеза, стоп-слова, frontmatter, код, длина, числа без источника"
+    },
+    {
+     "path": "bin/check.mjs",
+     "dwell": 3000,
+     "note": "bin/check.mjs: уровень 1, без модели, секунды; --golden запускает регрессию"
+    }
+   ],
+   "stop": {
+    "title": "проверка в три слоя",
+    "lead": "текст уходит наружу только после проверки. код ловит измеримое, модель-судья оценивает вкус по рубрике, рынок голосует деньгами и ответами.",
+    "points": [
+     "`bin/check.mjs` – длина, тире, запрещённые слова, ссылка на нуклеус: быстро и одинаково каждый раз",
+     "`judge` и `rubric` – судья в отдельном контексте ставит балл 0–100 с цитатами",
+     "`golden-set` – эталоны, хорошие и плохие; на них проверяют сам харнесс после каждой правки правил"
+    ]
+   }
+  },
+  {
+   "id": "p07",
+   "title": "дизайн-система",
+   "commit": "p07: field instrument – токены, карусель, LinkedIn, лендинг, гайды",
+   "steps": [
+    {
+     "path": "design/{design} system.md",
+     "dwell": 3800,
+     "note": "дизайн-система field instrument: язык инструмента плюс field journal Анки – бумага, Inter 800, курсив Lora, один акцент"
+    },
+    {
+     "path": "design/assets/tokens.css",
+     "dwell": 2600,
+     "note": "токены: paper, ink, star #e9b400, clay, три шрифта"
+    },
+    {
+     "path": "design/{design} carousel.md",
+     "dwell": 2600,
+     "note": "карусель 1080×1350: тёмная обложка, сетка внутри, PDF для LinkedIn"
+    },
+    {
+     "path": "design/{design} linkedin.md",
+     "dwell": 2400,
+     "note": "LinkedIn визуально: превью со сгибом на 210 знаках"
+    },
+    {
+     "path": "design/{design} landing.md",
+     "dwell": 2600,
+     "note": "лендинг: каркас Анки, квиз по правилу Урбана"
+    },
+    {
+     "path": "bin/render.mjs",
+     "dwell": 3000,
+     "note": "bin/render.mjs – дизайнер без модели: бриф → HTML в дизайн-системе"
+    },
+    {
+     "path": "guides/{guide} setup.md",
+     "dwell": 3000,
+     "note": "гайд установки: три маршрута, восемь шагов, ключи вне папки"
+    },
+    {
+     "path": "guides/{guide} first-hour.md",
+     "dwell": 2600,
+     "note": "первый час: три шага практики воркшопа"
+    },
+    {
+     "path": "guides/{guide} content types.md",
+     "dwell": 2400,
+     "note": "типы контента: у каждого папка, скилл, шаблон дизайна и ворота проверки; пустые клетки видны сразу"
+    }
+   ],
+   "stop": {
+    "title": "дизайн рендерит код",
+    "lead": "токены и шаблоны превращают текст в карусель, превью LinkedIn и лендинг. модель здесь не участвует: код делает одинаково каждый раз.",
+    "points": [
+     "`design/assets/tokens.css` – цвета, шрифты, сетка",
+     "`node bin/render.mjs all` – HTML, по желанию PDF через Playwright",
+     "клик по узлу карусели или лендинга открывает готовую страницу"
+    ]
+   }
+  },
+  {
+   "id": "p08",
+   "title": "агенты параллельно",
+   "parallel": true,
+   "commit": "p08: пачка 01 – источники из LMS, ресёрч, нуклеусы, черновики, рендер, оценки",
+   "steps": [
+    {
+     "lane": "ingest",
+     "path": "sources/{source} kumar creative machine – 2026-09-23.md",
+     "dwell": 3500,
+     "note": "загрузчик: занятие Кумара из LMS через MCP, конспект с таймкодами"
+    },
+    {
+     "lane": "ingest",
+     "path": "sources/{source} urban content factory – 2026-09-28.md",
+     "dwell": 3500,
+     "note": "загрузчик: лекции Урбана 21.09 и 28.09"
+    },
+    {
+     "lane": "ingest",
+     "path": "sources/{source} bulaev linkedin – 2026-09-25.md",
+     "dwell": 3500,
+     "note": "загрузчик: занятие Булаева по LinkedIn"
+    },
+    {
+     "lane": "ingest",
+     "path": "sources/{source} intro – 2026-09-19.md",
+     "dwell": 2800,
+     "note": "конспект знакомства 19.09"
+    },
+    {
+     "lane": "ingest",
+     "path": "sources/{source} office hours – 2026-09-26.md",
+     "dwell": 2800,
+     "note": "конспект office hours 26.09"
+    },
+    {
+     "lane": "ingest",
+     "path": "sources/{source} index.md",
+     "dwell": 2400,
+     "note": "перечень источников: все занятия спринта, внешние репозитории, что уже разобрано"
+    },
+    {
+     "lane": "researcher",
+     "path": "research/{research} linkedin 2026 – 2026-09-29.md",
+     "dwell": 7000,
+     "note": "исследователь через Exa: LinkedIn 2026, официальный пост о ленте и 40 785 постов"
+    },
+    {
+     "lane": "researcher",
+     "path": "research/{research} marketing harness practices – 2026-09-29.md",
+     "dwell": 7000,
+     "note": "исследователь: как другие собирают маркетинг-харнесс и evals"
+    },
+    {
+     "lane": "researcher",
+     "path": "research/{research} marketing skills repos – 2026-09-29.md",
+     "dwell": 7000,
+     "note": "исследователь: открытые наборы маркетинговых скиллов"
+    },
+    {
+     "lane": "researcher",
+     "path": "guides/{guide} research queue.md",
+     "dwell": 3000,
+     "note": "очередь ресёрчей по веткам: шесть задач, готовых к запуску из консоли"
+    },
+    {
+     "lane": "extractor",
+     "type": "wait",
+     "dwell": 4000,
+     "note": "экстрактор ждёт сырьё"
+    },
+    {
+     "lane": "extractor",
+     "path": "nuclei/{nucleus} n01 two conveyors.md",
+     "dwell": 3000,
+     "note": "нуклеус n01"
+    },
+    {
+     "lane": "extractor",
+     "path": "nuclei/{nucleus} n02 fake winner.md",
+     "dwell": 3000,
+     "note": "нуклеус n02"
+    },
+    {
+     "lane": "extractor",
+     "path": "nuclei/{nucleus} n03 creative codes.md",
+     "dwell": 3000,
+     "note": "нуклеус n03"
+    },
+    {
+     "lane": "extractor",
+     "path": "nuclei/{nucleus} n04 weekly loop.md",
+     "dwell": 3000,
+     "note": "нуклеус n04"
+    },
+    {
+     "lane": "extractor",
+     "path": "nuclei/{nucleus} n05 organic warms.md",
+     "dwell": 3000,
+     "note": "нуклеус n05"
+    },
+    {
+     "lane": "extractor",
+     "path": "nuclei/{nucleus} n06 soft outreach.md",
+     "dwell": 3000,
+     "note": "нуклеус n06"
+    },
+    {
+     "lane": "extractor",
+     "path": "nuclei/{nucleus} n07 onboarding is funnel.md",
+     "dwell": 3000,
+     "note": "нуклеус n07"
+    },
+    {
+     "lane": "writer",
+     "type": "wait",
+     "dwell": 8000,
+     "note": "автор ждёт первые нуклеусы"
+    },
+    {
+     "lane": "writer",
+     "path": "outputs/linkedin/{post} li-01 fake winner.md",
+     "dwell": 4000,
+     "note": "LinkedIn из n02: признание ошибки, fake winner"
+    },
+    {
+     "lane": "writer",
+     "path": "outputs/linkedin/{post} li-02 creative codes.md",
+     "dwell": 4000,
+     "note": "LinkedIn из n03, первый проход",
+     "src": "versions/li-02 creative codes.v1.md"
+    },
+    {
+     "lane": "writer",
+     "path": "outputs/telegram/{post} tg-01 two conveyors.md",
+     "dwell": 4000,
+     "note": "Telegram из n01: два конвейера"
+    },
+    {
+     "lane": "writer",
+     "path": "outputs/carousel/{carousel} car-01 weekly loop.md",
+     "dwell": 4000,
+     "note": "бриф карусели из n04: недельная петля"
+    },
+    {
+     "lane": "writer",
+     "path": "outputs/telegram/{post} tg-02 organic warms.md",
+     "dwell": 4000,
+     "note": "Telegram для B2C из n05: органика прогревает"
+    },
+    {
+     "lane": "writer",
+     "path": "outputs/linkedin/{post} li-03 soft outreach.md",
+     "dwell": 4000,
+     "note": "LinkedIn из n06: мягкий аутрич Булаева"
+    },
+    {
+     "lane": "writer",
+     "path": "outputs/landing/{landing} harness kit.md",
+     "dwell": 4000,
+     "note": "копия лендинга из n07: квиз перед записью"
+    },
+    {
+     "lane": "writer",
+     "type": "wait",
+     "dwell": 7000,
+     "note": "автор ждёт оценку критика"
+    },
+    {
+     "lane": "writer",
+     "path": "outputs/linkedin/{post} li-02 creative codes.md",
+     "dwell": 4000,
+     "note": "li-02 переписан по находкам: 62 → 86"
+    },
+    {
+     "lane": "designer",
+     "type": "wait",
+     "dwell": 36000,
+     "note": "дизайнер ждёт брифы"
+    },
+    {
+     "lane": "designer",
+     "path": "outputs/carousel/{carousel} car-01 weekly loop.html",
+     "dwell": 2800,
+     "note": "карусель 8 слайдов в дизайн-системе"
+    },
+    {
+     "lane": "designer",
+     "path": "outputs/linkedin/{post} li-01 fake winner.html",
+     "dwell": 2800,
+     "note": "превью li-01 со сгибом «…ещё»"
+    },
+    {
+     "lane": "designer",
+     "path": "outputs/linkedin/{post} li-03 soft outreach.html",
+     "dwell": 2800,
+     "note": "превью li-03"
+    },
+    {
+     "lane": "designer",
+     "path": "outputs/landing/{landing} harness kit.html",
+     "dwell": 2800,
+     "note": "лендинг с квизом из трёх вопросов"
+    },
+    {
+     "lane": "designer",
+     "type": "wait",
+     "dwell": 3000,
+     "note": "дизайнер ждёт правку li-02"
+    },
+    {
+     "lane": "designer",
+     "path": "outputs/linkedin/{post} li-02 creative codes.html",
+     "dwell": 2500,
+     "note": "превью li-02 после правки"
+    },
+    {
+     "lane": "critic",
+     "type": "wait",
+     "dwell": 36000,
+     "note": "критик ждёт пачку"
+    },
+    {
+     "lane": "critic",
+     "path": "evals/{eval} checks – 2026-09-29.md",
+     "dwell": 3000,
+     "note": "проверки кодом: li-02 падает – антитеза, стоп-слово, подушки",
+     "src": "versions/checks.v1.md"
+    },
+    {
+     "lane": "critic",
+     "path": "evals/{eval} scorecard – 2026-09-29.md",
+     "dwell": 4000,
+     "note": "судья: li-02 = 62, остальные ≥ 81",
+     "src": "versions/scorecard.v1.md"
+    },
+    {
+     "lane": "critic",
+     "type": "wait",
+     "dwell": 4000,
+     "note": "критик ждёт правку li-02"
+    },
+    {
+     "lane": "critic",
+     "path": "evals/{eval} checks – 2026-09-29.md",
+     "dwell": 3000,
+     "note": "повтор проверок кодом: 7 из 7 pass"
+    },
+    {
+     "lane": "critic",
+     "path": "evals/{eval} scorecard – 2026-09-29.md",
+     "dwell": 3500,
+     "note": "второй проход судьи: li-02 = 86, пачка прошла ворота"
+    }
+   ],
+   "stop": {
+    "title": "шесть агентов, каждый в своей ветке",
+    "lead": "загрузчик тянет транскрипт из LMS, исследователь ищет в Exa, экстрактор вынимает нуклеусы, автор пишет, дизайнер рендерит, критик ставит баллы. черновик li-02 получил 62 и вернулся автору, вторая версия прошла с 86.",
+    "points": [
+     "нуклеус – одна мысль из источника с цитатой и таймкодом; от него стрелки к нескольким форматам",
+     "агенты не мешают друг другу: у каждого своя папка и свой скилл",
+     "ворота работают без человека; человек смотрит на граф и утверждает публикацию"
+    ]
+   }
+  },
+  {
+   "id": "p09",
+   "title": "срез и петля",
+   "commit": "p09: недельный срез, правило и пример выучены",
+   "steps": [
+    {
+     "path": "dashboards/{dashboard} weekly – 2026-09-29.md",
+     "dwell": 5000,
+     "note": "недельный срез: 7 единиц с кодами и баллами, сетка покрытия нуклеус × канал"
+    },
+    {
+     "path": "rules/{rule} anti-slop.md",
+     "dwell": 4000,
+     "note": "петля замкнулась: находка критика встретилась дважды и стала строкой правила"
+    },
+    {
+     "path": "evals/{eval} golden-set.md",
+     "dwell": 3500,
+     "note": "и отрицательным примером в golden set: следующая правка скилла его не пропустит"
+    },
+    {
+     "path": "guides/{guide} automation.md",
+     "dwell": 2600,
+     "note": "автоматизация: три уровня, у каждой задачи один планировщик, человек утверждает публикацию"
+    },
+    {
+     "path": "automations/{automation} daily linkedin.md",
+     "dwell": 1800
+    },
+    {
+     "path": "automations/{automation} trend scan.md",
+     "dwell": 1800
+    },
+    {
+     "path": "automations/{automation} weekly loop.md",
+     "dwell": 1800
+    },
+    {
+     "type": "narrate",
+     "dwell": 5000,
+     "note": "харнесс собран: 10 коммитов. дальше – своя папка: bin/open.sh <папка> и консоль агентов, или пресет архетипа"
+    }
+   ],
+   "stop": {
+    "title": "харнесс учится на своих ошибках",
+    "lead": "раз в неделю – срез: что вышло, какие баллы, что сработало на рынке. находка критика, повторившаяся дважды, становится строкой правила и примером в golden set.",
+    "points": [
+     "автоматизация: рутина по расписанию (Claude Desktop, cron на сервере) вызывает скилл, человек получает список на модерацию",
+     "консоль агентов: задача в одну строку, Claude или Сотник дописывают скилл, граф растёт вживую",
+     "дальше папка растёт сама, человек правит правила и утверждает публикации"
+    ]
+   }
+  }
+ ]
+}

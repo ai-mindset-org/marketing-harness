@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marketing Harness Live</title>
+<meta name="description" content="Как из пустой папки собирается маркетинг-харнесс: контекст, правила, Exa MCP, скиллы, параллельные агенты, анти-слоп и недельный срез. Маркетинг-спринт AI Mindset.">
+<link rel="icon" href="assets/aim-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header id="hd">
+  <img class="logo" src="assets/aim-logo.png" alt="AI Mindset">
+  <div class="brand">
+    <h1>marketing harness · live build</h1>
+    <p>пустая папка → анкета → правила → нейминг → инструменты → скиллы → evals → дизайн → агенты → срез</p>
+  </div>
+  <nav class="modes" aria-label="режим">
+    <button data-mode="replay">повтор</button>
+    <button data-mode="live">живая папка</button>
+    <button id="openVault" class="liveonly" title="открыть всю папку в Obsidian">папка в Obsidian ↗</button>
+    <a class="pagelink" href="guide.html" title="как запустить, таймлайн блоков, агенты, ресёрч">гид</a><a class="pagelink" href="access.html" title="ключи и проверки инструментов">подключения</a>
+  </nav>
+  <div class="clock"><b id="phaseLabel">00 · пустая папка</b><span id="clock">00:00</span></div>
+</header>
+
+<main id="grid">
+  <section id="colL" class="panel">
+    <h2><span>01 · папка</span><em id="fileCount">0</em></h2>
+    <div id="tree" class="scroll"></div>
+    <h2 class="sub"><span>02 · коммиты</span><em id="commitCount">0</em></h2>
+    <ol id="commits"></ol>
+  </section>
+
+  <section id="colC" class="panel">
+    <div class="gh">
+      <h2><span>03 · граф харнесса</span></h2>
+      <div id="legend"></div>
+    </div>
+    <div id="stage">
+      <svg id="graph" role="img" aria-label="граф файлов харнесса"></svg>
+      <div id="empty">пустая папка<br><small>git init · 0 файлов</small></div>
+      <div id="liveHint" hidden></div>
+    </div>
+    <div id="narr"><span id="narrTag">сейчас</span><span id="narrText">–</span></div>
+  </section>
+
+  <section id="colR">
+    <div class="panel" id="anketaP"><h2><span>04 · анкета</span><em id="qaCount">0/7</em></h2><dl id="qa"></dl></div>
+    <div class="panel" id="lanesP"><h2><span>05 · агенты</span><em id="laneCount">0</em></h2><div id="lanes"></div></div>
+    <div class="panel" id="dashP">
+      <div id="tabs"><button class="on" data-tab="dash">06 · срез</button><button data-tab="tools">инструменты</button><button data-tab="console" class="liveonly">консоль</button></div>
+      <div id="tabBody">
+        <div class="tabpane" data-tab="dash"><div id="metrics"></div><div id="coverage"></div></div>
+        <div class="tabpane" data-tab="tools" hidden><div id="tools"></div></div>
+        <div class="tabpane" data-tab="console" hidden>
+          <form id="consoleForm">
+            <div class="crow"><select id="cRunner"><option value="claude">claude · локально</option><option value="codex">codex · локально</option><option value="sotnik">сотник · codex на сервере</option></select><select id="cModel" title="модель"></select></div>
+            <textarea id="cPrompt" rows="3" placeholder="задача агенту внутри этой папки"></textarea>
+            <div id="cPresets">
+              <button type="button" data-p="Прочитай AGENTS.md. По скиллу harness-evolve добавь скилл для email-рассылки: шаги, вход и выход, ссылки. Потом node bin/sync-skills.mjs и node bin/check.mjs --golden.">+ скилл</button>
+              <button type="button" data-p="Прочитай AGENTS.md. По скиллу content-factory сделай пачку из двух черновиков LinkedIn из нуклеусов без черновика, потом node bin/check.mjs и node bin/render.mjs all.">пачка</button>
+              <button type="button" data-p="Прочитай AGENTS.md. По скиллу research-exa сделай скан «конкуренты AI-обучения маркетингу в 2026» в research/.">ресёрч</button>
+              <button type="button" data-p="Прочитай AGENTS.md. По скиллу slop-check оцени все черновики в outputs/ и обнови scorecard с сегодняшней датой.">критик</button>
+            </div>
+            <div class="crow"><button type="submit">запустить</button><span id="cStatus" class="cap">агент работает в папке, граф растёт вживую · сервер: <b id="consoleHost">–</b></span></div>
+          </form>
+          <div id="runs"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="tl">
+  <div class="ctrl" id="ctrl">
+    <button id="prev" title="предыдущая фаза · ←">⏮</button>
+    <button id="play" title="пауза · пробел">❚❚</button>
+    <button id="next" title="следующая фаза · →">⏭</button>
+    <button id="speed" title="скорость">1×</button>
+    <button id="end" title="в конец · End">⇥</button>
+    <button id="restart" title="сначала · r">↺</button>
+    <button id="stopsBtn" title="остановки с пояснением после каждой фазы · s">стопы</button>
+  </div>
+  <div id="phases"></div>
+  <div id="bar"><i></i></div>
+</footer>
+
+<aside id="preview" hidden>
+  <header><div><b id="pvTitle"></b><span id="pvPath"></span></div><button id="pvClose" aria-label="закрыть">×</button></header>
+  <div id="pvBar">
+    <button id="pvView" class="on" title="как читается">вид</button><button id="pvRaw" title="исходный текст">исходник</button><button id="pvEdit" class="liveonly" title="править файл с живым превью">править</button>
+    <span class="sp"></span>
+    <button id="pvSave" class="liveonly" hidden title="сохранить и закоммитить · ⌘S">сохранить</button>
+    <button id="pvObs" class="liveonly" title="открыть файл в Obsidian">Obsidian</button><button id="pvApp" class="liveonly" title="открыть в приложении по умолчанию">приложение</button><button id="pvFinder" class="liveonly" title="показать в Finder">Finder</button>
+  </div>
+  <div id="pvLinks"></div>
+  <div id="pvWrap">
+    <textarea id="pvEditor" hidden spellcheck="false"></textarea>
+    <pre id="pvBody"></pre>
+    <div id="pvMd" class="md" hidden></div>
+    <iframe id="pvFrame" hidden title="рендер"></iframe>
+  </div>
+  <div id="pvNote" class="cap"></div>
+</aside>
+
+<div id="stop" hidden role="dialog" aria-modal="true" aria-labelledby="stTitle">
+  <div class="card">
+    <div class="st-hd"><span id="stNum">фаза 00</span><span id="stStep">1 / 10</span></div>
+    <h3 id="stTitle"></h3>
+    <p id="stLead"></p>
+    <ul id="stPoints"></ul>
+    <div id="stFiles"></div>
+    <div class="st-ft">
+      <button id="stOff" type="button" title="смотреть без остановок">без остановок</button>
+      <span class="sp"></span>
+      <button id="stGo" type="button" class="go">продолжить →</button>
+    </div>
+  </div>
+</div>
+
+<script src="vendor/d3.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

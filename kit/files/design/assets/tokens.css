@@ -1,0 +1,27 @@
+/* field instrument · design tokens of the marketing harness
+   instrument grammar (mono labels, 1px frames, fig.N, grid) + Anca's field journal
+   (ivory paper, heavy grotesk, serif italic accent, one warm accent). */
+:root{
+  --paper:#faf9f5; --paper-2:#f0eee6; --ink:#141413; --slate:#5e5d59; --cloud:#87867f; --hair:#d1cfc5;
+  --star:#e9b400;   /* accent: Anca canon yellow, one dose per surface */
+  --clay:#d97757;   /* secondary: underline of the key word, figure lines */
+  --night:#141413;  /* dark panel */
+  --display:"Inter", system-ui, sans-serif;
+  --serif:"Lora", Georgia, serif;
+  --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --unit:8px; --frame:1px solid var(--ink); --hairline:1px solid var(--hair);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper); color:var(--ink); font-family:var(--display); -webkit-font-smoothing:antialiased}
+.mono{font-family:var(--mono); letter-spacing:.04em}
+.label{font-family:var(--mono); font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--cloud)}
+.fig{font-family:var(--mono); font-size:13px; color:var(--slate)}
+.fig b{color:var(--clay); font-weight:400}
+.key{background:linear-gradient(transparent 88%, var(--clay) 88%)}
+.it{font-family:var(--serif); font-style:italic; font-weight:400; color:var(--clay)}
+.chip{display:inline-block; font-family:var(--mono); font-size:13px; border:var(--frame); padding:4px 10px; letter-spacing:.06em}
+.chip.star{background:var(--star); border-color:var(--star)}
+.grid-bg{background-image:linear-gradient(var(--paper-2) 1px,transparent 1px),linear-gradient(90deg,var(--paper-2) 1px,transparent 1px); background-size:40px 40px}
+.night{background:var(--night); color:var(--paper)}
+.night .fig{color:var(--cloud)}

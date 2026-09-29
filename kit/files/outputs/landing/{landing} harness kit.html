@@ -1,0 +1,98 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>маркетинг-харнесс · воркшоп и набор</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Lora:ital@1&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"><style>/* field instrument · design tokens of the marketing harness
+   instrument grammar (mono labels, 1px frames, fig.N, grid) + Anca's field journal
+   (ivory paper, heavy grotesk, serif italic accent, one warm accent). */
+:root{
+  --paper:#faf9f5; --paper-2:#f0eee6; --ink:#141413; --slate:#5e5d59; --cloud:#87867f; --hair:#d1cfc5;
+  --star:#e9b400;   /* accent: Anca canon yellow, one dose per surface */
+  --clay:#d97757;   /* secondary: underline of the key word, figure lines */
+  --night:#141413;  /* dark panel */
+  --display:"Inter", system-ui, sans-serif;
+  --serif:"Lora", Georgia, serif;
+  --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --unit:8px; --frame:1px solid var(--ink); --hairline:1px solid var(--hair);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper); color:var(--ink); font-family:var(--display); -webkit-font-smoothing:antialiased}
+.mono{font-family:var(--mono); letter-spacing:.04em}
+.label{font-family:var(--mono); font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--cloud)}
+.fig{font-family:var(--mono); font-size:13px; color:var(--slate)}
+.fig b{color:var(--clay); font-weight:400}
+.key{background:linear-gradient(transparent 88%, var(--clay) 88%)}
+.it{font-family:var(--serif); font-style:italic; font-weight:400; color:var(--clay)}
+.chip{display:inline-block; font-family:var(--mono); font-size:13px; border:var(--frame); padding:4px 10px; letter-spacing:.06em}
+.chip.star{background:var(--star); border-color:var(--star)}
+.grid-bg{background-image:linear-gradient(var(--paper-2) 1px,transparent 1px),linear-gradient(90deg,var(--paper-2) 1px,transparent 1px); background-size:40px 40px}
+.night{background:var(--night); color:var(--paper)}
+.night .fig{color:var(--cloud)}
+
+:root{--bg:#fff;--ink:#0a0a0a;--soft:#dcdcdc;--hair:#ececec;--grid:#f1f1f1;--muted:#8a8a8a;--acc:#d7261e;--m:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+body{background:var(--bg);color:var(--ink);font-family:var(--m);font-size:14px;line-height:1.55}
+.key{background:none;box-shadow:inset 0 -3px 0 var(--acc)}
+.it{font-family:var(--m);font-style:normal;color:var(--acc)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+nav{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 0 12px;border-bottom:1px solid var(--ink)}
+nav b{font-weight:800;letter-spacing:.06em}
+.stamp{border:1px solid var(--ink);padding:3px 9px;font-size:12px;letter-spacing:.08em}
+.lbl{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);border-bottom:1px dashed var(--soft);padding-bottom:6px;margin:0 0 14px}
+.lbl em{font-style:normal;color:var(--ink);letter-spacing:.04em}
+.hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:40px;align-items:end;padding:56px 0 40px}
+h1{font-size:clamp(30px,4.6vw,54px);line-height:1.08;letter-spacing:-.035em;font-weight:800;margin:0;text-transform:lowercase}
+.sub{margin:0 0 18px;font-size:14.5px}
+.meta{border-top:1px solid var(--ink)}
+.row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;padding:7px 0;border-bottom:1px dotted var(--soft)}
+.row span{color:var(--muted);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding-top:2px}
+.row b{font-weight:500}
+.panel{border:1px solid var(--ink);padding:12px 14px 16px;margin:0 0 28px;background:var(--bg)}
+.fig{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:32px 32px}
+.fig h2{color:var(--ink);font-size:clamp(18px,2.4vw,26px);font-weight:700;letter-spacing:-.02em;margin:4px 0 18px;text-transform:lowercase}
+.flow{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));border-top:1px solid var(--ink);border-left:1px solid var(--ink)}
+.flow li{border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:10px 12px 12px;background:var(--bg);display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-content:start;position:relative}
+.flow li i{font-style:normal;font-size:16px;line-height:1}
+.flow li .n{color:var(--muted);font-size:11px;align-self:center}
+.flow li span:last-child{grid-column:1 / -1;font-size:13px}
+.flow li:not(:last-child)::after{content:"→";position:absolute;right:-7px;top:9px;background:var(--bg);color:var(--ink);font-size:12px;line-height:1;z-index:1}
+.who{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ink);border-left:1px solid var(--ink)}
+.who article{border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:12px 14px}
+.who p{margin:10px 0 0}
+.tag{display:inline-block;background:var(--ink);color:var(--bg);padding:2px 8px;font-size:11px;letter-spacing:.1em}
+ul.take{list-style:none;margin:0;padding:0;columns:2;column-gap:32px}
+ul.take li{break-inside:avoid;padding:6px 0 6px 20px;border-bottom:1px dotted var(--soft);position:relative}
+ul.take li::before{content:"▢";position:absolute;left:0;color:var(--ink)}
+ol.how{list-style:none;margin:0;padding:0}
+ol.how li{display:grid;grid-template-columns:34px minmax(0,1fr);padding:7px 0;border-bottom:1px dotted var(--soft)}
+ol.how .n{color:var(--muted)}
+.quiz{border:1px solid var(--ink);padding:14px 16px;max-width:680px}
+.quiz .cap{color:var(--muted);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.quiz .q{font-size:19px;font-weight:700;margin:6px 0 14px;letter-spacing:-.01em}
+.quiz button{font:inherit;font-size:13px;color:var(--ink);background:var(--bg);border:1px solid var(--ink);padding:7px 12px;margin:0 6px 6px 0;cursor:pointer}
+.quiz button:hover{background:var(--ink);color:var(--bg)}
+.quiz .skip{border-color:var(--soft);color:var(--muted)}
+.go{display:inline-block;background:var(--ink);color:var(--bg);padding:11px 18px;text-decoration:none;font-weight:500;border:1px solid var(--ink)}
+.go:hover{background:var(--acc);border-color:var(--acc)}
+details{border-bottom:1px dotted var(--soft);padding:9px 0}
+summary{cursor:pointer;font-weight:500;list-style:none}
+summary::before{content:"+ ";color:var(--muted)}
+details[open] summary::before{content:"– "}
+details p{margin:6px 0 0 16px;color:#333}
+footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 0 28px;border-top:1px solid var(--ink);color:var(--muted);font-size:11.5px}
+@media (max-width:760px){.wrap{padding:0 16px}.hero{grid-template-columns:minmax(0,1fr);gap:24px;padding:32px 0 28px}.who{grid-template-columns:minmax(0,1fr)}ul.take{columns:1}.flow li::after{display:none}.row{grid-template-columns:90px minmax(0,1fr)}}</style><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet"></head><body><div class="wrap">
+<nav><b>AI MINDSET</b><span class="stamp">P1-H4-A2-F7</span></nav>
+<div class="hero"><div><div class="lbl"><span>01 · страница</span></div><h1>маркетинг-харнесс: <span class="key">папка</span>, которая помнит продукт и пишет вместе с вами</h1></div><div><p class="sub">за один час практики – контекст, правила, три скилла и первый проверенный пост на вашем продукте. дальше папка растёт сама: агенты пишут в свои ветки, критик ловит слоп, раз в неделю – срез.</p><div class="meta"><div class="row"><span>дата</span><b>чт 01.10.2026 · 12:00 CET</b></div><div class="row"><span>формат</span><b>онлайн · 90 минут</b></div><div class="row"><span>для кого</span><b>участники маркетинг-спринта</b></div></div></div></div>
+<div class="panel fig"><div class="lbl"><span>fig. 1 · шесть слоёв харнесса</span><em>06 шагов</em></div><h2>из пустой папки – в машину, которая <span class="it">сама</span> проверяет тексты</h2><ol class="flow"><li><i>■</i><span class="n">01</span><span>анкета из семи вопросов становится <span class="key">контекстом</span></span></li><li><i>◇</i><span class="n">02</span><span>правила: принципы, evals, анти-слоп, границы</span></li><li><i>△</i><span class="n">03</span><span>инструменты: Claude Code, Exa, LMS, LinkedIn</span></li><li><i>○</i><span class="n">04</span><span>скиллы: нуклеусы, контент-завод, LinkedIn, критик</span></li><li><i>●</i><span class="n">05</span><span>агенты работают параллельно, каждый в своей ветке</span></li><li><i>✚</i><span class="n">06</span><span>недельный срез замыкает петлю</span></li></ol></div>
+<div class="panel"><div class="lbl"><span>02 · для кого</span><em>03</em></div><div class="who"><article><span class="tag">P1</span><p>B2B-консультант или фаундер услуги – контент выходит, до ЛПР не доходит</p></article><article><span class="tag">P2</span><p>владелец B2C – органика держится на одном человеке</p></article><article><span class="tag">P3</span><p>технический основатель – продукт есть, смыслов продвижения нет</p></article></div></div>
+<div class="panel"><div class="lbl"><span>03 · что уносите</span><em>06</em></div><ul class="take"><li>папку харнесса на своём продукте</li><li>контекст: продукт, аудитория, голос, факты</li><li>три скилла и проверки кодом</li><li>первый пост с баллом критика</li><li>гайд установки и первый час по шагам</li><li>доступ к живому графу сборки</li></ul></div>
+<div class="panel"><div class="lbl"><span>04 · как проходит</span></div><ol class="how"><li><span class="n">01</span><span>35 минут показа: харнесс из пустой папки, LinkedIn и анти-слоп</span></li><li><span class="n">02</span><span>45 минут практики тремя шагами, после каждого двое показывают экран</span></li><li><span class="n">03</span><span>горячий стул: два продукта участников</span></li></ol></div>
+<div class="panel"><div class="lbl"><span>05 · три вопроса перед записью</span></div><div class="quiz" id="quiz"></div></div>
+<div class="panel"><div class="lbl"><span>06 · вопросы</span></div><details><summary>нужен ли терминал?</summary><p>нет, есть маршрут «только чат»; с терминалом быстрее</p></details><details><summary>нужны ли ключи API?</summary><p>для первого часа нет; Exa и LMS подключаются позже по гайду</p></details><details><summary>что принести?</summary><p>один свой текст о продукте: транскрипт, пост или описание</p></details></div>
+<footer><span>собрано харнессом · бриф {landing} harness kit.md</span><span>код P1-H4-A2-F7</span></footer>
+</div>
+<script>
+const Q=[["что вы продаёте?","услугу B2B","товар или сервис B2C","свой продукт"],["где вы уже работаете с AI?","только чат","терминал","агенты"],["главный канал?","LinkedIn","Telegram","Instagram"]];const base="https://aimindset.org";const code="P1-H4-A2-F7";const ans=[];
+function show(i){const el=document.getElementById('quiz');
+ if(i>=Q.length){const u=base+(base.includes('?')?'&':'?')+'utm_content='+encodeURIComponent(code+(ans.length?'-q'+ans.join(''):''));
+  el.innerHTML='<div class="cap">готово · '+ans.length+' из '+Q.length+'</div><div class="q">забрать место на воркшопе</div><a class="go" href="'+u+'">забрать место на воркшопе →</a>';return;}
+ const [q,...opts]=Q[i];el.innerHTML='<div class="cap">вопрос '+(i+1)+' / '+Q.length+'</div><div class="q">'+q+'</div>'+opts.map((o,k)=>'<button data-k="'+(k+1)+'">'+o+'</button>').join('')+'<button class="skip">пропустить</button>';
+ el.querySelectorAll('button').forEach(b=>b.onclick=()=>{if(b.dataset.k)ans.push(b.dataset.k);show(i+1);});}
+show(0);
+</script></body></html>
