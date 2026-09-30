@@ -23,7 +23,7 @@
 ## три режима
 - **демо** – `index.html`: сборка по `web/scenario.json`, карточки фаз, клик по фазе внизу возвращает к её карточке;
 - **живая папка** – `bin/open.sh <папка>` → `?mode=live`: папка этого компьютера через локальный сервер, правка, агенты, Obsidian; пробел замораживает картинку;
-- **команда** – `?mode=team`: рабочая папка спринта из git (`ai-mindset-org/marketing-harness-sprint`), статичный `team/state.json`, опрос раз в 20 с, без консоли и правки. Публикация: `bin/publish-team.sh [папка] [клон lab-sites]` – экспорт через `tools/export-state.mjs`, push в lab-sites только при новом HEAD папки. На сервере это делает таймер (предложено инфраструктуре, узел сначала в реестр).
+- **команда** – `?mode=team`: рабочая папка спринта из git (`ai-mindset-org/marketing-harness-sprint`), статичный `team/state.json`, опрос раз в 20 с, без консоли и правки. Публикация: `bin/publish-team.sh [папка] [клон lab-sites]` – экспорт через `tools/export-state.mjs`, push в lab-sites только при новом HEAD папки. На сервере это делает таймер `marketing-harness-team-publish` на VM105 (раз в 5 минут, запись в реестре team-ai-infrastructure, ранбук `worldstream/docs/runbooks/2026-09-29-marketing-harness-team-publish.md`).
 
 ## ключи не уходят из процесса
 `tools/folder-state.mjs` читает папку одинаково для сервера и экспорта и маскирует всё, что похоже на ключ (sk-, ghp_, github_pat_, токены ботов Telegram, Google, Apify, Krisp, Bearer, `api_key=…`, `exaApiKey=…`) в содержимом файлов, журналах агентов и раздаче `/f/`. Плейсхолдеры `${ИМЯ}` остаются. Скрытые файлы папки (`.env` и другие) сервер не отдаёт, кроме `.mcp.json`, `.githooks/`, `.claude/settings.json`.

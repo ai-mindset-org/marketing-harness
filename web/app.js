@@ -806,7 +806,7 @@
     if (introWanted) {
       $('inTitle').textContent = TEAM ? 'командный вид: рабочая папка спринта из git' : SERVERLESS ? 'живая папка: подключи свою папку' : 'живая папка: харнесс на этом компьютере';
       if (SERVERLESS && !TEAM) $('inPoints').innerHTML = '<li>на сайте папку можно выбрать прямо в браузере или перетащить из Finder: граф, поиск, правка файлов</li><li>агенты, Obsidian и коммиты – в полном режиме: <code>bin/open.sh</code> на своём компьютере, команды на следующем экране</li><li>командный вид – рабочая папка спринта из git, без установки</li>';
-      if (TEAM) $('inPoints').innerHTML = '<li>граф собран из репозитория ai-mindset-org/marketing-harness-sprint и обновляется после каждого push</li><li>правка и агенты – у себя: клонируй репозиторий, bin/open.sh, коммит, push</li><li>клик по узлу открывает файл; ⌘K – поиск; пробел – заморозить картинку</li>';
+      if (TEAM) $('inPoints').innerHTML = '<li>граф собран из репозитория ai-mindset-org/marketing-harness-sprint: сервер команды проверяет его раз в 5 минут и публикует после каждого push</li><li>в строке папки – zip текущей папки и команда клонирования</li><li>правка и агенты – у себя: клонируй репозиторий, bin/open.sh, коммит, push</li><li>клик по узлу открывает файл; ⌘K – поиск; пробел – заморозить картинку</li>';
       $('inGo').textContent = 'открыть граф →'; $('inEnd').hidden = true;
       $('intro').hidden = false; $('inGo').focus();
       $('inGo').onclick = () => introClose();

@@ -141,7 +141,7 @@
     <div><h3>как лучше команде</h3><p>смотреть – командный вид. поправить пару файлов – скачать zip или клонировать, открыть папку в браузере, сохранить, закоммитить. работать с агентами – полный режим <code>bin/open.sh</code>. источник правды один: репозиторий <code>marketing-harness-sprint</code>.</p></div>
     <div><h3>подхватить и доделать</h3><p><code>gh repo clone ai-mindset-org/marketing-harness-sprint ~/harness/marketing-sprint</code>, затем движок <code>gh repo clone ai-mindset-org/marketing-harness</code> и <code>bin/open.sh ~/harness/marketing-sprint</code>. перед работой <code>git pull</code>, после – коммит на шаг и <code>git push</code>.</p></div>
     <div><h3>кто пишет куда</h3><p>одна ветка папки – один писатель за раз: ресёрч, нуклеусы, черновики, гейты. правка <code>context/</code> и <code>rules/</code> – через короткое сообщение в чате маркетинга. pre-commit не пропустит ключ и черновик без проверок.</p></div>
-    <div><h3>общий вид</h3><p>после push держатель папки запускает <code>bin/publish-team.sh</code>: состояние уходит в <code>team/state.json</code>, командный граф обновляется. таймер на сервере команды делает то же сам – предложен инфраструктуре.</p></div>
+    <div><h3>общий вид</h3><p>после push командный граф обновляется сам: таймер на сервере команды раз в 5 минут забирает рабочую папку и публикует её состояние и zip. вручную то же делает <code>bin/publish-team.sh</code>.</p></div>
     <div><h3>ключи</h3><p>ключи живут у каждого в окружении. сервер инструмента и командный вид маскируют всё, что похоже на ключ, в файлах и журналах агентов.</p></div>
   </div>
   <table class="t" style="margin-top:12px">
