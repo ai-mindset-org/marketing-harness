@@ -392,3 +392,134 @@ body.nosrc #folderBar{display:none !important}
 #pvBar .pvlink{border:1px solid var(--soft); border-left:none; padding:2px 7px; font-size:10.5px; text-decoration:none; color:var(--ink)}
 #pvBar .pvlink:hover{background:var(--ink); color:var(--bg)}
 #pvBar .pvlink[hidden]{display:none}
+
+/* v7: tester fixes */
+.file.sel .g{color:var(--accent)}
+.clock span{max-width:100%}
+body.team .fb-git,body.live .fb-git{white-space:normal; overflow-wrap:anywhere}
+.fb-git code{background:var(--hair); padding:0 3px; color:var(--ink)}
+.fb-git .cap{display:inline; margin:0}
+#pvNote{white-space:pre-wrap}
+#pvNote.warn{color:var(--accent)}
+@media (max-width:760px){
+  #connect{position:relative; left:auto; top:auto; transform:none; width:auto; max-height:none; margin:8px 16px 16px}
+  body.nosrc #colC{min-height:0}
+  body.nosrc #stage{min-height:0}
+  body.nosrc #graph{display:none}
+}
+
+/* v7: roles panel, sessions, commit card, history, properties */
+.lrow{display:flex; gap:4px; align-items:center; min-width:0}
+.lrow .tgt{flex:1; min-width:0; color:var(--ink); text-decoration:none}
+.lrow .tgt.open{cursor:pointer; border-bottom:1px dotted var(--soft)}
+.lrow .tgt.open:hover{border-bottom-color:var(--ink)}
+.lrow .tgt.miss{color:var(--accent)}
+.lrow button{padding:0 6px; font-size:10.5px; line-height:1.5; border-color:var(--soft)}
+.lrow button + button{margin-left:-5px}
+.lrow button[data-role]:hover{background:var(--accent); border-color:var(--accent); color:#fff}
+.lane{grid-template-columns:14px 94px minmax(0,1fr)}
+#lanes .cap{padding-top:4px}
+.srow{display:grid; grid-template-columns:10px 40px minmax(0,1fr); gap:2px 6px; align-items:baseline; padding:4px 2px; border-bottom:1px dotted var(--hair); cursor:pointer; font-size:11px}
+.srow:hover{background:var(--hair)}
+.srow i{width:8px; height:8px; border:1.3px solid var(--ink); border-radius:50%; align-self:center}
+.srow.running i{background:var(--accent); border-color:var(--accent); animation:blink 1s steps(2) infinite}
+.srow.done i{background:var(--ink)}
+.srow.failed i,.srow.stopped i,.srow.lost i{border-color:var(--accent)}
+.srow b{font-weight:500}
+.srow span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.srow small{grid-column:3; color:var(--muted); font-size:10px}
+#commits li.click{cursor:pointer}
+#commits li.click:hover{background:var(--hair)}
+#commits li.ag span::before{content:"● "; color:var(--accent)}
+#preview.kind-doc .fileonly{display:none !important}
+#pvPath span:not(:first-child)::before{content:" · "; color:var(--soft)}
+#pvLinks > div{display:flex; flex-wrap:wrap; gap:2px 10px; align-items:baseline}
+#pvLinks > div > b{color:var(--ink); font-weight:500; min-width:34px}
+#pvLinks .lg{display:inline-flex; flex-wrap:wrap; gap:0 6px; align-items:baseline}
+#pvLinks .lg i{font-style:normal; color:var(--muted)}
+#pvLinks .lg a{margin-right:0}
+#pvLinks .lg em{font-style:normal; color:var(--muted)}
+#pvLinks a.miss{border-bottom:1px dashed var(--soft); color:var(--muted); cursor:default}
+.md .props{display:grid; grid-template-columns:minmax(80px,max-content) minmax(0,1fr); gap:0; margin:0 0 12px; border:1px solid var(--soft); font-size:11px}
+.md .props dt,.md .props dd{margin:0; padding:3px 7px; border-bottom:1px dotted var(--hair)}
+.md .props dt{color:var(--muted)}
+.md .props dd{overflow-wrap:anywhere}
+.md .props .ph{border-bottom:1px solid var(--soft); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); background:var(--paper)}
+.md .props dd.ph{text-align:right; letter-spacing:.04em}
+.chip,.person{display:inline-block; border:1px solid var(--soft); padding:0 5px; margin:1px 2px 1px 0; font-size:10.5px}
+.person::before{content:"◉ "; color:var(--muted)}
+.badge{display:inline-block; border:1px solid var(--ink); padding:0 6px; font-size:10.5px; text-transform:lowercase}
+.badge.st-approved,.badge.st-published,.card.st-done .badge{background:var(--ink); color:var(--bg)}
+.badge.st-draft{border-style:dashed}
+.card.st-running .badge,.card.st-failed .badge,.card.st-stopped .badge{border-color:var(--accent); color:var(--accent)}
+.md .tw{overflow-x:auto; margin:0 0 10px; max-width:100%}
+.md .tw table{margin:0}
+.md li.task{list-style:none; margin-left:-16px}
+.md li.task.did{color:var(--muted); text-decoration:line-through}
+.md .callout{border:1px solid var(--soft); border-left:3px solid var(--ink); padding:6px 9px; margin:0 0 10px; background:var(--paper)}
+.md .callout > b{display:block; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; margin-bottom:3px}
+.md pre[data-lang]::before{content:attr(data-lang); display:block; color:var(--muted); font-size:10px; margin-bottom:3px}
+.md .toc{display:flex; flex-wrap:wrap; gap:2px 10px; font-size:10.5px; color:var(--muted); border-bottom:1px dashed var(--soft); padding:0 0 6px; margin:0 0 10px}
+.md .toc a{color:var(--ink); cursor:pointer; border-bottom:1px solid var(--soft)}
+.md .card{border:1px solid var(--soft); border-left:3px solid var(--ink); padding:7px 9px; margin:0 0 10px; background:var(--bg)}
+.md .card.st-running,.md .card.st-failed,.md .card.st-stopped,.md .card.st-lost{border-left-color:var(--accent)}
+.md .card.st-running{animation:none}
+.md .card .kv{display:flex; flex-wrap:wrap; gap:2px 10px; font-size:11px; margin-bottom:3px}
+.md .card .msg{font-weight:700; margin:0 0 4px}
+.acts{display:flex; flex-wrap:wrap; gap:0; margin:6px 0 2px; align-items:center}
+.acts button{padding:2px 8px; font-size:10.5px; margin:0 -1px -1px 0}
+.acts button.on{background:var(--ink); color:var(--bg)}
+button.danger{border-color:var(--ink)}
+button.danger:hover,.confirm .yes{background:var(--accent); border-color:var(--accent); color:#fff}
+.confirm{display:inline-flex; align-items:center; gap:0; border:1px solid var(--accent); padding-left:7px; font-size:10.5px; margin:0 6px 0 0}
+.confirm > span{color:var(--accent); margin-right:6px}
+.confirm button{border:none; border-left:1px solid var(--accent); padding:2px 9px; font-size:10.5px}
+.md .gate{color:var(--accent); border-color:var(--accent)}
+.md .task{margin:0 0 6px}
+.md .chips{display:flex; flex-wrap:wrap; gap:4px; margin:0 0 8px}
+.md .chips a{border:1px solid var(--soft); padding:1px 6px; cursor:pointer; color:var(--ink); text-decoration:none; font-size:10.5px}
+.md .chips a:hover{border-color:var(--ink)}
+.md .chips a.gone{color:var(--muted); border-style:dashed; cursor:default}
+.md .steps{list-style:none; padding:0; margin:0 0 10px; font-size:10.5px; border-top:1px solid var(--hair)}
+.md .steps li{display:grid; grid-template-columns:58px minmax(0,1fr); gap:6px; padding:2px 0; border-bottom:1px dotted var(--hair)}
+.md .steps time{color:var(--muted)}
+.md .steps li span{white-space:pre-wrap; overflow-wrap:anywhere}
+.md .steps li.k-text span{color:var(--ink)}
+.md .steps li.k-file b,.md .steps li.k-err span{color:var(--accent)}
+.md .steps li.k-sys,.md .steps li.k-out,.md .steps li.k-think{color:var(--muted)}
+.md .steps li.k-text span{max-height:9em; overflow:auto; display:block}
+.md .flist{list-style:none; padding:0; margin:0 0 10px; font-size:11px}
+.md .flist li{display:grid; grid-template-columns:16px minmax(0,1fr); gap:4px; padding:1px 0; border-bottom:1px dotted var(--hair)}
+.md .flist a{color:var(--ink); cursor:pointer; overflow-wrap:anywhere}
+.md .flist .st-A{color:var(--ink)} .md .flist .st-D{color:var(--accent)}
+.md .dl{font-size:10.5px; line-height:1.45; white-space:pre; overflow:auto; padding:0}
+.md .dl span{display:block; padding:0 6px; min-height:1.45em}
+.md .dl .add{background:var(--grid); box-shadow:inset 2px 0 0 var(--ink)}
+.md .dl .rem{color:var(--accent); background:#fff6f5; box-shadow:inset 2px 0 0 var(--accent)}
+.md .dl .hunk{color:var(--muted); background:var(--paper)}
+.md .dl .meta{color:var(--muted); font-weight:700}
+.md .hist{list-style:none; padding:0; margin:8px 0 12px; font-size:11px}
+.md .hist li{display:grid; grid-template-columns:62px minmax(0,1fr); gap:0 6px; padding:3px 4px; border-bottom:1px dotted var(--hair); cursor:pointer}
+.md .hist li:hover{background:var(--hair)}
+.md .hist li.on{background:var(--ink); color:var(--bg)}
+.md .hist li.on small{color:#bbb}
+.md .hist li b{font-weight:500; color:var(--accent)}
+.md .hist li.on b{color:#ff8a80}
+.md .hist small{grid-column:2; color:var(--muted); font-size:10px}
+.forkf{display:flex; flex-wrap:wrap; gap:0; margin:4px 0 2px; width:100%}
+.forkf input:not([type]){flex:1; min-width:140px; font:inherit; font-size:10.5px; border:1px solid var(--ink); padding:2px 6px}
+.forkf label{display:flex; gap:4px; align-items:center; padding:0 8px; font-size:10.5px; border:1px solid var(--ink); border-left:none}
+.forkf button{padding:2px 8px; font-size:10.5px; border-left:none; background:var(--ink); color:var(--bg)}
+#forkBox{margin-top:4px}
+#forkBox .cap,#forkBox p{margin:3px 0 0; font-size:10px}
+.okmsg code,.warn code{background:var(--hair); padding:0 3px}
+.warn{color:var(--accent)}
+#consoleOff ul.plain{margin:4px 0 6px; padding-left:14px}
+#consoleOff ul.plain li{margin:2px 0}
+#cMsg:empty{display:none}
+#preview{width:min(540px,calc(100vw - 24px))}
+#pvLinks{max-height:112px; overflow:auto}
+.md .dl{white-space:pre-wrap; overflow-wrap:anywhere}
+.md .propsd{margin:0 0 10px}
+.md .propsd summary{cursor:pointer; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+.md .propsd[open] summary{margin-bottom:6px}

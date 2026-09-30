@@ -78,7 +78,9 @@ function checkDraft(file) {
 // ---------- golden set regression ----------
 function golden() {
   const text = read('evals/{eval} golden-set.md');
+  // `golden pass|fail` – the code catches it; `golden judge` – only the LLM judge does, the code skips it
   const blocks = [...text.matchAll(/```golden (pass|fail)(?::\s*([^\n]*))?\n([\s\S]*?)```/g)];
+  const judge = [...text.matchAll(/```golden judge\b/g)].length;
   let ok = 0;
   const rows = blocks.map(([, expect, why, body], i) => {
     const t = textChecks(body);
@@ -88,7 +90,7 @@ function golden() {
     return `${pass ? '✓' : '✗'} пример ${i + 1}: ждали ${expect}${why ? ` (${why.trim()})` : ''}, получили ${got}`;
   });
   console.log(rows.join('\n'));
-  console.log(`golden set: ${ok}/${blocks.length}`);
+  console.log(`golden set: ${ok}/${blocks.length}${judge ? ` · ещё ${judge} для судьи (код их не проверяет, смотрит slop-check)` : ''}`);
   process.exit(ok === blocks.length ? 0 : 1);
 }
 if (argv.includes('--golden')) golden();

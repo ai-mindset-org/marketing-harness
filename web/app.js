@@ -8,6 +8,8 @@
   // replay: scenario.json · live: this computer's folder via the local server · team: the sprint folder from git, static state.json
   const MODE = ['live', 'team'].includes(qs.get('mode')) ? qs.get('mode') : 'replay';
   const TEAM = MODE === 'team';
+  // the local server lives only on this computer: on the site the page never asks /api
+  const LOCALHOST = ['localhost', '127.0.0.1'].includes(location.hostname);
   document.body.classList.toggle('live', MODE !== 'replay');
   document.body.classList.toggle('team', TEAM);
   document.querySelectorAll('.modes button').forEach((b) => {
@@ -35,15 +37,17 @@
     dashboard: { label: 'срез',       sym: 'cross',    fill: true,    size: 160, glyph: '✚', ax: 0.86,  ay: -0.12 },
     automation:{ label: 'рутина',     sym: 'hourglass', fill: false,  size: 130, glyph: '⧗', ax: 0.34,  ay: -0.9 },
     gate:      { label: 'гейт',       sym: 'gate',     fill: false,   size: 140, glyph: '⊓', ax: 0.66,  ay: 0.06 },
+    session:   { label: 'сессия',     sym: 'play',     fill: false,   size: 130, glyph: '▷', ax: -0.16, ay: 0.66 },
     ghost:     { label: 'план',       sym: 'circle',   fill: false,   size: 60,  glyph: '◌' },
   };
   // two shapes d3 lacks: a hexagon for roles, an hourglass for scheduled routines
   const hexagon = { draw(c, size) { const r = Math.sqrt(size / 2.598); for (let k = 0; k < 6; k++) { const a = Math.PI / 6 + (k * Math.PI) / 3; c[k ? 'lineTo' : 'moveTo'](r * Math.cos(a), r * Math.sin(a)); } c.closePath(); } };
   const hourglass = { draw(c, size) { const a = Math.sqrt(size) / 2; c.moveTo(-a, -a); c.lineTo(a, -a); c.lineTo(-a, a); c.lineTo(a, a); c.closePath(); } };
+  const play = { draw(c, size) { const a = Math.sqrt(size) / 1.8; c.moveTo(-a * 0.8, -a); c.lineTo(a, 0); c.lineTo(-a * 0.8, a); c.closePath(); } };
   const gate = { draw(c, size) { const a = Math.sqrt(size) / 2; c.moveTo(-a, a); c.lineTo(-a, -a); c.lineTo(a, -a); c.lineTo(a, a); c.moveTo(-a * 0.35, a); c.lineTo(-a * 0.35, -a * 0.2); c.lineTo(a * 0.35, -a * 0.2); c.lineTo(a * 0.35, a); } };
-  const SYM = { hexagon, hourglass, gate, diamond: d3.symbolDiamond, square: d3.symbolSquare, triangle: d3.symbolTriangle, circle: d3.symbolCircle, wye: d3.symbolWye,
+  const SYM = { hexagon, hourglass, gate, play, diamond: d3.symbolDiamond, square: d3.symbolSquare, triangle: d3.symbolTriangle, circle: d3.symbolCircle, wye: d3.symbolWye,
     cross: d3.symbolCross, star: d3.symbolStar, times: d3.symbolTimes || d3.symbolCross, asterisk: d3.symbolAsterisk || d3.symbolStar };
-  const FOLDER_ORDER = ['', 'context', 'rules', 'roles', 'tools', 'skills', 'evals', 'design', 'guides', 'bin', 'sources', 'research', 'nuclei', 'outputs', 'dashboards', 'automations', 'gates'];
+  const FOLDER_ORDER = ['', 'context', 'rules', 'roles', 'tools', 'skills', 'evals', 'design', 'guides', 'bin', 'sources', 'research', 'nuclei', 'outputs', 'dashboards', 'sessions', 'automations', 'gates'];
   const LANE_ORDER = ['ingest', 'researcher', 'extractor', 'writer', 'designer', 'critic'];
   const LANE_META = {
     ingest: { title: 'загрузчик', skill: 'lms-ingest' }, researcher: { title: 'исследователь', skill: 'research-exa' },
@@ -59,7 +63,7 @@
     if (/^bin\/(gate|guard)-/.test(p) || p.startsWith('.githooks/') || p === '.claude/settings.json') return 'gate';
     if (top === 'bin' || /\.(mjs|css)$/.test(p)) return top === 'design' ? 'design' : 'code';
     return ({ context: 'context', rules: 'rule', tools: 'tool', skills: 'skill', sources: 'source', research: 'research', nuclei: 'nucleus',
-      outputs: 'output', evals: 'eval', dashboards: 'dashboard', design: 'design', guides: 'guide', roles: 'role', automations: 'automation', gates: 'gate' })[top] || 'source';
+      outputs: 'output', evals: 'eval', dashboards: 'dashboard', design: 'design', guides: 'guide', roles: 'role', automations: 'automation', gates: 'gate', sessions: 'session' })[top] || 'source';
   }
   function frontmatter(text) {
     const m = /^---\n([\s\S]*?)\n---/.exec(text || '');
@@ -220,12 +224,16 @@
       if (skillFile) links.push({ source: aid, target: skillFile.path, kind });
       for (const p of S.wrote[id] || []) if (S.files.has(p)) links.push({ source: aid, target: p, kind });
     }
-    // console runs (live): one agent node per run, linked to the files it touched
+    // console runs (live): an agent node while it works, linked to the files it touches;
+    // afterwards its session file in sessions/ carries the same links
     for (const r of S.runs) {
+      const hasSession = r.session && S.files.has(r.session);
+      if (!(r.status === 'running' || (r.endedAt && Date.now() - r.endedAt < 8000 && !hasSession))) continue;
       const aid = `run:${r.id}`;
-      nodes.push({ id: aid, layer: 'agent', title: r.runner, running: r.status === 'running' });
+      nodes.push({ id: aid, layer: 'agent', title: (LANE_META[r.role] && LANE_META[r.role].title) || r.runner, running: r.status === 'running', run: r.id });
+      const touched = new Set(r.touched || []);
       for (const f of S.files.values()) {
-        if (f.mtime && f.mtime >= r.startedAt && f.mtime <= (r.endedAt || Infinity) + 5000) links.push({ source: aid, target: f.path, kind: r.status === 'running' ? 'agent' : 'agent-idle' });
+        if (touched.has(f.path) || (f.mtime && f.mtime >= r.startedAt && f.mtime <= (r.endedAt || Infinity) + 5000)) links.push({ source: aid, target: f.path, kind: r.status === 'running' ? 'agent' : 'agent-idle' });
       }
     }
     return { nodes, links };
@@ -258,7 +266,7 @@
         g.call(d3.drag().on('start', (e, d) => { if (!e.active) sim.alphaTarget(0.2).restart(); d.fx = d.x; d.fy = d.y; })
           .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; })
           .on('end', (e, d) => { if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }));
-        g.on('click', (e, d) => d.file && openPreview(d.file.path))
+        g.on('click', (e, d) => (d.file ? openPreview(d.file.path) : d.run ? openSession(d.run) : null))
           .on('mouseenter', (e, d) => { hoverId = d.id; highlight(); })
           .on('mouseleave', () => { hoverId = null; highlight(); });
         return g;
@@ -321,7 +329,7 @@
     else if (hiddenLayers.has(l)) hiddenLayers.delete(l); else hiddenLayers.add(l);
     paintLegend();
   });
-  document.getElementById('legend').innerHTML = ['hub', 'context', 'rule', 'role', 'tool', 'code', 'guide', 'skill', 'eval', 'design', 'agent', 'source', 'research', 'nucleus', 'output', 'dashboard', 'automation', 'gate', 'ghost']
+  document.getElementById('legend').innerHTML = ['hub', 'context', 'rule', 'role', 'tool', 'code', 'guide', 'skill', 'eval', 'design', 'agent', 'source', 'research', 'nucleus', 'output', 'dashboard', 'automation', 'gate', 'session', 'ghost']
     .map((k) => {
       const L = LAYERS[k];
       const d = d3.symbol(SYM[L.sym], Math.min(L.size, 110) * 0.8)();
@@ -356,7 +364,8 @@
 
   function renderCommits() {
     const ol = document.getElementById('commits');
-    ol.innerHTML = S.commits.map((c, i) => `<li class="${i === S.commits.length - 1 && S.freshCommit && now() - S.freshCommit < 2500 ? 'fresh' : ''}"><b>${esc(c.hash)}</b><span>${esc(c.msg)}</span></li>`).join('');
+    const clickable = MODE !== 'replay';
+    ol.innerHTML = S.commits.map((c, i) => `<li class="${i === S.commits.length - 1 && S.freshCommit && now() - S.freshCommit < 2500 ? 'fresh' : ''}${/^agent\(|^session\(/.test(c.msg) ? ' ag' : ''}${clickable ? ' click' : ''}"${clickable ? ` data-h="${esc(c.hash)}" title="${esc(c.who || '')} · клик – что в коммите, откатить, форк"` : ''}><b>${esc(c.hash)}</b><span>${esc(c.msg)}</span></li>`).join('');
     ol.scrollTop = ol.scrollHeight;
     document.getElementById('commitCount').textContent = S.commits.length;
   }
@@ -382,6 +391,7 @@
   }
 
   function renderLanes() {
+    if (MODE !== 'replay') { renderLanesLive(); return; }
     let active = 0;
     document.getElementById('lanes').innerHTML = LANE_ORDER.map((id) => {
       const l = S.lanes[id] || { status: 'idle' };
@@ -431,7 +441,7 @@
   function renderTools() {
     const el = document.getElementById('tools');
     const cards = [...S.files.values()].filter((f) => f.layer === 'tool' && f.path.endsWith('.md')).sort((a, b) => a.path.localeCompare(b.path));
-    if (!cards.length) { el.innerHTML = '<div class="cap">инструменты появятся в фазе 04 · все инструкции: <a href="access.html">подключения</a></div>'; return; }
+    if (!cards.length) { el.innerHTML = '<div class="cap">инструменты появятся в фазе 04 · все инструкции: <a href="access.html">About</a></div>'; return; }
     const idx = resolveIndex();
     const skillsOf = (p) => [...S.files.values()].filter((g) => g.layer === 'skill' && g.links.some((t) => idx.get(t) === p)).map((g) => g.path);
     el.innerHTML = cards.map((f) => {
@@ -443,7 +453,7 @@
       const state = st.map((t) => `${t.ready ? '●' : '○'} ${esc(t.what)}${!t.ready && t.env ? ` · <code>export ${esc(t.env)}=…</code>` : ''}`).join(' · ');
       return `<div class="trow ${ok ? 'ok' : st.length ? '' : 'link'}" data-p="${esc(f.path)}"><i></i><b>${esc(f.title)}</b><span>${esc(why)}</span>
         <div class="sub">${state ? `${state}<br>` : ''}<a class="set" data-p="${esc(f.path)}">как настроить →</a>${slug === 'lms' ? ' <a href="https://learn.aimindset.org/cabinet/api-keys" target="_blank" rel="noopener">ключ в LMS ↗</a>' : ''}${sk.length ? ` · скиллы: ${sk.map((x) => `<a data-p="${esc(x)}">${esc(bare(base(x)))}</a>`).join('')}` : ''}</div></div>`;
-    }).join('') + `<div class="cap">${toolsLive ? 'статус – задан ли ключ на этом компьютере, значения не видны · ' : 'статус ключей виден в полном режиме (bin/open.sh) · '}все инструкции: <a href="access.html">подключения</a></div>`;
+    }).join('') + `<div class="cap">${toolsLive ? 'статус – задан ли ключ на этом компьютере, значения не видны · ' : 'статус ключей виден в полном режиме (bin/open.sh) · '}все инструкции: <a href="access.html">About</a></div>`;
   }
 
   document.getElementById('tabBody').addEventListener('click', (e) => { const el = e.target.closest('.trow.link'); if (el) openPreview(el.dataset.p); });
@@ -476,13 +486,14 @@
     const b = e.target.closest('button'); if (!b) return;
     document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x === b));
     document.querySelectorAll('.tabpane').forEach((p) => { p.hidden = p.dataset.tab !== b.dataset.tab; });
-    if (b.dataset.tab === 'tools' && MODE === 'live') loadTools();
+    if (b.dataset.tab === 'tools' && SESSION) loadTools();
+    if (b.dataset.tab === 'sessions') renderSessions();
     renderTools();
   });
 
   // ---------- preview: view · source · edit with live preview ----------
   const $ = (id) => document.getElementById(id);
-  const PV = { path: null, mode: 'view', buffer: '', base: '', mtime: null, escArmed: false };
+  const PV = { kind: 'file', path: null, mode: 'view', buffer: '', base: '', mtime: null, escArmed: false };
   let SESSION = null;
   const post = (url, body) => fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-harness-token': SESSION ? SESSION.token : '' }, body: JSON.stringify(body || {}) })
     .then((r) => r.json()).catch(() => ({ error: 'сеть' }));
@@ -501,38 +512,66 @@
       })
       .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')).replace(/(<a [^>]*>)<a [^>]*>([^<]*)<\/a>/g, '$1$2');
   }
-  const BLOCK = /^(#{1,3}\s|```|\s*[-*]\s|\s*\d+[.)]\s|\s*\||>|---+\s*$)/;
+  const BLOCK = /^(#{1,4}\s|```|\s*[-*]\s|\s*\d+[.)]\s|\s*\||>|---+\s*$)/;
+  // a session file opens with its card: status, runner, tokens, and the live stream when this computer ran it
+  function sessionCard(fm) {
+    const local = S.runs.find((r) => r.id === fm.id);
+    const n = (k) => (fm[k] !== undefined && fm[k] !== '' ? Number(fm[k]) : null);
+    return `<div class="card st-${esc(fm.status || '')}"><div class="kv"><span class="badge">${STATUS_RU[fm.status] || esc(fm.status || '')}</span><span>${esc(fm.runner || '')} · ${esc(fm.model || '')}</span><span>${Math.floor((n('duration_s') || 0) / 60)} мин ${(n('duration_s') || 0) % 60} с</span>${fm.turns ? `<span>${esc(fm.turns)} ходов</span>` : ''}</div>
+      <div class="kv">${n('tokens_in') != null ? `<span>вход ${tok(n('tokens_in'))}</span><span>кэш ${tok(n('tokens_cached') || 0)}</span><span>выход ${tok(n('tokens_out'))}</span>` : ''}${fm.cost_usd ? `<span>$${esc(fm.cost_usd)}</span>` : ''}${fm.launched_by ? `<span>запустил: ${esc(fm.launched_by)}</span>` : ''}</div>
+      ${local && SESSION ? `<div class="acts"><button type="button" data-run="${esc(local.id)}">поток и шаги</button>${local.commit ? `<button type="button" data-act="commit" data-h="${esc(local.commit)}">коммит ${esc(local.commit)}</button>` : ''}</div>` : ''}</div>`;
+  }
   function mdRender(text) {
     const idx = resolveIndex();
     const inl = (x) => mdInline(x, idx);
     let src = String(text || '').replace(/\r/g, '');
     let out = '';
     const fm = /^---\n([\s\S]*?)\n---\n?/.exec(src);
-    if (fm) { out += `<div class="fm">${esc(fm[1])}</div>`; src = src.slice(fm[0].length); }
+    if (fm) {
+      const entries = fmEntries(src);
+      const obj = Object.fromEntries(entries.map((e) => [e.k, e.v]));
+      // a session shows its numbers in the card; the raw properties fold away
+      if (obj.type === 'session') out += `${sessionCard(obj)}<details class="propsd"><summary>свойства · ${entries.length}</summary>${propsHtml(entries, idx)}</details>`;
+      else out += propsHtml(entries, idx);
+      src = src.slice(fm[0].length);
+    }
     const L = src.split('\n');
+    const heads = [];
     let i = 0;
     const take = (re, strip) => { const it = []; while (i < L.length && re.test(L[i])) it.push(L[i++].replace(strip, '')); return it; };
+    const item = (x) => { const c = /^\[([ xX])\]\s+(.*)$/.exec(x); return c ? `<li class="task${c[1] === ' ' ? '' : ' did'}"><b>${c[1] === ' ' ? '☐' : '☑'}</b> ${inl(c[2])}</li>` : `<li>${inl(x)}</li>`; };
     while (i < L.length) {
       const l = L[i];
-      if (/^```/.test(l)) { const b = []; i++; while (i < L.length && !/^```/.test(L[i])) b.push(L[i++]); i++; out += `<pre><code>${esc(b.join('\n'))}</code></pre>`; continue; }
-      const h = /^(#{1,3})\s+(.*)$/.exec(l);
-      if (h) { out += `<h${h[1].length}>${inl(h[2])}</h${h[1].length}>`; i++; continue; }
+      if (/^```/.test(l)) { const lang = l.slice(3).trim(); const b = []; i++; while (i < L.length && !/^```/.test(L[i])) b.push(L[i++]); i++; out += `<pre${lang ? ` data-lang="${esc(lang)}"` : ''}><code>${esc(b.join('\n'))}</code></pre>`; continue; }
+      const h = /^(#{1,4})\s+(.*)$/.exec(l);
+      if (h) { const lv = Math.min(3, h[1].length); const id = `h-${heads.length}`; if (lv === 2) heads.push({ id, t: h[2] }); out += `<h${lv} id="${lv === 2 ? id : ''}">${inl(h[2])}</h${lv}>`; i++; continue; }
       if (/^\s*\|/.test(l)) {
         const rows = take(/^\s*\|/, /^$/);
         const sep = (r) => /^\s*\|[\s:|-]+\|?\s*$/.test(r);
         const head = rows.length > 1 && sep(rows[1]);
         const cells = (r) => r.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
-        out += `<table>${rows.filter((r) => !sep(r)).map((r, k) => `<tr>${cells(r).map((c) => (head && k === 0 ? `<th>${inl(c)}</th>` : `<td>${inl(c)}</td>`)).join('')}</tr>`).join('')}</table>`;
+        out += `<div class="tw"><table>${rows.filter((r) => !sep(r)).map((r, k) => `<tr>${cells(r).map((c) => (head && k === 0 ? `<th>${inl(c)}</th>` : `<td>${inl(c)}</td>`)).join('')}</tr>`).join('')}</table></div>`;
         continue;
       }
-      if (/^\s*[-*]\s+/.test(l)) { out += `<ul>${take(/^\s*[-*]\s+/, /^\s*[-*]\s+/).map((x) => `<li>${inl(x)}</li>`).join('')}</ul>`; continue; }
-      if (/^\s*\d+[.)]\s+/.test(l)) { out += `<ol>${take(/^\s*\d+[.)]\s+/, /^\s*\d+[.)]\s+/).map((x) => `<li>${inl(x)}</li>`).join('')}</ol>`; continue; }
-      if (/^>/.test(l)) { out += `<blockquote>${take(/^>/, /^>\s?/).map(inl).join('<br>')}</blockquote>`; continue; }
+      if (/^\s*[-*]\s+/.test(l)) { out += `<ul>${take(/^\s*[-*]\s+/, /^\s*[-*]\s+/).map(item).join('')}</ul>`; continue; }
+      if (/^\s*\d+[.)]\s+/.test(l)) { out += `<ol>${take(/^\s*\d+[.)]\s+/, /^\s*\d+[.)]\s+/).map(item).join('')}</ol>`; continue; }
+      if (/^>/.test(l)) {
+        const q = take(/^>/, /^>\s?/);
+        const co = /^\[!(\w+)\][-+]?\s*(.*)$/.exec(q[0] || '');
+        out += co ? `<div class="callout"><b>${esc(co[1].toLowerCase())}${co[2] ? ` · ${inl(co[2])}` : ''}</b>${q.slice(1).map(inl).join('<br>')}</div>` : `<blockquote>${q.map(inl).join('<br>')}</blockquote>`;
+        continue;
+      }
       if (/^---+\s*$/.test(l)) { out += '<hr>'; i++; continue; }
       if (!l.trim()) { i++; continue; }
       const para = [l]; i++;
       while (i < L.length && L[i].trim() && !BLOCK.test(L[i])) para.push(L[i++]);
       out += `<p>${inl(para.join(' '))}</p>`;
+    }
+    // long documents get a row of their sections on top
+    if (heads.length >= 4) {
+      const toc = `<nav class="toc">§ ${heads.map((x) => `<a data-toc="${x.id}">${esc(x.t.replace(/[*`[\]]/g, ''))}</a>`).join('')}</nav>`;
+      const at = out.indexOf('</dl>');
+      out = at >= 0 ? out.slice(0, at + 5) + toc + out.slice(at + 5) : toc + out;
     }
     return out;
   }
@@ -540,7 +579,7 @@
   const fileUrl = (p) => `/f/${p.split('/').map(encodeURIComponent).join('/')}`;
   function pvNote(t) { $('pvNote').textContent = t || ''; }
   function pvRender() {
-    if (!PV.path) return;
+    if (!PV.path || PV.kind !== 'file') return;
     const f = S.files.get(PV.path);
     const editing = PV.mode === 'edit';
     const content = editing ? PV.buffer : (f ? f.content : '');
@@ -571,13 +610,17 @@
   function openPreview(p) {
     const f = S.files.get(p); if (!f) return;
     if (PV.mode === 'edit' && PV.buffer !== PV.base && PV.path !== p) pvNote(`правки в ${bare(base(PV.path))} не сохранены и сброшены`); else pvNote('');
+    setKind('file');
     const idx = resolveIndex();
-    const out = f.links.map((t) => idx.get(t)).filter(Boolean);
-    const back = [...S.files.values()].filter((g) => g.links.some((t) => idx.get(t) === p)).map((g) => g.path);
+    const out = [...new Set(f.links.map((t) => idx.get(t)).filter((x) => x && x !== p))];
+    const miss = [...new Set(f.links.filter((t) => !idx.get(t)))];
+    const back = [...S.files.values()].filter((g) => g.path !== p && g.links.some((t) => idx.get(t) === p)).map((g) => g.path);
     $('pvTitle').textContent = `${LAYERS[f.layer].glyph} ${f.title}`;
-    $('pvPath').textContent = `${f.path} · ${LAYERS[f.layer].label}`;
-    const a = (x) => `<a data-p="${esc(x)}">${esc(bare(base(x)))}</a>`;
-    $('pvLinks').innerHTML = `→ ${out.length ? out.map(a).join('') : '–'}<br>← ${back.length ? back.map(a).join('') : '–'}`;
+    const text = f.content || '';
+    const words = (text.replace(/^---\n[\s\S]*?\n---/, '').match(/[\p{L}\p{N}]+/gu) || []).length;
+    $('pvPath').innerHTML = `<span>${esc(f.path)}</span><span>${LAYERS[f.layer].label}</span><span>${text.split('\n').length} строк · ${words} слов</span>${f.mtime ? `<span>изменён ${ago(f.mtime)}</span>` : ''}`;
+    $('pvLinks').hidden = false;
+    $('pvLinks').innerHTML = `<div><b>→ ${out.length}</b>${out.length ? linkGroups(out) : ' –'}${miss.length ? `<span class="lg"><i>◌ нет файла ${miss.length}</i>${miss.slice(0, 8).map((t) => `<a class="miss">${esc(bare(t.split('/').pop()))}</a>`).join('')}</span>` : ''}</div><div><b>← ${back.length}</b>${back.length ? linkGroups(back) : ' –'}</div>`;
     PV.path = p; PV.mode = 'view'; PV.mtime = f.mtime; PV.escArmed = false;
     $('preview').hidden = false;
     $('preview').classList.toggle('full', !!(PV.full && p.endsWith('.html')));
@@ -589,12 +632,12 @@
     if (PV.mode === 'edit' && PV.buffer !== PV.base && !PV.escArmed) { PV.escArmed = true; pvNote('есть несохранённые правки: ⌘S – сохранить, Esc ещё раз – закрыть без них'); return; }
     if ($('preview').classList.contains('full')) { $('preview').classList.remove('full'); PV.full = false; return; }
     PV.mode = 'view'; PV.escArmed = false; $('preview').hidden = true; $('preview').classList.remove('editing', 'dirty');
-    select(null, false);
+    setKind('file'); select(null, false);
   }
   $('pvFull').onclick = () => { PV.full = !$('preview').classList.contains('full'); $('preview').classList.toggle('full', PV.full); };
   // the open file changed on disk (agent, Obsidian, another editor)
   function pvSync() {
-    if ($('preview').hidden || !PV.path) return;
+    if ($('preview').hidden || !PV.path || PV.kind !== 'file') return;
     const f = S.files.get(PV.path);
     if (!f) { pvNote('файл удалён или переименован'); return; }
     if (PV.mode === 'edit') {
@@ -626,7 +669,7 @@
       pvRender(); return;
     }
     const r = await post('/api/file', { path: PV.path, content: PV.buffer });
-    if (r.ok) { PV.base = PV.buffer; upsertFile(PV.path, PV.buffer, null, true); pvNote(r.commit ? `сохранено · коммит ${r.commit}` : 'сохранено'); }
+    if (r.ok) { PV.base = PV.buffer; upsertFile(PV.path, PV.buffer, null, true); pvNote(r.commit ? `сохранено · коммит ${r.commit}` : r.gate ? `сохранено в файл, коммит остановил гейт:\n${r.gate}` : r.nothing ? 'без изменений: коммит не нужен' : 'сохранено в файл, коммита нет'); $('pvNote').classList.toggle('warn', !!r.gate); }
     else pvNote(`не сохранилось: ${r.error || 'ошибка'}`);
     pvRender();
   }
@@ -808,25 +851,25 @@
 
   // ---------- live ----------
   async function loadTools() {
+    if (!SESSION) return;
     try { toolsLive = (await fetch('/api/tools').then((r) => r.json())).tools; renderTools(); } catch { /* offline */ }
-  }
-  function renderRuns() {
-    const el = document.getElementById('runs');
-    el.innerHTML = S.runs.slice().reverse().map((r) => `<details class="run ${r.status}" ${r.status === 'running' ? 'open' : ''}><summary><i></i><b>${esc(r.runner)}</b> ${esc(r.prompt.slice(0, 70))}<span>${esc(r.status)}${r.endedAt ? ` · ${Math.round((r.endedAt - r.startedAt) / 1000)} с` : ''}</span>${r.status === 'running' ? `<button data-stop="${esc(r.id)}">стоп</button>` : ''}</summary><pre>${esc(r.tail || '')}</pre></details>`).join('')
-      || '<div class="cap">запуски появятся здесь; каждый успешный заканчивается коммитом</div>';
   }
   async function startLive() {
     try {
       const sc = await fetch('scenario.json', { cache: 'no-store' }).then((r) => r.json());
       META = { questions: sc.questions, answers: sc.answers, phases: sc.phases, duration: sc.duration };
     } catch { /* live works without scenario */ }
-    if (!TEAM) { try { SESSION = await fetch('/api/session').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }); document.getElementById('consoleHost').textContent = SESSION.serverHost; folderBar(); } catch { SERVERLESS = true; } }
+    // the local server lives only on localhost; on the site the page never asks for /api
+    if (!TEAM && LOCALHOST) { try { SESSION = await fetch('/api/session').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }); document.getElementById('consoleHost').textContent = SESSION.serverHost; folderBar(); } catch { SERVERLESS = true; } }
+    else if (!TEAM) SERVERLESS = true;
+    if (SESSION) setBrand(SESSION.name);
     consolePane();
     if (SERVERLESS) await connectCard();
     if (introWanted) {
-      $('inTitle').textContent = TEAM ? 'командный вид: рабочая папка спринта из git' : SERVERLESS ? 'живая папка: подключи свою папку' : 'живая папка: харнесс на этом компьютере';
-      if (SERVERLESS && !TEAM) $('inPoints').innerHTML = '<li>на сайте папку можно выбрать прямо в браузере или перетащить из Finder: граф, поиск, правка файлов</li><li>агенты, Obsidian и коммиты – в полном режиме: <code>bin/open.sh</code> на своём компьютере, команды на следующем экране</li><li>командный вид – рабочая папка спринта из git, без установки</li>';
-      if (TEAM) $('inPoints').innerHTML = '<li>граф собран из репозитория ai-mindset-org/marketing-harness-sprint: сервер команды проверяет его раз в 5 минут и публикует после каждого push</li><li>в строке папки – zip текущей папки и команда клонирования</li><li>правка и агенты – у себя: клонируй репозиторий, bin/open.sh, коммит, push</li><li>клик по узлу открывает файл; ⌘K – поиск; пробел – заморозить картинку</li>';
+      $('inTitle').textContent = TEAM ? 'Team: рабочая папка спринта из git' : SERVERLESS ? 'Local: подключи свою папку' : 'Local: харнесс на этом компьютере';
+      if (SERVERLESS && !TEAM) $('inPoints').innerHTML = '<li>Local – локальное хранение: папка лежит на твоём компьютере. на сайте её можно выбрать в браузере или перетащить из Finder: граф, поиск, правка файлов</li><li>агенты, сессии, откат, Obsidian и коммиты – в полном режиме: <code>bin/open.sh</code> на своём компьютере, команды на следующем экране</li><li>Team – рабочая папка спринта из git, без установки</li>';
+      if (TEAM) $('inPoints').innerHTML = '<li>граф собран из репозитория ai-mindset-org/marketing-harness-sprint: сервер команды проверяет его раз в 5 минут и публикует после каждого push</li><li>сессии агентов лежат в папке sessions/: кто запускал, что сделал, какие файлы тронул; клик по коммиту – что в нём</li><li>в строке папки – zip текущей папки и команда клонирования; правка и агенты – у себя: клон, bin/open.sh, коммит, push</li><li>клик по узлу открывает файл; ⌘K – поиск; пробел – заморозить картинку</li>';
+      if (SESSION) $('inPoints').innerHTML = '<li>каждая фигура – файл папки; граф меняется от любой правки: Obsidian, редактор, агент</li><li>панель 05 – роли агентов: ▶ запускает роль, клик по статусу открывает сессию вживую: шаги, токены, файлы</li><li>клик по коммиту – что в нём, «откатить», «форк с этого места»; у файла – «история» и возврат старой версии</li><li><kbd>⌘K</kbd> – поиск; пробел – заморозить картинку; Esc закрывает верхнее окно</li>';
       $('inGo').textContent = 'открыть граф →'; $('inEnd').hidden = true;
       $('intro').hidden = false; $('inGo').focus();
       $('inGo').onclick = () => introClose();
@@ -865,21 +908,22 @@
           liveSeen = new Set(S.files.keys());
           showStop(h.waiting, fresh, () => post('/api/continue', { phase: h.waiting }));
         } else if (!h.waiting && stopOpen) closeStop(false);
-        const runsSig = (list) => JSON.stringify(list.map((r) => [r.id, r.status, (r.tail || '').length]));
+        const runsSig = (list) => JSON.stringify(list.map((r) => [r.id, r.status, r.last, r.usage && r.usage.output, (r.touched || []).length, r.commit, r.session]));
         if (runsSig(st.runs || []) !== runsSig(S.runs)) { S.runs = st.runs || []; markDirty(); }
         const last = (h.narration || []).slice(-1)[0];
         const runLive = S.runs.find((r) => r.status === 'running');
-        const text = runLive ? `${runLive.runner} работает: ${runLive.prompt.slice(0, 90)}` : last?.text;
+        const text = runLive ? `${runWho(runLive)} · ${runLive.runner} работает: ${runLive.last || runLive.prompt.slice(0, 80)}` : last?.text;
         if (text && text !== S.narr) { S.narr = text; S.narrTag = runLive ? 'агент' : (!h.phase || h.phase === 'done') ? 'готово' : `фаза ${h.phase.slice(1)}`; markDirty(); }
         S.answersShown = FSA ? 0 : (h.answersShown ?? META.questions.length);
         const cur = META.phases.findIndex((p) => p.id === S.phase);
         const progress = S.phase === 'done' || !h.phase ? 1 : cur < 0 ? 0 : (cur + 0.5) / META.phases.length;
         if (!h.phase) S.phase = 'done';
-        document.getElementById('clock').textContent = TEAM ? `команда · ${st.name} · ${st.head || ''} · ${String(st.exported || '').slice(11, 16)} UTC` : FSA ? `папка в браузере · ${st.name}` : `live · ${started ? fmt(Date.now() - started) : '–'} · ${st.name}`;
+        document.getElementById('clock').textContent = TEAM ? `Team · ${st.name} · ${st.head || ''} · ${String(st.exported || '').slice(11, 16)} UTC` : FSA ? `Local · папка в браузере · ${st.name}` : `Local · ${st.name} · ${S.commits.length} коммитов`;
+        if (TEAM || FSA) setBrand(st.name);
         renderAll(progress);
       } catch (err) {
         if (++fails >= 2) {
-          if (TEAM) { hint.hidden = false; hint.innerHTML = 'командный вид ещё не опубликован.<br>кто держит рабочую папку: <code>bin/publish-team.sh ~/harness/marketing-sprint</code><br>или открой <a href="?mode=replay">демо</a>.'; }
+          if (TEAM) { hint.hidden = false; hint.innerHTML = 'Team ещё не опубликован.<br>кто держит рабочую папку: <code>bin/publish-team.sh ~/harness/marketing-sprint</code><br>или открой <a href="?mode=replay">Demo</a>.'; }
           else if (FSA) { hint.hidden = false; hint.textContent = 'папка недоступна: браузер отозвал доступ. нажми «другая папка» и выбери её снова.'; }
           else { SERVERLESS = true; connectCard(); }
         }
@@ -900,18 +944,17 @@
     const fillModels = () => { const list = MODELS[$('cRunner').value === 'claude' ? 'claude' : 'codex']; $('cModel').innerHTML = list.map(([v, l]) => `<option value="${v}">${l}</option>`).join(''); };
     $('cRunner').addEventListener('change', fillModels); fillModels();
     // сотник needs ssh to the team server; without it the option stays visible but disabled
-    fetch('/api/tools').then((r) => r.json()).then((j) => {
-      const t = (j.tools || []).find((x) => x.id === 'sotnik');
+    if (SESSION) fetch('/api/tools').then((r) => r.json()).then((j) => {
+      toolsLive = j.tools || []; renderLanes(); renderTools();
+      const t = toolsLive.find((x) => x.id === 'sotnik');
       const o = $('cRunner').querySelector('option[value=sotnik]');
-      if (o && t && !t.ready) { o.disabled = true; o.textContent = 'сотник · нужен ssh к серверу команды'; }
+      if (o && t && !t.ready) { o.disabled = true; o.textContent = 'сотник · нужен ssh к серверу команды (доступ – Саша Васильев)'; }
     }).catch(() => {});
     document.getElementById('consoleForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const prompt = document.getElementById('cPrompt').value.trim();
       if (!prompt || !SESSION) return;
-      const body = { runner: document.getElementById('cRunner').value, prompt, model: document.getElementById('cModel').value.trim() };
-      const r = await fetch('/api/agent', { method: 'POST', headers: { 'content-type': 'application/json', 'x-harness-token': SESSION.token }, body: JSON.stringify(body) }).then((x) => x.json()).catch(() => ({ error: 'сеть' }));
-      document.getElementById('cStatus').textContent = r.id ? `запущено: ${r.id}` : `ошибка: ${r.error}`;
+      launch(prompt, Object.keys(ROLE_TASKS).find((k) => ROLE_TASKS[k] === prompt) || '');
     });
     document.getElementById('cPresets').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) document.getElementById('cPrompt').value = b.dataset.p; });
     document.getElementById('runs').addEventListener('click', async (e) => {
@@ -1019,6 +1062,9 @@
     if (it && it.getAsFileSystemHandle) { const h = await it.getAsFileSystemHandle(); if (h && h.kind === 'directory') setFolder(h); else $('fsaNote').textContent = 'перетащи папку целиком'; }
     else $('fsaNote').textContent = 'перетаскивание папок работает в Chrome, Arc и Edge';
   });
+  async function fsaExists(rel) {
+    try { const parts = rel.split('/'); let d = FSA; for (const seg of parts.slice(0, -1)) d = await d.getDirectoryHandle(seg); await d.getFileHandle(parts[parts.length - 1]); return true; } catch { return false; }
+  }
   async function fsaWrite(rel, content) {
     const parts = rel.split('/');
     let d = FSA;
@@ -1035,8 +1081,12 @@
     if (!/\.(md|json|css|html|mjs|canvas|txt)$/.test(rel)) rel += '.md';
     const name = bare(base(rel));
     const body = rel.endsWith('.md') ? `---\ntitle: ${name}\n---\n# ${name}\n\n` : '';
-    if (FSA) await fsaWrite(rel, body);
-    else if (SESSION) { const r = await post('/api/file', { path: rel, content: body }); if (!r.ok) { $('nfPath').value = ''; $('nfPath').placeholder = r.error || 'не создалось'; return; } }
+    // an existing name opens that file: «+ файл» never writes over one
+    let exists = S.files.has(rel);
+    if (!exists && FSA) exists = await fsaExists(rel);
+    if (exists) { $('newFile').hidden = true; $('nfPath').value = ''; if (S.files.has(rel)) openPreview(rel); pvNote('файл уже есть, открыл его: новый не создавал'); return; }
+    if (FSA) { try { await fsaWrite(rel, body); } catch (err) { $('nfPath').value = ''; $('nfPath').placeholder = err.message; return; } }
+    else if (SESSION) { const r = await post('/api/file', { path: rel, content: body, create: true }); if (!r.ok) { $('nfPath').value = ''; $('nfPath').placeholder = r.error || 'не создалось'; if (r.error === 'файл уже есть') pvNote('файл уже есть: новый не создавал'); return; } }
     upsertFile(rel, body, null, true);
     $('newFile').hidden = true; $('nfPath').value = '';
     openPreview(rel); $('pvEdit').click();
@@ -1046,17 +1096,22 @@
     const off = !SESSION;
     $('consoleForm').hidden = off; $('runs').hidden = off; $('consoleOff').hidden = !off;
     if (!off) return;
-    $('consoleOff').innerHTML = `<b>агенты запускаются на твоём компьютере</b>
-      <p>эта страница открыта ${TEAM ? 'в командном виде' : FSA ? 'с папкой в браузере' : 'с сайта'}: у неё нет доступа к терминалу и ключам. консоль работает в полном режиме:</p>
-      <div class="cmd"><code id="cmdOpen2">~/harness-engine/bin/open.sh ~/harness/marketing-sprint</code><button type="button" data-copy="cmdOpen2">копировать</button></div>
-      <p class="cap">откроется localhost:4747 – эта же вкладка с выбором исполнителя и модели.</p>
-      <b>исполнители и чем платишь</b>
+    const runners = `<b>исполнители и чем платишь</b>
       <table>
-        <tr><td>claude · локально</td><td>твоя подписка Claude Pro или Max (или ключ API); модели opus · sonnet · haiku; запускается <code>claude -p</code> внутри папки</td></tr>
-        <tr><td>codex · локально</td><td>подписка ChatGPT Plus, Pro или Business; модели terra · sol · luna</td></tr>
+        <tr><td>claude · локально</td><td>твоя подписка Claude Pro или Max (или ключ API); модели opus · sonnet · haiku; <code>claude -p</code> внутри папки, только настройки папки, без твоего глобального CLAUDE.md</td></tr>
+        <tr><td>codex · локально</td><td>подписка ChatGPT Plus, Pro или Business; модели terra · sol · luna; <code>codex exec</code> с записью только внутри папки</td></tr>
         <tr><td>сотник</td><td>Codex на сервере команды AI Mindset, подписка команды; нужен ssh-доступ к серверу (через Сашу Васильева); папка уезжает на сервер и возвращается каждые 4 секунды</td></tr>
-      </table>
-      <p class="cap">запуск агентов прямо с общего сайта требует отдельного сервиса с логинами и лимитами – он в планах; до него агенты живут локально или у Сотника.</p>`;
+      </table>`;
+    const local = `<div class="cmd"><code id="cmdOpen2">~/harness-engine/bin/open.sh ~/harness/marketing-sprint</code><button type="button" data-copy="cmdOpen2">копировать</button></div>
+      <p class="cap">откроется граф на localhost (4747 или следующий свободный порт, адрес в терминале) – эта же вкладка с выбором исполнителя и модели, ролями агентов и сессиями.</p>`;
+    $('consoleOff').innerHTML = TEAM ? `<b>запуск из Team готовится</b>
+      <p>здесь агенты пока не запускаются: у страницы нет входа и нет исполнителя. схема согласована с Сашей Васильевым 30.09:</p>
+      <ul class="plain"><li>вход через Леночку, как в Техничке: тот же сервис входа подключается к этому сайту, логин по Telegram, допуск по списку команды;</li>
+      <li>исполнение в контуре Сотника на сервере команды (VM107), отдельный клон рабочей папки, лимиты: один запуск на человека, 15 минут;</li>
+      <li>результат – коммит <code>agent(sotnik-site)</code> в репозиторий спринта и сессия в <code>sessions/</code>, Team покажет их через 5 минут.</li></ul>
+      <p class="cap">кнопка «войти через Леночку» появится здесь, когда Саша включит сервис. до этого – Local на своём компьютере:</p>${local}${runners}`
+      : `<b>агенты запускаются на твоём компьютере</b>
+      <p>эта страница открыта ${FSA ? 'с папкой в браузере' : 'с сайта'}: у неё нет доступа к терминалу и ключам. консоль работает в полном режиме:</p>${local}${runners}`;
   }
 
   // ---------- search: ⌘K over files and phases ----------
@@ -1081,7 +1136,7 @@
       if (score) out.push({ kind: 'file', p: f.path, glyph: LAYERS[f.layer].glyph, label: f.title, sub: f.path, hit, score });
     }
     META.phases.forEach((ph, i) => {
-      const hay = `${ph.id} ${ph.title} ${ph.stop ? ph.stop.title + ' ' + ph.stop.lead : ''}`.toLowerCase();
+      const hay = `${ph.id} фаза ${ph.id.slice(1)} ${ph.title} ${ph.stop ? ph.stop.title + ' ' + ph.stop.lead : ''}`.toLowerCase();
       if (!t || hay.includes(t)) out.push({ kind: 'phase', i, glyph: '▸', label: `фаза ${ph.id.slice(1)} · ${ph.title}`, sub: ph.stop ? ph.stop.title : '', hit: '', score: t ? 70 : 0.5 });
     });
     QS.list = out.sort((a, b) => b.score - a.score || a.label.localeCompare(b.label)).slice(0, 40);
@@ -1102,7 +1157,7 @@
   }
   const hl = (label, q) => { const t = q.trim().toLowerCase(); const k = t ? label.toLowerCase().indexOf(t) : -1; return k < 0 ? esc(label) : `${esc(label.slice(0, k))}<mark>${esc(label.slice(k, k + t.length))}</mark>${esc(label.slice(k + t.length))}`; };
   function searchPaint() {
-    $('qres').innerHTML = QS.list.map((r, k) => `<li class="${k === QS.i ? 'on' : ''}" data-k="${k}"><span>${r.glyph}</span><span>${hl(r.kind === 'file' ? bare(base(r.p)) : r.label, $('q').value)}</span><small>${esc(r.kind === 'file' ? r.sub.split('/').slice(0, -1).join('/') || './' : 'карточка фазы')}</small>${r.hit ? `<span class="hit">…${esc(r.hit)}…</span>` : ''}</li>`).join('') || '<li><span></span><span>ничего не нашлось</span></li>';
+    $('qres').innerHTML = QS.list.map((r, k) => `<li class="${k === QS.i ? 'on' : ''}" data-k="${k}"><span>${r.glyph}</span><span>${hl(r.kind === 'file' ? bare(base(r.p)) + (r.p.endsWith('.md') ? '' : ` .${r.p.split('.').pop()}`) : r.label, $('q').value)}</span><small>${esc(r.kind === 'file' ? r.sub.split('/').slice(0, -1).join('/') || './' : 'карточка фазы')}</small>${r.hit ? `<span class="hit">…${esc(r.hit)}…</span>` : ''}</li>`).join('') || '<li><span></span><span>ничего не нашлось</span></li>';
     const on = $('qres').querySelector('li.on'); if (on) on.scrollIntoView({ block: 'nearest' });
   }
   function searchPick(k) {
@@ -1133,7 +1188,7 @@
   document.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b && e.detail > 0) b.blur(); });
   window.addEventListener('keydown', (e) => {
     if (e.code !== 'Space' || ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName) || !$('search').hidden) return;
-    if (MODE !== 'live' || !$('intro').hidden || stopOpen) return; // replay has its own handler; cards take space as «дальше»
+    if (MODE === 'replay' || !$('intro').hidden || stopOpen) return; // replay has its own handler; cards take space as «дальше»
     e.preventDefault();
     LIVE_FROZEN = !LIVE_FROZEN;
     $('narrTag').textContent = LIVE_FROZEN ? 'пауза' : 'сейчас';
@@ -1155,7 +1210,11 @@
 
   // ---------- intro: what this is, before the build starts ----------
   const introWanted = qs.get('intro') !== '0' && !qs.get('at') && !qs.get('phase');
-  function introClose(go) { $('intro').hidden = true; if (go) go(); }
+  function introClose(go) {
+    $('intro').hidden = true;
+    if (go) go();
+    else if (MODE === 'replay' && !S.narr) { S.narr = 'пробел или ▶ – запустить сборку · End – сразу финал · клик по фазе внизу – её карточка'; S.narrTag = 'старт'; markDirty(); }
+  }
 
   // ---------- live folder bar: local path and its git remote ----------
   async function folderBar() {
@@ -1163,20 +1222,281 @@
     $('fbPath').textContent = SESSION.dir.replace(/^\/Users\/[^/]+/, '~');
     $('fbPath').title = SESSION.dir;
     const g = SESSION.git || {};
-    $('fbGit').innerHTML = g.remote ? `git: ${esc(g.branch || 'main')} → <a href="${esc(g.remote)}" target="_blank" rel="noopener">${esc(g.remote.replace(/^https:\/\/github\.com\//, 'github/'))}</a>` : `git: ${esc(g.branch || '–')} · только локально (remote не задан)`;
+    $('fbGit').innerHTML = g.remote ? `git: ${esc(g.branch || 'main')} → <a href="${esc(g.remote)}" target="_blank" rel="noopener">${esc(g.remote.replace(/^https:\/\/github\.com\//, ''))} ↗</a>` : `git: ${esc(g.branch || '–')} · только локально · свой GitHub: <code>gh repo create &lt;имя&gt; --private --source . --push</code>`;
   }
   $('openFinder').onclick = () => openIn('finder', '');
   let SESSION_T = null;
   function teamBar(st) {
     const g = st.git || {};
-    $('fbPath').textContent = `${st.name} · общий вид`;
-    $('fbGit').innerHTML = (g.remote ? `git: ${esc(g.branch || 'main')} → <a href="${esc(g.remote)}" target="_blank" rel="noopener">${esc(g.remote.replace(/^https:\/\/github\.com\//, 'github/'))}</a>` : 'git: –')
-      + `<br><a href="team/${encodeURIComponent(st.name)}.zip" download>скачать папку zip</a> · <a data-copyval="gh repo clone ${esc((g.remote || '').replace(/^https:\/\/github\.com\//, ''))} ~/harness/${esc(st.name)}">копировать команду клонирования</a>`;
+    $('fbPath').textContent = `${st.name} · Team`;
+    $('fbGit').innerHTML = (g.remote ? `git: ${esc(g.branch || 'main')} → <a href="${esc(g.remote)}" target="_blank" rel="noopener" title="нужен доступ к ai-mindset-org на GitHub">${esc(g.remote.replace(/^https:\/\/github\.com\//, ''))} ↗</a>` : 'git: –')
+      + `<br><a href="team/${encodeURIComponent(st.name)}.zip" download>скачать папку zip</a> <span class="cap">распаковать двойным кликом (в терминале: <code>ditto -x -k</code>)</span><br><a data-copyval="gh repo clone ${esc((g.remote || '').replace(/^https:\/\/github\.com\//, ''))} ~/harness/${esc(st.name)}">копировать команду клонирования</a>`;
   }
   document.addEventListener('click', async (e) => {
     const a = e.target.closest('[data-copyval]'); if (!a) return;
     try { await navigator.clipboard.writeText(a.dataset.copyval); a.textContent = 'скопировано'; } catch { a.textContent = a.dataset.copyval; }
   });
+
+  // ---------- roles, sessions, commits, history: more kinds of documents in the same side panel ----------
+  const ROLE_TASKS = {
+    ingest: 'Прочитай AGENTS.md. По скиллу lms-ingest забери из LMS транскрипт последней сессии, которой ещё нет в sources/, и сохрани конспект в sources/ по rules/{rule} naming.md. Если MCP lms недоступен (нет AIM_LMS_TOKEN), ничего не пиши и объясни, что настроить.',
+    researcher: 'Прочитай AGENTS.md и context/{context} product.md. По скиллу research-exa возьми один открытый вопрос из research/ или из паспорта продукта и сделай скан в research/ с сегодняшней датой: таблица утверждение · ссылка · дата · уровень A/B/C и блок «что это значит для нас». Если Exa MCP недоступен, ничего не пиши и объясни, что настроить.',
+    extractor: 'Прочитай AGENTS.md. По скиллу nucleus-extract вынь до двух новых нуклеусов из источников в sources/, которые ещё не разобраны, в nuclei/.',
+    writer: 'Прочитай AGENTS.md. По скиллу content-factory сделай пачку из двух черновиков LinkedIn из нуклеусов без черновика, потом node bin/check.mjs и node bin/render.mjs all.',
+    designer: 'Прочитай AGENTS.md. По скиллу carousel-brief сделай бриф карусели из нуклеуса, у которого ещё нет карусели, в outputs/carousel/, потом node bin/render.mjs all.',
+    critic: 'Прочитай AGENTS.md. По скиллу slop-check оцени черновики в outputs/ и обнови scorecard с сегодняшней датой. Предложения к правилам и golden set пиши в раздел «предложения» scorecard, сами rules/ и golden set не меняй.',
+  };
+  const NEEDS = { ingest: 'lms', researcher: 'exa' };
+  const STATUS_RU = { running: 'работает', done: 'готово', failed: 'упал', stopped: 'остановлен', lost: 'прерван' };
+  const tok = (n) => (n == null ? '–' : n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(n >= 1e4 ? 0 : 1)}k` : String(n));
+  const dur = (a, b) => { const s = Math.max(0, Math.round(((b || Date.now()) - a) / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  const hm = (ms) => new Date(ms).toTimeString().slice(0, 5);
+  const ago = (ms) => { const s = Math.round((Date.now() - ms) / 1000); return s < 60 ? 'только что' : s < 3600 ? `${Math.round(s / 60)} мин назад` : s < 86400 ? `${Math.round(s / 3600)} ч назад` : new Date(ms).toLocaleDateString('ru'); };
+  const runWho = (r) => [LANE_META[r.role] && LANE_META[r.role].title, r.skill].filter(Boolean).join(' · ') || String(r.prompt || '').replace(/\s+/g, ' ').slice(0, 44) || r.id;
+  function setBrand(name) { const h = document.querySelector('.brand h1'); if (h && name) h.textContent = `marketing harness · ${name}`; }
+
+  async function launch(prompt, role) {
+    if (!SESSION) return null;
+    const body = { runner: $('cRunner').value, prompt, model: $('cModel').value.trim(), role };
+    const r = await post('/api/agent', body);
+    $('cMsg').textContent = r.id ? `запущено: ${r.id}` : `ошибка: ${r.error}`;
+    if (r.id) { S.runs = [...S.runs, { id: r.id, runner: body.runner, model: body.model, role, prompt, status: 'running', startedAt: Date.now(), touched: [] }]; markDirty(); }
+    return r;
+  }
+  const stopRun = (id) => post(`/api/runs/${encodeURIComponent(id)}/stop`, {});
+
+  // panel 05 in Local and Team: the six roles, each with its last session and a launch button
+  function renderLanesLive() {
+    const byRole = (id) => S.runs.filter((r) => r.role === id).sort((a, b) => b.startedAt - a.startedAt)[0];
+    const fileOf = (id) => [...S.files.values()].filter((f) => f.layer === 'session' && f.fm.role === id).sort((a, b) => String(b.fm.started).localeCompare(String(a.fm.started)))[0];
+    const active = S.runs.filter((r) => r.status === 'running').length;
+    $('lanes').innerHTML = LANE_ORDER.map((id) => {
+      const m = LANE_META[id], r = byRole(id), sf = !r && fileOf(id);
+      const st = r ? r.status : sf ? sf.fm.status : 'idle';
+      const t = toolsLive && NEEDS[id] ? toolsLive.find((x) => x.id === NEEDS[id]) : null;
+      const miss = t && !t.ready ? `нет ${t.env}` : '';
+      const info = r ? (r.status === 'running' ? `${r.last || 'думает'} · ${tok((r.usage || {}).output)} ток. · ${dur(r.startedAt)}` : `${hm(r.startedAt)} · ${STATUS_RU[r.status] || r.status} · ${(r.touched || []).length} ф.`)
+        : sf ? `${String(sf.fm.started || '').slice(11)} · ${STATUS_RU[sf.fm.status] || sf.fm.status} · ${sf.fm.files || 0} ф.` : (miss || 'ждёт запуска');
+      const open = r ? `data-run="${esc(r.id)}"` : sf ? `data-p="${esc(sf.path)}"` : '';
+      const btns = !SESSION ? '' : r && r.status === 'running' ? `<button type="button" data-stop="${esc(r.id)}" title="остановить">■</button>`
+        : `<button type="button" data-role="${id}" title="запустить: ${esc(ROLE_TASKS[id])}">▶</button><button type="button" data-edit="${id}" title="задачу – в консоль: поправить и запустить оттуда">✎</button>`;
+      return `<div class="lane ${st === 'running' ? 'running' : st === 'done' ? 'done' : st === 'failed' || st === 'stopped' ? 'waiting' : ''}"><i class="dot"></i><div><b>${m.title}</b><small>${m.skill}</small></div>
+        <div><div class="lrow"><a class="tgt${open ? ' open' : ''}${miss && !r ? ' miss' : ''}" ${open}>${esc(info)}</a>${btns}</div>${st === 'running' ? '<div class="bar"></div>' : ''}</div></div>`;
+    }).join('') + `<div class="cap">${SESSION ? `▶ – запуск роли · исполнитель ${esc($('cRunner').value)} · ${esc($('cModel').value)} (меняется в консоли) · клик по статусу – сессия` : TEAM ? 'последняя сессия каждой роли из sessions/ · запуск – в Local' : 'запуск ролей – в полном режиме Local: bin/open.sh'}</div>`;
+    $('laneCount').textContent = `${active} в работе`;
+  }
+  $('lanes').addEventListener('click', async (e) => {
+    const b = e.target.closest('button, a.open'); if (!b) return;
+    if (b.dataset.role) { b.disabled = true; await launch(ROLE_TASKS[b.dataset.role], b.dataset.role); return; }
+    if (b.dataset.edit) { $('cPrompt').value = ROLE_TASKS[b.dataset.edit]; $('cPrompt').dataset.role = b.dataset.edit; document.querySelector('#tabs button[data-tab=console]').click(); $('cPrompt').focus(); return; }
+    if (b.dataset.stop) { stopRun(b.dataset.stop); return; }
+    if (b.dataset.run) openSession(b.dataset.run); else if (b.dataset.p) openPreview(b.dataset.p);
+  });
+
+  // console list: the last runs; the tab «сессии»: all of them, local runs and sessions/ files
+  function renderRuns() {
+    const list = S.runs.slice().sort((a, b) => b.startedAt - a.startedAt).slice(0, 8);
+    $('runs').innerHTML = list.map(runRow).join('') + (list.length ? '<div class="cap">клик – сессия вживую · вся история – вкладка «сессии»</div>' : '<div class="cap">запуски появятся здесь; каждый заканчивается сессией в sessions/ и коммитом</div>');
+    if (!$('sessions').closest('.tabpane').hidden) renderSessions();
+  }
+  function runRow(r) {
+    const u = r.usage || {};
+    return `<div class="srow ${esc(r.status)}" data-run="${esc(r.id)}"><i></i><b>${hm(r.startedAt)}</b><span>${esc(runWho(r))}</span><small>${esc(r.runner)} · ${STATUS_RU[r.status] || esc(r.status)} · ${dur(r.startedAt, r.endedAt)}${u.output != null ? ` · ${tok(u.output)} вых.` : ''}</small></div>`;
+  }
+  function renderSessions() {
+    const seen = new Set(S.runs.map((r) => r.id));
+    const files = [...S.files.values()].filter((f) => f.layer === 'session' && !seen.has(f.fm.id));
+    const rows = [
+      ...S.runs.map((r) => ({ t: r.startedAt, html: runRow(r) })),
+      ...files.map((f) => {
+        const t = Date.parse(String(f.fm.started || '').replace(' ', 'T')) || 0;
+        const who = [LANE_META[f.fm.role] && LANE_META[f.fm.role].title, f.fm.skill].filter(Boolean).join(' · ') || f.title;
+        return { t, html: `<div class="srow ${esc(f.fm.status || '')}" data-p="${esc(f.path)}"><i></i><b>${esc(String(f.fm.started || '').slice(5).replace('-', '.'))}</b><span>${esc(who)}</span><small>${esc(f.fm.runner || '')} · ${STATUS_RU[f.fm.status] || esc(f.fm.status || '')} · ${Math.round(Number(f.fm.duration_s || 0) / 60)} мин${f.fm.tokens_out ? ` · ${tok(Number(f.fm.tokens_out))} вых.` : ''}${f.fm.launched_by ? ` · ${esc(f.fm.launched_by)}` : ''}</small></div>` };
+      }),
+    ].sort((a, b) => b.t - a.t);
+    $('sessions').innerHTML = rows.length ? `<div class="cap">${rows.length} · ${SESSION ? 'запуски этого компьютера и папка sessions/' : 'из папки sessions/'}</div>${rows.map((x) => x.html).join('')}`
+      : `<div class="cap">${MODE === 'replay' ? 'в Demo сессий нет: они появляются в Local после первого запуска агента' : 'сессий пока нет: запусти роль в панели 05 или задачу в консоли'}</div>`;
+  }
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-run]'); if (!el || el.closest('#lanes')) return;
+    e.preventDefault(); openSession(el.dataset.run);
+  });
+  $('sessions').addEventListener('click', (e) => { const el = e.target.closest('[data-p]'); if (el) openPreview(el.dataset.p); });
+
+  // one side panel, several kinds of documents: file · session · commit · history
+  let RUN_POLL = null;
+  function setKind(kind) {
+    PV.kind = kind;
+    $('preview').classList.toggle('kind-doc', kind !== 'file');
+    if (kind !== 'file') { PV.mode = 'view'; $('preview').classList.remove('editing', 'dirty'); }
+    clearInterval(RUN_POLL); RUN_POLL = null;
+  }
+  function showDoc(title, meta) {
+    $('pvTitle').textContent = title; $('pvPath').textContent = meta;
+    $('preview').hidden = false;
+    for (const id of ['pvEditor', 'pvBody', 'pvFrame']) $(id).hidden = true;
+    $('pvMd').hidden = false; $('pvLinks').innerHTML = ''; $('pvLinks').hidden = true;
+    pvNote('');
+  }
+  async function openSession(id) {
+    const local = S.runs.find((r) => r.id === id);
+    if (!SESSION || !local) { const f = [...S.files.values()].find((x) => x.layer === 'session' && x.fm.id === id); if (f) openPreview(f.path); return; }
+    setKind('session'); PV.run = id; select(null, false);
+    showDoc(`▷ сессия · ${runWho(local)}`, 'загружаю…');
+    const load = async () => {
+      if (PV.kind !== 'session' || PV.run !== id) return;
+      const r = await fetch(`/api/runs/${encodeURIComponent(id)}`).then((x) => x.json()).catch(() => null);
+      if (!r || r.error) { $('pvMd').innerHTML = '<p class="cap">сессия не найдена на этом компьютере</p>'; return; }
+      paintSession(r);
+      if (r.status !== 'running') { clearInterval(RUN_POLL); RUN_POLL = null; }
+    };
+    await load();
+    if (PV.kind === 'session' && PV.run === id && local.status === 'running') RUN_POLL = setInterval(load, 1000);
+  }
+  const STEP_G = { tool: '▸', file: '✎', cmd: '$', err: '✗', sys: '·', text: '¶', think: '…', out: '' };
+  function paintSession(r) {
+    const u = r.usage || {};
+    const box = $('pvMd');
+    const atEnd = box.scrollTop + box.clientHeight >= box.scrollHeight - 40;
+    $('pvTitle').textContent = `▷ сессия · ${runWho(r)}`;
+    $('pvPath').textContent = `${r.runner} · ${r.model || '–'} · ${STATUS_RU[r.status] || r.status} · ${hm(r.startedAt)} · ${dur(r.startedAt, r.endedAt)}${r.by ? ` · ${r.by}` : ''}`;
+    const steps = (r.steps || []).map((s) => `<li class="k-${s.kind}"><time>${new Date(s.t).toTimeString().slice(0, 8)}</time><span><b>${STEP_G[s.kind] || ''}</b> ${esc(s.kind === 'text' ? s.text : s.text.split('\n')[0])}</span></li>`).join('');
+    const files = r.touched || [];
+    box.innerHTML = `<div class="card st-${esc(r.status)}">
+        <div class="kv"><span class="badge">${STATUS_RU[r.status] || esc(r.status)}</span><span>${esc(r.runner)} · ${esc(r.model || '')}</span><span>${dur(r.startedAt, r.endedAt)}</span>${r.turns ? `<span>${r.turns} ходов</span>` : ''}</div>
+        <div class="kv">${u.input != null ? `<span>вход ${tok(u.input)}</span><span>кэш ${tok(u.cached)}</span><span>выход ${tok(u.output)}</span>` : '<span>токены не записаны: запуск старой версии</span>'}${u.cost ? `<span>$${Number(u.cost).toFixed(2)}</span>` : ''}</div>
+        <div class="acts">${r.status === 'running' ? `<button type="button" data-act="stop" data-id="${esc(r.id)}">■ стоп</button>` : ''}${r.session && S.files.has(r.session) ? `<button type="button" data-act="file" data-p="${esc(r.session)}">конспект</button>` : ''}${r.commit ? `<button type="button" data-act="commit" data-h="${esc(r.commit)}">коммит ${esc(r.commit)}</button><button type="button" class="danger" data-act="revert" data-h="${esc(r.commit)}">откатить запуск</button>` : ''}</div>
+        ${r.gate ? `<pre class="gate">коммит остановил гейт:\n${esc(r.gate)}</pre>` : ''}
+      </div>
+      <p class="task"><b>задача:</b> ${esc(r.prompt || '')}</p>
+      ${files.length ? `<div class="chips">${files.map((p) => (S.files.has(p) ? `<a data-p="${esc(p)}">${LAYERS[layerOf(p)].glyph} ${esc(bare(base(p)))}</a>` : `<a class="gone" title="файла больше нет">${esc(p)}</a>`)).join('')}</div>` : ''}
+      <h2>поток · ${(r.steps || []).length} шагов${r.status === 'running' ? ' · вживую' : ''}</h2>
+      ${steps ? `<ol class="steps">${steps}</ol>` : r.tail ? `<pre>${esc(r.tail)}</pre>` : '<p class="cap">шагов нет</p>'}
+      ${r.result && r.status !== 'running' ? `<h2>ответ агента</h2>${mdRender(r.result)}` : ''}`;
+    if (r.status === 'running' && atEnd) box.scrollTop = box.scrollHeight;
+  }
+
+  const kindOfCommit = (m) => (/^agent\(/.test(m) ? 'агент' : /^session\(/.test(m) ? 'сессия' : /^(edit|new)\(human\)/.test(m) ? 'правка' : /^restore\(/.test(m) ? 'возврат версии' : /^Revert /.test(m) ? 'откат' : /^p\d\d:|^init:/.test(m) ? 'сборка' : 'коммит');
+  async function openCommit(h) {
+    setKind('commit'); PV.commit = h; select(null, false);
+    const c0 = S.commits.find((c) => c.hash === h) || { hash: h };
+    showDoc(`● ${h}`, c0.msg || '');
+    let c = c0;
+    if (SESSION) { const r = await fetch(`/api/commit/${h}`).then((x) => x.json()).catch(() => null); if (r && !r.error) c = r; }
+    if (PV.kind === 'commit' && PV.commit === h) paintCommit(c);
+  }
+  const ST_G = { A: '+', M: '~', D: '−', R: '→', C: '+' };
+  function paintCommit(c) {
+    const files = c.files || [];
+    const sess = files.find((f) => f.path.startsWith('sessions/') && S.files.has(f.path));
+    $('pvTitle').textContent = `● ${c.hash} · ${kindOfCommit(c.msg || '')}`;
+    $('pvPath').textContent = `${c.who || '–'}${c.date ? ` · ${new Date(c.date).toLocaleString('ru', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''} · ${files.length} файлов`;
+    $('pvMd').innerHTML = `<div class="card"><p class="msg">${esc(c.msg || '')}</p>${c.body ? `<p class="cap">${esc(c.body)}</p>` : ''}
+        <div class="acts">${SESSION ? `<button type="button" class="danger" data-act="revert" data-h="${esc(c.hash)}">откатить</button><button type="button" data-act="forkat" data-h="${esc(c.hash)}">форк с этого коммита</button>` : ''}${c.diff ? '<button type="button" data-act="diff">изменения</button>' : ''}${sess ? `<button type="button" data-act="file" data-p="${esc(sess.path)}">сессия</button>` : ''}</div>
+        ${SESSION ? '' : '<p class="cap">откат и форк – в Local: bin/open.sh у себя, там клик по этому же коммиту</p>'}</div>
+      <h2>файлы · ${files.length}${c.more ? ` (+${c.more})` : ''}</h2>
+      <ul class="flist">${files.map((f) => `<li><b class="st-${esc(f.st)}">${ST_G[f.st] || esc(f.st)}</b>${S.files.has(f.path) ? `<a data-p="${esc(f.path)}">${esc(f.path)}</a>` : `<span>${esc(f.path)}</span>`}</li>`).join('')}</ul>
+      ${c.diff ? `<div class="diff" hidden>${diffHtml(c.diff)}${c.cut ? '<p class="cap">изменения обрезаны: полностью – git show в терминале</p>' : ''}</div>` : ''}
+      <p class="cap">«откатить» делает новый коммит, который отменяет этот: история остаётся, откат можно откатить. «форк» – копия папки с историей до этого коммита, рядом с текущей.</p>`;
+  }
+  function diffHtml(t) {
+    return `<pre class="dl">${String(t).split('\n').map((l) => `<span class="${/^\+(?!\+\+ )/.test(l) ? 'add' : /^-(?!-- )/.test(l) ? 'rem' : /^@@/.test(l) ? 'hunk' : /^(diff |index |\+\+\+ |--- )/.test(l) ? 'meta' : ''}">${esc(l) || ' '}</span>`).join('')}</pre>`;
+  }
+  $('commits').addEventListener('click', (e) => { const li = e.target.closest('li[data-h]'); if (li) openCommit(li.dataset.h); });
+
+  async function openHistory(p, commit) {
+    if (!SESSION) return;
+    const r = await fetch(`/api/history?path=${encodeURIComponent(p)}${commit ? `&commit=${commit}` : ''}`).then((x) => x.json()).catch(() => ({ error: 'сеть' }));
+    setKind('history'); PV.path = p; PV.histAt = commit || null;
+    showDoc(`⟲ история · ${bare(base(p))}`, `${p} · ${(r.commits || []).length} версий`);
+    if (r.error) { $('pvMd').innerHTML = `<p class="cap">${esc(r.error)}</p>`; return; }
+    const v = r.version;
+    $('pvMd').innerHTML = `<div class="acts"><button type="button" data-act="file" data-p="${esc(p)}">← к файлу</button>${v ? `<button type="button" data-act="diff">изменения в этой версии</button><button type="button" class="danger" data-act="restore" data-h="${esc(v.commit)}">вернуть эту версию</button>` : ''}</div>
+      <ol class="hist">${(r.commits || []).map((c, i) => `<li class="${v && v.commit === c.hash ? 'on' : ''}" data-hv="${esc(c.hash)}"><b>${esc(c.hash)}</b><span>${esc(c.msg)}</span><small>${esc(String(c.who || '').replace(/^harness-agent · /, 'агент · '))} · ${new Date(c.date).toLocaleString('ru', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}${i === 0 ? ' · текущая' : ''}</small></li>`).join('')}</ol>
+      ${v ? `<div class="diff" hidden>${diffHtml(v.diff || 'в этой версии файл не менялся')}</div><h2>версия ${esc(v.commit)}</h2>${p.endsWith('.md') ? mdRender(v.content) : `<pre>${esc(v.content)}</pre>`}` : '<p class="cap">клик по версии – её текст, изменения и «вернуть эту версию»: файл станет таким, как был, отдельным коммитом</p>'}`;
+  }
+
+  // inline confirmation instead of alert(): the button turns into «точно? да · нет»
+  function confirmInline(btn, label, fn) {
+    const orig = btn.outerHTML;
+    const box = document.createElement('span'); box.className = 'confirm';
+    box.innerHTML = `<span>${esc(label)}</span><button type="button" class="danger yes">да</button><button type="button" class="no">нет</button>`;
+    btn.replaceWith(box);
+    box.querySelector('.yes').focus();
+    box.querySelector('.yes').onclick = async (e) => { e.stopPropagation(); box.innerHTML = '<span>…</span>'; await fn(); };
+    box.querySelector('.no').onclick = (e) => { e.stopPropagation(); box.outerHTML = orig; };
+  }
+  function forkForm(host, at) {
+    const name = (SESSION && SESSION.name) || 'harness';
+    host.innerHTML = `<form class="forkf"><input value="~/harness/${esc(name)}-${at ? at.slice(0, 7) : 'fork'}" spellcheck="false" autocomplete="off"><label><input type="checkbox" checked> открыть</label><button type="submit">создать форк</button></form><p class="cap">копия с историей git${at ? ` до коммита ${esc(at)}` : ''}; незакоммиченные правки остаются здесь. Obsidian-настройки едут с ней.</p>`;
+    const f = host.querySelector('form'); f.querySelector('input').focus();
+    f.onsubmit = async (e) => {
+      e.preventDefault();
+      const r = await post('/api/fork', { to: f.querySelector('input').value.trim(), at: at || undefined, open: f.querySelector('input[type=checkbox]').checked });
+      host.innerHTML = r.ok ? `<p class="okmsg">форк готов: <code>${esc(r.to)}</code>${f.querySelector('input[type=checkbox]').checked ? ' · откроется в новой вкладке' : ''}</p><div class="cmd"><code id="forkCmd">${esc(r.open)}</code><button type="button" data-copy="forkCmd">копировать</button></div>` : `<p class="warn">не получилось: ${esc(r.error)}</p>`;
+    };
+  }
+  $('pvMd').addEventListener('click', async (e) => {
+    const toc = e.target.closest('[data-toc]');
+    if (toc) { const h = $('pvMd').querySelector(`#${toc.dataset.toc}`); if (h) $('pvMd').scrollTop = h.offsetTop - 8; return; }
+    const hv = e.target.closest('li[data-hv]');
+    if (hv && PV.kind === 'history') { openHistory(PV.path, hv.dataset.hv); return; }
+    const b = e.target.closest('[data-act]');
+    if (!b) { const a = e.target.closest('a[data-p]'); if (a) openPreview(a.dataset.p); return; }
+    const act = b.dataset.act;
+    if (act === 'file') openPreview(b.dataset.p);
+    else if (act === 'commit') openCommit(b.dataset.h);
+    else if (act === 'stop') stopRun(b.dataset.id);
+    else if (act === 'diff') { const d = $('pvMd').querySelector('.diff'); if (d) { d.hidden = !d.hidden; b.classList.toggle('on', !d.hidden); } }
+    else if (act === 'forkat') forkForm(b.closest('.acts'), b.dataset.h);
+    else if (act === 'revert') confirmInline(b, `откатить ${b.dataset.h}? будет новый коммит`, async () => {
+      const r = await post('/api/revert', { commit: b.dataset.h });
+      if (r.ok) { await openCommit(r.commit); pvNote(`откачено: коммит ${r.commit} отменяет ${b.dataset.h}`); }
+      else { pvNote(`не откатилось: ${r.error}`); $('pvNote').classList.add('warn'); }
+    });
+    else if (act === 'restore') confirmInline(b, `вернуть версию ${b.dataset.h}? будет новый коммит`, async () => {
+      const p = PV.path;
+      const r = await post('/api/restore', { path: p, commit: b.dataset.h });
+      if (r.ok) { openPreview(p); pvNote(r.commit ? `версия ${b.dataset.h} возвращена · коммит ${r.commit}` : r.gate ? `файл возвращён, коммит остановил гейт:\n${r.gate}` : 'файл уже такой: менять нечего'); }
+      else pvNote(`не вернулось: ${r.error}`);
+    });
+  });
+  $('pvHist').onclick = () => { if (PV.path) openHistory(PV.path); };
+  $('forkBtn').onclick = () => { const h = $('forkBox'); h.hidden = !h.hidden; if (!h.hidden) forkForm(h, null); };
+
+  // frontmatter as properties: people, status, tags and links get their own look
+  function fmEntries(text) {
+    const m = /^---\n([\s\S]*?)\n---/.exec(text || ''); if (!m) return [];
+    const out = []; let cur = null;
+    for (const l of m[1].split('\n')) {
+      const li = /^\s+-\s+(.*)$/.exec(l);
+      if (li && cur) { (cur.list ||= []).push(li[1].trim().replace(/^["']|["']$/g, '')); continue; }
+      const i = l.indexOf(':'); if (i <= 0 || /^\s/.test(l)) continue;
+      const v = l.slice(i + 1).trim().replace(/^["']|["']$/g, '');
+      cur = { k: l.slice(0, i).trim(), v };
+      if (/^\[(?!\[)/.test(v)) cur.list = v.slice(1, -1).split(',').map((x) => x.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+      out.push(cur);
+    }
+    return out;
+  }
+  const PEOPLE = /^(created_by|launched_by|owner|author|by|verified_by|reviewer|speaker|who)$/;
+  function propsHtml(entries, idx) {
+    if (!entries.length) return '';
+    const val = (e) => {
+      if (e.k === 'status') return `<span class="badge st-${esc(e.v)}">${esc(e.v)}</span>`;
+      if (/^(human_verified|verified)$/.test(e.k)) return e.v === 'true' ? '✓ да' : '– нет';
+      const vals = e.list || (e.v ? [e.v] : []);
+      if (!vals.length) return '<span class="cap">–</span>';
+      return vals.map((v) => (/\[\[/.test(v) ? `<span class="${PEOPLE.test(e.k) ? 'person' : 'chip'}">${mdText(v, idx)}</span>` : PEOPLE.test(e.k) ? `<span class="person">${esc(v)}</span>` : e.list ? `<span class="chip">${esc(v)}</span>` : autolink(esc(v)))).join(' ');
+    };
+    return `<dl class="props"><dt class="ph">свойства</dt><dd class="ph">${entries.length}</dd>${entries.map((e) => `<dt>${esc(e.k)}</dt><dd>${val(e)}</dd>`).join('')}</dl>`;
+  }
+  // links grouped by layer with counts, at most 12 per group
+  function linkGroups(paths) {
+    const g = new Map();
+    for (const p of paths) { const L = layerOf(p); if (!g.has(L)) g.set(L, []); g.get(L).push(p); }
+    return [...g].map(([L, ps]) => `<span class="lg"><i>${LAYERS[L].glyph} ${LAYERS[L].label} ${ps.length}</i>${ps.slice(0, 12).map((x) => `<a data-p="${esc(x)}" title="${esc(x)}">${esc(base(x).replace(/^\{[a-z-]+\}\s+/, ''))}</a>`).join('')}${ps.length > 12 ? `<em>…ещё ${ps.length - 12}</em>` : ''}</span>`).join('');
+  }
 
   resize();
   if (MODE === 'replay') startReplay(); else startLive();

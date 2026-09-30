@@ -21,6 +21,7 @@ aliases: [онтология, типы сущностей, связи, граф 
 | eval | `evals/` | рубрика, эталоны, отчёты проверок | [[{eval} golden-set]] |
 | dashboard | `dashboards/` | срез состояния за неделю | [[{dashboard} weekly – 2026-09-29]] |
 | design | `design/` | токены и правила визуала | [[{design} linkedin]] |
+| session | `sessions/` | конспект запуска агента: задача, токены, тронутые файлы | пишется после первого запуска из консоли |
 
 Ещё три ветки не вошли в двенадцать: `context/` (правда о продукте), `research/` (внешние сканы) и `guides/` (инструкции для людей). Они читаются как справочный слой и в цепочке «источник → результат» не участвуют.
 
@@ -33,6 +34,7 @@ aliases: [онтология, типы сущностей, связи, граф 
 | `owns` | role → skill, automation, outputs | ссылка в разделе «зона» роли | [[{role} marketer]] → [[{automation} weekly loop]] |
 | `calls` | automation → skill | строка «скилл» в паспорте рутины | [[{automation} weekly loop]] → [[{skill} weekly-loop]] |
 | `renders` | tool, skill → output | путь рендера в теле дизайн-файла | [[{design} carousel]] → `{carousel} car-01 weekly loop.html` |
+| `touched` | session → любой файл | ссылки в разделе «файлы» сессии | сессия автора → [[{post} li-01 fake winner]] |
 | `learns_into` | eval, dashboard → rule, skill, golden set | раздел «что происходит с находками» | недельный срез → строка в [[{rule} anti-slop]] и пример в [[{eval} golden-set]] |
 
 Поля frontmatter (`source`, `nucleus`) читаются машиной напрямую. Остальные связи лежат обычными вики-ссылками в теле файла: инструмент читает их теми же глазами, что Obsidian.

@@ -42,7 +42,7 @@ window.HDOC = (() => {
         const sep = (r) => /^\s*\|[\s:|-]+\|?\s*$/.test(r);
         const head = rows.length > 1 && sep(rows[1]);
         const cells = (r) => r.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
-        out += `<table>${rows.filter((r) => !sep(r)).map((r, k) => `<tr>${cells(r).map((c) => (head && k === 0 ? `<th>${inline(c)}</th>` : `<td>${inline(c)}</td>`)).join('')}</tr>`).join('')}</table>`;
+        out += `<div class="tw"><table>${rows.filter((r) => !sep(r)).map((r, k) => `<tr>${cells(r).map((c) => (head && k === 0 ? `<th>${inline(c)}</th>` : `<td>${inline(c)}</td>`)).join('')}</tr>`).join('')}</table></div>`;
         continue;
       }
       if (/^\s*[-*]\s+/.test(l)) { out += `<ul>${take(/^\s*[-*]\s+/, /^\s*[-*]\s+/).map((x) => `<li>${inline(x)}</li>`).join('')}</ul>`; continue; }

@@ -25,8 +25,10 @@ const opt = (name, def) => { const i = argv.indexOf(`--${name}`); return i >= 0 
 const dir = opt('dir') ? path.resolve(opt('dir').replace(/^~/, process.env.HOME)) : null;
 if (!dir) { console.error('usage: harness-demo.mjs --dir <empty folder> [--pace 1] [--agents] [--model sonnet] [--answers file.json]'); process.exit(2); }
 if (fs.existsSync(dir) && fs.readdirSync(dir).filter((f) => f !== '.DS_Store').length) {
-  console.error(`папка ${dir} не пустая. демо начинается с пустой папки: укажи новый путь.`); process.exit(2);
+  console.error(`папка ${dir} не пустая. новый харнесс начинается с пустой папки: укажи новый путь.\nоткрыть эту папку: ${path.join(root, 'bin', 'open.sh')} ${dir}`); process.exit(2);
 }
+const PRESETS = fs.readdirSync(path.join(root, 'kit', 'answers')).filter((f) => f.endsWith('.json')).map((f) => f.replace(/\.json$/, ''));
+if (opt('preset') && !PRESETS.includes(opt('preset'))) { console.error(`нет пресета «${opt('preset')}». есть: ${PRESETS.join(' · ')}`); process.exit(2); }
 const pace = Number(opt('pace', '1'));
 const agents = flag('agents');
 const model = opt('model', process.env.HARNESS_CLAUDE_MODEL || 'opus');
@@ -48,7 +50,11 @@ const state = {
   questions: tl.questions, answers: tl.answers, answersShown: 0,
   narration: [], lanes: {},
 };
-const w = (rel, text) => { const f = path.join(dir, rel); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, text); };
+// files keep the mode of their kit source: the pre-commit hook and the gate scripts stay executable
+const w = (rel, text) => {
+  const f = path.join(dir, rel); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, text);
+  try { const m = fs.statSync(path.join(root, 'kit', 'files', rel)).mode & 0o777; if (m & 0o111) fs.chmodSync(f, m); } catch { /* not from the kit */ }
+};
 const save = () => w('.harness/state.json', JSON.stringify(state, null, 1));
 const say = (text) => { state.narration.push({ t: Date.now(), text }); state.narration = state.narration.slice(-14); save(); console.log(`${G}${state.phase || '··'}${X} ${text}`); };
 const git = (...a) => execFileSync('git', ['-C', dir, ...a], { stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8' });
@@ -56,8 +62,9 @@ const lane = (id, patch) => { const meta = tl.lanes[id] || { title: id, skill: '
 
 function initFolder() {
   fs.mkdirSync(dir, { recursive: true });
-  git('init', '-q');
-  w('.gitignore', '.harness/\n.obsidian/workspace*\n.DS_Store\n');
+  git('init', '-q', '-b', 'main');
+  // Obsidian settings stay personal, only the graph colours are shared
+  w('.gitignore', '.harness/\n.obsidian/*\n!.obsidian/graph.json\n.DS_Store\n');
   // Obsidian graph colours by layer, so the native graph view reads like ours.
   const group = (query, rgb) => ({ query, color: { a: 1, rgb } });
   w('.obsidian/graph.json', JSON.stringify({
@@ -248,4 +255,7 @@ for (const { e, ph } of tagged) {
   if (agents && e.type === 'commit' && e.phase === before) { await agentsPhase(P, Q); break; }
 }
 state.phase = 'done'; save();
-console.log(`\n${B}готово${X} · ${dir}\nObsidian: открой папку как vault · история: git -C "${dir}" log --oneline\nдальше: claude или codex внутри папки, либо консоль агентов в браузере`);
+// gates on from the first human commit: pre-commit runs gitleaks and the checks
+git('config', 'core.hooksPath', '.githooks');
+let leaks = true; try { execFileSync('gitleaks', ['version'], { stdio: 'ignore' }); } catch { leaks = false; }
+console.log(`\n${B}готово${X} · ${dir}\nгейты включены: core.hooksPath .githooks${leaks ? '' : ' · секрет-скан ждёт gitleaks: brew install gitleaks'}\nObsidian: открой папку как vault · история: git -C "${dir}" log --oneline\nдальше: claude или codex внутри папки, либо консоль агентов в браузере`);

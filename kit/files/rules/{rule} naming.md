@@ -30,6 +30,7 @@ aliases: [нейминг-конвенция]
 | `{carousel}` · `{landing}` | outputs/carousel, outputs/landing | живой |
 | `{cover}` | outputs/covers | живой, с номером: `{cover} tg-01 two conveyors` |
 | `{dashboard}` | dashboards/ | снимок |
+| `{session}` | sessions/ | снимок: `{session} claude content-factory 11-38 – 2026-09-30`, пишет сервер харнесса |
 
 ## исключения
 `README.md`, `AGENTS.md`, `CLAUDE.md` и код в `bin/`, `tools/mcp/`, `design/assets/` – без типа: их имена читают программы.

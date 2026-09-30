@@ -28,9 +28,16 @@ fs.rmSync(tmp, { recursive: true, force: true });
 const tl = buildTimeline(kit);
 let n = 0x3a7f1;
 for (const e of tl.events) if (e.type === 'commit') e.hash = (n = (n * 7919 + 104729) % 0xfffffff).toString(16).padStart(7, '0').slice(0, 7);
-tl.generated = new Date().toISOString();
 const out = path.join(root, 'web', 'scenario.json');
-fs.writeFileSync(out, JSON.stringify(tl));
+// the build time changes only with the content: new.sh leaves a clean engine clone behind
+const stable = (file, obj) => {
+  let prev = null; try { prev = JSON.parse(fs.readFileSync(file, 'utf8')); } catch { /* first build */ }
+  const same = prev && JSON.stringify({ ...prev, generated: 0 }) === JSON.stringify({ ...obj, generated: 0 });
+  obj.generated = same ? prev.generated : new Date().toISOString();
+  if (!same) fs.writeFileSync(file, JSON.stringify(obj));
+  return obj.generated;
+};
+tl.generated = stable(out, tl);
 const paths = new Set();
 for (const e of tl.events) { if (e.type === 'file') paths.add(e.path); if (e.type === 'rename') { paths.delete(e.from); paths.add(e.to); } }
 // documents for guide.html and access.html: kit markdown rendered with the default answers
@@ -42,6 +49,6 @@ const DOC_FILES = ['README.md', 'AGENTS.md', 'sources/{source} index.md', 'rules
 const docs = {};
 for (const d of DOC_DIRS) for (const f of fs.readdirSync(path.join(files, d)).filter((x) => x.endsWith('.md'))) DOC_FILES.push(`${d}/${f}`);
 for (const rel of DOC_FILES) { const p = path.join(files, rel); if (fs.existsSync(p)) docs[rel] = renderTemplate(fs.readFileSync(p, 'utf8'), answers); }
-fs.writeFileSync(path.join(root, 'web', 'kit-docs.json'), JSON.stringify({ generated: tl.generated, docs }));
+stable(path.join(root, 'web', 'kit-docs.json'), { generated: tl.generated, docs });
 console.log(`docs → web/kit-docs.json · ${Object.keys(docs).length} файлов`);
 console.log(`scenario → ${path.relative(root, out)} · ${tl.phases.length} фаз · ${tl.events.length} событий · ${paths.size} файлов · ${(tl.duration / 1000).toFixed(0)} с`);

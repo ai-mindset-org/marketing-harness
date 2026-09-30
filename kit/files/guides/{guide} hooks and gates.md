@@ -19,7 +19,7 @@ aliases: [хуки, гейты, hooks, gates]
 | `Stop` | агент закончил ответ | отметить, что задача доведена до результата |
 | `SessionEnd` | сессия закрыта | выгрузить итог в память |
 
-В git те же идеи живут файлами в `.githooks/`: `pre-commit` срабатывает перед коммитом, `pre-push` перед отправкой на сервер. Включение: `git config core.hooksPath .githooks`.
+В git те же идеи живут файлами в `.githooks/`: в наборе есть `pre-commit`, он срабатывает перед коммитом. Хук `pre-push` (перед отправкой на сервер) добавляется так же, отдельным файлом. Включение: `git config core.hooksPath .githooks`.
 
 ## чем гейт отличается от правила
 
@@ -72,6 +72,6 @@ aliases: [хуки, гейты, hooks, gates]
 
 ## что дальше
 
-1. Включи git-хук: `git config core.hooksPath .githooks` и `brew install gitleaks`.
-2. Прогони `node bin/gate-tests.mjs`: ждём `все 6 PASS`.
+1. Папка из `bin/new.sh` включает хук сама. В клоне или старой папке: `git config core.hooksPath .githooks`, для секрет-скана `brew install gitleaks`.
+2. Прогони `node bin/gate-tests.mjs`: ждём `все 7 PASS` (седьмой – хук исполняемый и включён).
 3. Добавь недостающие гейты по одному, каждый со строкой в матрице. Новое правило и скилл добавляются по [[{skill} harness-evolve]].

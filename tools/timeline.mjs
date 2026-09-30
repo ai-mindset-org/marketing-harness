@@ -23,12 +23,38 @@ export function loadKit(kitDir, answersOverride) {
     ...JSON.parse(fs.readFileSync(path.join(kitDir, 'answers.json'), 'utf8')),
     ...(answersOverride || {}),
   };
+  // own product: a preset or an answers file changed what the folder is about
+  Object.defineProperty(answers, '__own', { value: !!(answersOverride && answersOverride.product_short), enumerable: false });
   return { manifest, answers };
 }
 
 function readSrc(kitDir, step, answers) {
   const rel = step.src || path.join('files', step.path);
-  return renderTemplate(fs.readFileSync(path.join(kitDir, rel), 'utf8'), answers);
+  const text = renderTemplate(fs.readFileSync(path.join(kitDir, rel), 'utf8'), answers);
+  return answers.__own ? ownProduct(step.path || '', text) : text;
+}
+
+// A preset or own answers describe another product: its facts table starts empty and the
+// sprint's facts move under «пример», so no text of the new product borrows the sprint's numbers.
+function ownProduct(p, text) {
+  if (/truth-pack\.md$/.test(p)) {
+    const lines = text.split('\n');
+    const head = lines.findIndex((l) => /^\| факт \|/.test(l));
+    if (head < 0) return text;
+    const rows = []; let i = head + 2;
+    while (i < lines.length && lines[i].startsWith('|')) rows.push(lines[i++]);
+    const own = rows.filter((r) => /^\| продукт \|/.test(r));
+    const blank = ['цена', 'сроки и условия', 'главная цифра результата', 'кейс клиента'].map((f) => `| ${f} | заполни | источник | – |`);
+    const example = rows.filter((r) => !/^\| продукт \|/.test(r));
+    return [...lines.slice(0, head + 2), ...own, ...blank, ...lines.slice(i),
+      '', '## пример: факты маркетинг-спринта AI Mindset', '',
+      'Так выглядит заполненная таблица. Эти строки про спринт, для текстов твоего продукта они не годятся: замени их своими фактами с источником.', '',
+      lines[head], lines[head + 1], ...example, ''].join('\n');
+  }
+  if (/\{context\} product\.md$/.test(p)) {
+    return text.replace(/## чем отличаемся\n[\s\S]*?\n(?=## )/, '## чем отличаемся\n- заполни: две-три причины, почему покупают у тебя, а не у соседа по полке; каждая – с доказательством из [[{context} truth-pack]].\n\n');
+  }
+  return text;
 }
 
 export function buildTimeline(kitDir, answersOverride) {
@@ -95,7 +121,7 @@ export function buildTimeline(kitDir, answersOverride) {
           events.push({ at, type: 'lane', lane, status: 'waiting', title: meta.title, skill: meta.skill, target: null, note: st.note });
         } else {
           events.push({ at, type: 'lane', lane, status: 'running', title: meta.title, skill: st.skill || meta.skill, target: st.path, note: st.note });
-          events.push({ at, type: 'narrate', text: `${meta.title} · ${st.note}`, path: st.path, lane });
+          if (st.note) events.push({ at, type: 'narrate', text: `${meta.title} · ${st.note}`, path: st.path, lane });
           events.push(fileEvent(at + st.dwell, st, lane));
         }
         laneClock[lane] = at + st.dwell;

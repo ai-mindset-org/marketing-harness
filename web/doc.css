@@ -131,3 +131,8 @@ body{padding:10px 12px 40px; letter-spacing:.02em}
 .clock{width:250px; min-width:250px}
 .navs button,.navs a{line-height:1.45; font-size:12px; padding:5px 10px}
 button.search{letter-spacing:.04em}
+/* v7: markdown tables scroll inside themselves on a phone, the page never scrolls sideways */
+.md .tw{overflow-x:auto; max-width:100%; margin:0 0 10px}
+.md .tw table{margin:0}
+html,body{max-width:100%; overflow-x:hidden}
+@media (max-width:760px){ .md table td,.md table th{min-width:90px} }

@@ -41,8 +41,16 @@ const lines = cases.map((c, i) => {
   if (!ok) failed++;
   return `${ok ? 'PASS' : 'FAIL'}  ${i + 1}. ${c.name.padEnd(32)} ждали ${wantDeny ? 'deny ' : 'allow'} · exit ${r.status}`;
 });
-console.log(lines.join('\n'));
-console.log(failed ? `\n${failed} из ${cases.length} не совпали` : `\nвсе ${cases.length} PASS`);
+// the pre-commit gate only works when git can run it: executable bit and core.hooksPath
 process.chdir(kit);
+const hook = path.join(kit, '.githooks', 'pre-commit');
+const exec = fs.existsSync(hook) && (fs.statSync(hook).mode & 0o111) !== 0;
+const inRepo = spawnSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).stdout.trim() === kit;
+const hooksPath = spawnSync('git', ['config', 'core.hooksPath'], { encoding: 'utf8' }).stdout.trim();
+const hookOk = exec && (!inRepo || hooksPath === '.githooks');
+if (!hookOk) failed++;
+lines.push(`${hookOk ? 'PASS' : 'FAIL'}  ${cases.length + 1}. ${'pre-commit исполняемый и включён'.padEnd(32)} ${!exec ? 'chmod +x .githooks/pre-commit' : inRepo && hooksPath !== '.githooks' ? 'git config core.hooksPath .githooks' : 'ok'}`);
+console.log(lines.join('\n'));
+console.log(failed ? `\n${failed} из ${cases.length + 1} не совпали` : `\nвсе ${cases.length + 1} PASS`);
 fs.rmSync(tmp, { recursive: true, force: true });
 process.exit(failed ? 1 : 0);

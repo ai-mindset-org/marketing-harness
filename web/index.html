@@ -19,8 +19,8 @@
   </div>
   <div class="navs">
     <button id="searchBtn" class="search" title="поиск по файлам и фазам · ⌘K">⌕ поиск <kbd>⌘K</kbd></button>
-    <nav class="modes" aria-label="режим"><button data-mode="replay" title="сборка харнесса по сценарию, 10 фаз">демо</button><button data-mode="live" title="своя папка: выбрать в браузере или открыть через bin/open.sh">живая папка</button><button data-mode="team" title="рабочая папка спринта из git, видна всей команде">команда</button></nav>
-    <nav class="pages" aria-label="страницы"><a class="pagelink" href="guide.html" title="как запустить, таймлайн блоков, сущности, агенты">гид</a><a class="pagelink" href="access.html" title="ключи и проверки инструментов">подключения</a></nav>
+    <nav class="modes" aria-label="режим"><button data-mode="replay" title="Demo: сборка харнесса по сценарию, 10 фаз">Demo</button><button data-mode="live" title="Local – локальное хранение: папка на этом компьютере, в браузере или через bin/open.sh">Local</button><button data-mode="team" title="Team: рабочая папка спринта из git, видна всей команде">Team</button></nav>
+    <nav class="pages" aria-label="страницы"><a class="pagelink" href="guide.html" title="Guide: как запустить, таймлайн блоков, сущности, агенты, откат">Guide</a><a class="pagelink" href="access.html" title="About: что это, инструменты, ключи, проверки">About</a></nav>
   </div>
   <div class="clock"><b id="phaseLabel">00 · пустая папка</b><span id="clock">00:00</span></div>
 </header>
@@ -28,7 +28,7 @@
 <main id="grid">
   <section id="colL" class="panel">
     <h2><span>01 · папка</span><em id="fileCount">0</em></h2>
-    <div id="folderBar" class="liveonly"><div class="fb-path" id="fbPath">–</div><div class="fb-git" id="fbGit">git: –</div><div class="fb-act"><button id="openVault" class="srvonly" title="открыть всю папку в Obsidian">Obsidian ↗</button><button id="openFinder" class="srvonly" title="показать папку в Finder">Finder ↗</button><button id="newFileBtn" class="editonly" title="создать файл в папке">+ файл</button><button id="pickAgain" class="fsaonly" title="выбрать другую папку">другая папка</button></div><form id="newFile" hidden><input id="nfPath" placeholder="rules/{rule} моё правило.md" autocomplete="off"><button type="submit">создать</button></form></div>
+    <div id="folderBar" class="liveonly"><div class="fb-path" id="fbPath">–</div><div class="fb-git" id="fbGit">git: –</div><div class="fb-act"><button id="openVault" class="srvonly" title="открыть всю папку в Obsidian">Obsidian ↗</button><button id="openFinder" class="srvonly" title="показать папку в Finder">Finder ↗</button><button id="newFileBtn" class="editonly" title="создать файл в папке">+ файл</button><button id="forkBtn" class="srvonly" title="копия папки с историей: пробовать без риска">форк</button><button id="pickAgain" class="fsaonly" title="выбрать другую папку">другая папка</button></div><form id="newFile" hidden><input id="nfPath" placeholder="rules/{rule} моё правило.md" autocomplete="off"><button type="submit">создать</button></form><div id="forkBox" hidden></div></div>
     <div id="tree" class="scroll"></div>
     <h2 class="sub"><span>02 · коммиты</span><em id="commitCount">0</em></h2>
     <ol id="commits"></ol>
@@ -44,24 +44,24 @@
       <div id="empty">пустая папка<br><small>git init · 0 файлов</small></div>
       <div id="liveHint" hidden></div>
       <div id="connect" hidden>
-        <div class="cn-hd"><span>подключить папку</span><span class="cap" id="cnWhy">на этой странице нет локального сервера</span></div>
+        <div class="cn-hd"><span>Local · подключить папку</span><span class="cap" id="cnWhy">локальное хранение: папка на твоём компьютере, на сайте её нет</span></div>
         <div class="cn-opt">
           <b>01 · папка в браузере</b>
-          <p>выбери папку харнесса на компьютере или перетащи её сюда из Finder. граф строится из файлов, правки сохраняются прямо в них. без установки; агенты и git – в полном режиме.</p>
+          <p>выбери папку харнесса на компьютере или перетащи её сюда из Finder. граф строится из файлов, правки сохраняются прямо в них. без установки; агенты, сессии, откат и коммиты – в полном режиме. на телефоне папку не выбрать: подключай с компьютера.</p>
           <div class="cn-row"><button id="pickFolder" class="go" type="button">выбрать папку</button><button id="resumeFolder" type="button" hidden>продолжить с прошлой папкой</button><span class="cap" id="fsaNote">Chrome, Arc, Edge</span></div>
         </div>
         <div class="cn-opt">
-          <b>02 · полный режим: агенты, Obsidian, коммиты</b>
+          <b>02 · полный режим: агенты, сессии, откат, форк, Obsidian</b>
           <p>в терминале: скачать движок и рабочую папку (уже скачанное пропускается) и обновить:</p>
           <div class="cmd"><code id="cmdClone">[ -d ~/harness-engine ] || gh repo clone ai-mindset-org/marketing-harness ~/harness-engine; [ -d ~/harness/marketing-sprint ] || gh repo clone ai-mindset-org/marketing-harness-sprint ~/harness/marketing-sprint; git -C ~/harness-engine pull -q; git -C ~/harness/marketing-sprint pull -q</code><button type="button" data-copy="cmdClone">копировать</button></div>
           <p>запустить – откроется граф с консолью агентов; если уже запущен, просто откроется вкладка:</p>
           <div class="cmd"><code id="cmdOpen">~/harness-engine/bin/open.sh ~/harness/marketing-sprint</code><button type="button" data-copy="cmdOpen">копировать</button></div>
-          <div class="cn-row"><a class="btnlink" href="http://localhost:4747/?mode=live&amp;intro=0" target="_blank" rel="noopener">открыть localhost:4747 ↗</a><span class="cap">если граф уже запущен на этом компьютере</span></div>
-          <p class="cap">свой харнесс с нуля: <code>~/harness-engine/bin/new.sh ~/harness/мой-продукт b2b-consultant</code> · остановить: <code>~/harness-engine/bin/stop.sh</code> · нет gh: <code>brew install gh &amp;&amp; gh auth login</code></p>
+          <div class="cn-row"><a class="btnlink" href="http://localhost:4747/?mode=live&amp;intro=0" target="_blank" rel="noopener">открыть localhost:4747 ↗</a><span class="cap">если граф уже запущен; при занятом 4747 open.sh берёт следующий порт и пишет адрес в терминале</span></div>
+          <p class="cap">свой харнесс с нуля: <code>~/harness-engine/bin/new.sh ~/harness/my-product b2b-consultant</code> · копия с историей: <code>~/harness-engine/bin/fork.sh ~/harness/marketing-sprint ~/harness/my-try</code> · остановить: <code>~/harness-engine/bin/stop.sh [порт]</code> · нет gh: <code>brew install gh &amp;&amp; gh auth login</code></p>
         </div>
         <div class="cn-opt">
-          <b>03 · командный вид</b>
-          <p>рабочая папка спринта из git, без установки: <a href="?mode=team">открыть командный вид</a>.</p>
+          <b>03 · Team</b>
+          <p>рабочая папка спринта из git, без установки: <a href="?mode=team">открыть Team</a>.</p>
         </div>
       </div>
     </div>
@@ -72,10 +72,11 @@
     <div class="panel" id="anketaP"><h2><span>04 · анкета</span><em id="qaCount">0/7</em></h2><dl id="qa"></dl></div>
     <div class="panel" id="lanesP"><h2><span>05 · агенты</span><em id="laneCount">0</em></h2><div id="lanes"></div></div>
     <div class="panel" id="dashP">
-      <div id="tabs"><button class="on" data-tab="dash">06 · срез</button><button data-tab="tools">инструменты</button><button data-tab="console" class="liveonly">консоль</button></div>
+      <div id="tabs"><button class="on" data-tab="dash">06 · срез</button><button data-tab="tools">инструменты</button><button data-tab="console" class="liveonly">консоль</button><button data-tab="sessions">сессии</button></div>
       <div id="tabBody">
         <div class="tabpane" data-tab="dash"><div id="metrics"></div><div id="coverage"></div></div>
         <div class="tabpane" data-tab="tools" hidden><div id="tools"></div></div>
+        <div class="tabpane" data-tab="sessions" hidden><div id="sessions"></div></div>
         <div class="tabpane" data-tab="console" hidden>
           <div id="consoleOff" hidden></div>
           <form id="consoleForm">
@@ -84,11 +85,12 @@
             <div id="cPresets">
               <button type="button" data-p="Прочитай AGENTS.md. По скиллу harness-evolve добавь скилл для email-рассылки: шаги, вход и выход, ссылки. Потом node bin/sync-skills.mjs и node bin/check.mjs --golden.">+ скилл</button>
               <button type="button" data-p="Прочитай AGENTS.md. По скиллу content-factory сделай пачку из двух черновиков LinkedIn из нуклеусов без черновика, потом node bin/check.mjs и node bin/render.mjs all.">пачка</button>
-              <button type="button" data-p="Прочитай AGENTS.md. По скиллу research-exa сделай скан «конкуренты AI-обучения маркетингу в 2026» в research/.">ресёрч</button>
-              <button type="button" data-p="Прочитай AGENTS.md. По скиллу slop-check оцени все черновики в outputs/ и обнови scorecard с сегодняшней датой.">критик</button>
+              <button type="button" data-p="Прочитай AGENTS.md и context/{context} product.md. По скиллу research-exa возьми один открытый вопрос из research/ или из паспорта продукта и сделай скан в research/ с сегодняшней датой: таблица утверждение · ссылка · дата · уровень A/B/C и блок «что это значит для нас». Если Exa MCP недоступен, ничего не пиши и объясни, что настроить.">ресёрч</button>
+              <button type="button" data-p="Прочитай AGENTS.md. По скиллу slop-check оцени черновики в outputs/ и обнови scorecard с сегодняшней датой. Предложения к правилам и golden set пиши в раздел «предложения» scorecard, сами rules/ и golden set не меняй.">критик</button>
               <button type="button" data-p="Прочитай AGENTS.md и skills/{skill} harness-principles.md. По этому скиллу проведи аудит папки и запиши отчёт в evals/ с сегодняшней датой: таблица принцип · да/нет/не проверено · где · что поправить, в конце три главные правки. Другие файлы не меняй.">аудит</button>
             </div>
-            <div class="crow"><button type="submit">запустить</button><span id="cStatus" class="cap">агент работает в папке, граф растёт вживую · сервер: <b id="consoleHost">–</b></span></div>
+            <div class="crow"><button type="submit">запустить</button><span id="cStatus" class="cap">агент работает в папке, граф растёт вживую · сервер сотника: <b id="consoleHost">–</b></span></div>
+            <div id="cMsg" class="cap"></div>
           </form>
           <div id="runs"></div>
         </div>
@@ -114,10 +116,10 @@
 <aside id="preview" hidden>
   <header><div><b id="pvTitle"></b><span id="pvPath"></span></div><button id="pvClose" aria-label="закрыть">×</button></header>
   <div id="pvBar">
-    <button id="pvFull" title="во весь экран · f">⤢</button><button id="pvView" class="on" title="как читается">вид</button><button id="pvRaw" title="исходный текст">исходник</button><button id="pvEdit" class="liveonly editonly" title="править файл с живым превью">править</button>
+    <button id="pvFull" title="во весь экран · f">⤢</button><button id="pvView" class="on fileonly" title="как читается">вид</button><button id="pvRaw" class="fileonly" title="исходный текст">исходник</button><button id="pvEdit" class="liveonly editonly fileonly" title="править файл с живым превью">править</button><button id="pvHist" class="liveonly srvonly fileonly" title="версии файла: посмотреть, сравнить, вернуть">история</button>
     <span class="sp"></span>
     <button id="pvSave" class="liveonly editonly" hidden title="сохранить и закоммитить · ⌘S">сохранить</button>
-    <button id="pvDl" title="скачать файл и открыть у себя">скачать</button><a id="pvGh" class="pvlink" target="_blank" rel="noopener" title="файл в репозитории GitHub">GitHub ↗</a><button id="pvObs" class="liveonly srvonly" title="открыть файл в Obsidian">Obsidian</button><button id="pvApp" class="liveonly srvonly" title="открыть в приложении по умолчанию">приложение</button><button id="pvFinder" class="liveonly srvonly" title="показать в Finder">Finder</button>
+    <button id="pvDl" class="fileonly" title="скачать файл и открыть у себя">скачать</button><a id="pvGh" class="pvlink fileonly" target="_blank" rel="noopener" title="файл в репозитории GitHub · нужен доступ к ai-mindset-org">GitHub ↗</a><button id="pvObs" class="liveonly srvonly fileonly" title="открыть файл в Obsidian">Obsidian</button><button id="pvApp" class="liveonly srvonly fileonly" title="открыть в приложении по умолчанию">приложение</button><button id="pvFinder" class="liveonly srvonly fileonly" title="показать в Finder">Finder</button>
   </div>
   <div id="pvLinks"></div>
   <div id="pvWrap">
@@ -146,9 +148,9 @@
       <li>каждая фигура на графе – файл; стрелки – ссылки между файлами; красное – то, что появилось только что</li>
       <li>после каждой фазы – карточка с объяснением и кнопка «продолжить»; клик по фазе внизу возвращает к её карточке</li>
       <li>клик по узлу открывает файл; <kbd>⌘K</kbd> – поиск; пробел – пауза; ← → – фазы</li>
-      <li>«живая папка» – та же картина для настоящей папки на компьютере: правка, агенты, Obsidian</li>
+      <li>Local – та же картина для настоящей папки на компьютере (локальное хранение): правка, агенты и их сессии, откат, Obsidian · Team – рабочая папка спринта из git</li>
     </ul>
-    <div class="st-ft"><button id="inEnd" type="button">сразу финал</button><a class="pagelink2" href="guide.html">гид</a><span class="sp"></span><button id="inGo" type="button" class="go">смотреть сборку →</button></div>
+    <div class="st-ft"><button id="inEnd" type="button">сразу финал</button><a class="pagelink2" href="guide.html">Guide</a><span class="sp"></span><button id="inGo" type="button" class="go">смотреть сборку →</button></div>
   </div>
 </div>
 

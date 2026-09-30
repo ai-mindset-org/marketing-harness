@@ -43,11 +43,17 @@ export function redact(text) {
 export const readJson = (p, fallback) => { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return fallback; } };
 export const sh = (cmd, a, opts = {}) => { try { return execFileSync(cmd, a, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 6000, ...opts }).trim(); } catch { return null; } };
 
+// last 60 commits, oldest first, with author, date and the files each one changed
 export function gitLog(dir) {
-  const raw = sh('git', ['-C', dir, 'log', '--reverse', '--format=%h\t%s', '-n', '60']);
-  return raw ? raw.split('\n').filter(Boolean).map((l) => { const [hash, msg] = l.split('\t'); return { hash, msg }; }) : [];
+  const raw = sh('git', ['-C', dir, '-c', 'core.quotePath=false', 'log', '-n', '60', '--format=%x1e%h%x09%s%x09%an%x09%aI', '--name-status'], { maxBuffer: 8e6 });
+  if (!raw) return [];
+  return raw.split('\x1e').filter((x) => x.trim()).map((rec) => {
+    const [first, ...rest] = rec.split('\n');
+    const [hash, msg, who, date] = first.split('\t');
+    const files = rest.filter(Boolean).map((l) => { const [st, ...ps] = l.split('\t'); return { st: st[0], path: ps[ps.length - 1] }; });
+    return { hash, msg, who: String(who || '').replace(/@.*/, ''), date, files: files.slice(0, 80), more: Math.max(0, files.length - 80) };
+  }).reverse();
 }
-
 
 // the same folder lives in git: branch and remote (as a browser link) for the folder bar
 export function gitInfo(dir) {
