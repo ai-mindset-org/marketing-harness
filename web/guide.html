@@ -17,7 +17,7 @@
   <div class="brand"><h1>marketing harness · гид</h1><p>запуск · живая папка · таймлайн · сущности · гейты · кейсы · команда</p></div>
   <div class="navs">
     <button class="search" data-search title="поиск по файлам и разделам · ⌘K">⌕ поиск <kbd>⌘K</kbd></button>
-    <nav class="modes" aria-label="режим"><a class="mlink" href="index.html">повтор</a><a class="mlink" href="index.html?mode=live">живая папка</a><a class="mlink" href="index.html?mode=team">команда</a></nav>
+    <nav class="modes" aria-label="режим"><a class="mlink" href="index.html">демо</a><a class="mlink" href="index.html?mode=live">живая папка</a><a class="mlink" href="index.html?mode=team">команда</a></nav>
     <nav class="pages" aria-label="страницы"><a class="pagelink on" href="guide.html">гид</a><a class="pagelink" href="access.html">подключения</a></nav>
   </div>
   <div class="clock"><b>гид харнесса</b><span>маркетинг-спринт AI Mindset · n25</span></div>
@@ -29,10 +29,11 @@
   <h2><span>01 · как запустить</span><em>терминал, папка движка</em></h2>
   <table class="t">
     <tr><th>что</th><th>команда</th><th>когда</th></tr>
-    <tr><td>повтор без папки</td><td><code>bin/replay.sh</code> или страница инструмента</td><td>показать сборку за 5 минут; пробел – пауза, ← → – фазы, s – остановки</td></tr>
+    <tr><td>демо без папки</td><td><code>bin/replay.sh</code> или страница инструмента</td><td>показать сборку за 5 минут; пробел – пауза, ← → – фазы, s – остановки</td></tr>
     <tr><td>сборка с остановками</td><td><code>bin/demo.sh ~/Demos/mh-0110 --pace 1 --stops</code></td><td>эфир: после каждой фазы карточка с объяснением, дальше по кнопке «продолжить»</td></tr>
     <tr><td>мгновенная папка</td><td><code>bin/new.sh ~/harness/my-product b2b-consultant</code></td><td>свой харнесс за секунды; пресеты b2b-consultant · b2c-shop · saas-founder</td></tr>
-    <tr><td>живая папка</td><td><code>bin/open.sh ~/harness/marketing-sprint</code></td><td>работа каждый день: граф, редактор, консоль агентов</td></tr>
+    <tr><td>папка в браузере</td><td>«живая папка» → «выбрать папку» или перетащить папку из Finder</td><td>без установки: граф, поиск, правка файлов прямо в папке; Chrome, Arc, Edge</td></tr>
+    <tr><td>живая папка с агентами</td><td><code>bin/open.sh ~/harness/marketing-sprint</code></td><td>работа каждый день: граф, редактор, консоль агентов, Obsidian, коммиты</td></tr>
     <tr><td>живые агенты</td><td><code>EXA_API_KEY=… bin/demo.sh ~/Demos/mh-live --agents</code></td><td>фазы 08–09 делают настоящие агенты claude, модель по умолчанию opus</td></tr>
     <tr><td>остановить</td><td><code>bin/stop.sh</code></td><td>сервер на порту 4747</td></tr>
   </table>
@@ -131,11 +132,13 @@
   <h2><span>12 · командная работа и доступ</span><em>один репозиторий, три режима</em></h2>
   <table class="t">
     <tr><th>режим</th><th>где</th><th>кто видит</th><th>что можно</th></tr>
-    <tr><td><b>повтор</b></td><td>эта страница, <code>index.html</code></td><td>команда в Tailscale</td><td>смотреть сборку по сценарию, карточки фаз, файлы набора</td></tr>
-    <tr><td><b>команда</b></td><td><code>index.html?mode=team</code></td><td>команда в Tailscale</td><td>граф рабочей папки спринта из git: что появилось, коммиты, файлы; обновляется после push</td></tr>
-    <tr><td><b>живая папка</b></td><td><code>bin/open.sh</code> на своём компьютере</td><td>только ты</td><td>правка файлов, агенты claude · codex · сотник, Obsidian, коммиты</td></tr>
+    <tr><td><b>демо</b></td><td>эта страница, <code>index.html</code></td><td>команда в Tailscale</td><td>смотреть сборку по сценарию, карточки фаз, файлы набора</td></tr>
+    <tr><td><b>команда</b></td><td><code>index.html?mode=team</code></td><td>команда в Tailscale</td><td>граф рабочей папки спринта из git; zip текущей папки и команда клонирования в строке папки; обновляется после push и публикации</td></tr>
+    <tr><td><b>папка в браузере</b></td><td>«живая папка» на сайте → выбрать папку</td><td>только ты</td><td>граф и правка файлов своей папки без установки; коммит – в терминале или GitHub Desktop</td></tr>
+    <tr><td><b>живая папка с агентами</b></td><td><code>bin/open.sh</code> на своём компьютере</td><td>только ты</td><td>правка файлов, агенты claude · codex · сотник, Obsidian, коммиты</td></tr>
   </table>
   <div class="cols" style="margin-top:12px">
+    <div><h3>как лучше команде</h3><p>смотреть – командный вид. поправить пару файлов – скачать zip или клонировать, открыть папку в браузере, сохранить, закоммитить. работать с агентами – полный режим <code>bin/open.sh</code>. источник правды один: репозиторий <code>marketing-harness-sprint</code>.</p></div>
     <div><h3>подхватить и доделать</h3><p><code>gh repo clone ai-mindset-org/marketing-harness-sprint ~/harness/marketing-sprint</code>, затем движок <code>gh repo clone ai-mindset-org/marketing-harness</code> и <code>bin/open.sh ~/harness/marketing-sprint</code>. перед работой <code>git pull</code>, после – коммит на шаг и <code>git push</code>.</p></div>
     <div><h3>кто пишет куда</h3><p>одна ветка папки – один писатель за раз: ресёрч, нуклеусы, черновики, гейты. правка <code>context/</code> и <code>rules/</code> – через короткое сообщение в чате маркетинга. pre-commit не пропустит ключ и черновик без проверок.</p></div>
     <div><h3>общий вид</h3><p>после push держатель папки запускает <code>bin/publish-team.sh</code>: состояние уходит в <code>team/state.json</code>, командный граф обновляется. таймер на сервере команды делает то же сам – предложен инфраструктуре.</p></div>
@@ -190,7 +193,7 @@
   let cur = null;
   for (const e of sc.events) { if (e.type === 'phase') cur = e.id; if (cur && (e.type === 'file' || e.type === 'rename')) (files[cur] ||= new Set()).add(e.type === 'file' ? e.path : e.to); }
   const fmt = (ms) => `${String(Math.floor(ms / 60000)).padStart(2, '0')}:${String(Math.floor(ms / 1000) % 60).padStart(2, '0')}`;
-  document.getElementById('tlMeta').textContent = `${sc.phases.length} фаз · ${fmt(sc.duration)} повтора`;
+  document.getElementById('tlMeta').textContent = `${sc.phases.length} фаз · ${fmt(sc.duration)} демо`;
   document.getElementById('gen').textContent = `сценарий собран ${String(sc.generated || '').slice(0, 10)}`;
   const chip = (p) => { const key = p.replace(/^.*?\//, (m) => m); const known = H.has(p); return `<span class="chip ${known ? '' : 'dead'}" ${known ? `data-doc="${H.esc(p)}"` : ''} title="${H.esc(p)}">${H.esc(H.bare(H.base(p)))}</span>`; };
   document.getElementById('timeline').innerHTML = sc.phases.map((ph) => {

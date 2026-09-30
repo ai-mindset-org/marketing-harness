@@ -693,6 +693,42 @@
     },
     {
      "lane": "ingest",
+     "path": "sources/{source} voronkina ozerov vibecoded – 2026-09-29.md",
+     "dwell": 2400,
+     "note": "конспект лекции Даши Воронкиной и Игоря Озерова 29.09: что делать, когда навайбкодил"
+    },
+    {
+     "lane": "ingest",
+     "path": "sources/{source} zhukova product data flywheel – 2026-09-22.md",
+     "dwell": 2400,
+     "note": "гайд Тони Жуковой: маховик продуктовых данных"
+    },
+    {
+     "lane": "ingest",
+     "path": "sources/{source} zhukova b2c onboarding hooks – 2026-09-23.md",
+     "dwell": 2400,
+     "note": "гайд Тони Жуковой: хуки B2C-онбординга"
+    },
+    {
+     "lane": "ingest",
+     "path": "sources/{source} audience growth system – 2026-09-03.md",
+     "dwell": 2400,
+     "note": "система роста аудитории"
+    },
+    {
+     "lane": "ingest",
+     "path": "sources/{source} smm weekly program – 2026-09-09.md",
+     "dwell": 2400,
+     "note": "недельная SMM-программа"
+    },
+    {
+     "lane": "ingest",
+     "path": "sources/{source} content strategy – 2026-07-28.md",
+     "dwell": 2400,
+     "note": "контент-стратегия команды"
+    },
+    {
+     "lane": "ingest",
      "path": "sources/{source} index.md",
      "dwell": 2400,
      "note": "перечень источников: все занятия спринта, внешние репозитории, что уже разобрано"
@@ -768,6 +804,17 @@
      "path": "nuclei/{nucleus} n07 onboarding is funnel.md",
      "dwell": 3000,
      "note": "нуклеус n07"
+    },
+    {
+     "lane": "extractor",
+     "path": "nuclei/{nucleus} n08 bridge post.md",
+     "dwell": 2600,
+     "note": "нуклеусы из лекции 29.09"
+    },
+    {
+     "lane": "extractor",
+     "path": "nuclei/{nucleus} n09 daily strategy judge.md",
+     "dwell": 2600
     },
     {
      "lane": "writer",

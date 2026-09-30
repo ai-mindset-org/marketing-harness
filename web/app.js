@@ -426,18 +426,26 @@
 
   // tools tab: live status from the server; replay – the tool cards of the folder
   let toolsLive = null;
+  // tools tab: every card with its readiness on this computer, the skills that use it and how to set it up
+  const TOOL_OF = { exa: 'exa', lms: 'lms', 'lms-api': 'lms', linkedin: 'linkedin', telegram: 'telegram', gemini: 'gemini', apify: 'apify', claude: 'claude-code', codex: 'codex', sotnik: 'codex', gh: 'git-github', obsidian: 'obsidian' };
   function renderTools() {
     const el = document.getElementById('tools');
-    if (toolsLive) {
-      el.innerHTML = toolsLive.map((t) => `<div class="trow ${t.ready ? 'ok' : ''}"><i></i><b>${esc(t.id)}</b><span>${esc(t.what)}${!t.ready && t.hint ? ` · <code>${esc(t.hint)}</code>` : ''}</span></div>`).join('')
-        + '<div class="cap">показано только «задан или нет»; значения ключей сервер не отдаёт</div>';
-      return;
-    }
-    const cards = [...S.files.values()].filter((f) => f.layer === 'tool' && f.path.endsWith('.md'));
-    el.innerHTML = cards.length ? cards.sort((a, b) => a.path.localeCompare(b.path)).map((f) => `<div class="trow link" data-p="${esc(f.path)}"><i></i><b>${esc(f.title)}</b><span>${esc((f.content.split('\n').find((l) => l.startsWith('**Зачем:**')) || '').replace('**Зачем:**', '').trim().slice(0, 90))}</span></div>`).join('')
-      + '<div class="cap">клик – карточка инструмента: где включить, переменная, проверка</div>'
-      : '<div class="cap">инструменты появятся в фазе 04</div>';
+    const cards = [...S.files.values()].filter((f) => f.layer === 'tool' && f.path.endsWith('.md')).sort((a, b) => a.path.localeCompare(b.path));
+    if (!cards.length) { el.innerHTML = '<div class="cap">инструменты появятся в фазе 04 · все инструкции: <a href="access.html">подключения</a></div>'; return; }
+    const idx = resolveIndex();
+    const skillsOf = (p) => [...S.files.values()].filter((g) => g.layer === 'skill' && g.links.some((t) => idx.get(t) === p)).map((g) => g.path);
+    el.innerHTML = cards.map((f) => {
+      const slug = bare(base(f.path));
+      const st = toolsLive ? toolsLive.filter((t) => TOOL_OF[t.id] === slug) : [];
+      const ok = st.length && st.every((t) => t.ready);
+      const why = (f.content.split('\n').find((l) => l.startsWith('**Зачем:**')) || '').replace('**Зачем:**', '').replace(/\[\[[^\]]*\]\]/g, '').replace(/`/g, '').trim().slice(0, 110);
+      const sk = skillsOf(f.path);
+      const state = st.map((t) => `${t.ready ? '●' : '○'} ${esc(t.what)}${!t.ready && t.env ? ` · <code>export ${esc(t.env)}=…</code>` : ''}`).join(' · ');
+      return `<div class="trow ${ok ? 'ok' : st.length ? '' : 'link'}" data-p="${esc(f.path)}"><i></i><b>${esc(f.title)}</b><span>${esc(why)}</span>
+        <div class="sub">${state ? `${state}<br>` : ''}<a class="set" data-p="${esc(f.path)}">как настроить →</a>${slug === 'lms' ? ' <a href="https://learn.aimindset.org/cabinet/api-keys" target="_blank" rel="noopener">ключ в LMS ↗</a>' : ''}${sk.length ? ` · скиллы: ${sk.map((x) => `<a data-p="${esc(x)}">${esc(bare(base(x)))}</a>`).join('')}` : ''}</div></div>`;
+    }).join('') + `<div class="cap">${toolsLive ? 'статус – задан ли ключ на этом компьютере, значения не видны · ' : 'статус ключей виден в полном режиме (bin/open.sh) · '}все инструкции: <a href="access.html">подключения</a></div>`;
   }
+
   document.getElementById('tabBody').addEventListener('click', (e) => { const el = e.target.closest('.trow.link'); if (el) openPreview(el.dataset.p); });
 
   function renderPhases(progress) {
@@ -460,6 +468,8 @@
     document.getElementById('narrTag').textContent = S.narrTag;
   }
   const fmt = (ms) => { const s = Math.max(0, Math.floor(ms / 1000)); return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; };
+
+  document.getElementById('tools').addEventListener('click', (e) => { const el = e.target.closest('[data-p]'); if (el && !e.target.closest('a[href]')) openPreview(el.dataset.p); });
 
   // ---------- tabs ----------
   document.getElementById('tabs').addEventListener('click', (e) => {
@@ -601,7 +611,7 @@
   $('pvView').onclick = () => { if (PV.mode === 'edit' && PV.buffer !== PV.base) { pvNote('сначала сохрани правки или закрой панель'); return; } PV.mode = 'view'; pvRender(); };
   $('pvRaw').onclick = () => { if (PV.mode === 'edit' && PV.buffer !== PV.base) { pvNote('сначала сохрани правки или закрой панель'); return; } PV.mode = 'raw'; pvRender(); };
   $('pvEdit').onclick = () => {
-    if (MODE !== 'live' || !SESSION) return;
+    if (MODE !== 'live' || (!SESSION && !FSA)) return;
     const f = S.files.get(PV.path); if (!f) return;
     if (f.content.length >= 20000) { pvNote('файл длиннее 20 000 знаков: правь его в Obsidian или в редакторе'); return; }
     PV.mode = 'edit'; PV.buffer = PV.base = f.content; $('pvEditor').value = f.content; pvNote('правка с живым превью · ⌘S сохраняет и коммитит'); pvRender(); $('pvEditor').focus();
@@ -609,7 +619,11 @@
   let pvTimer = null;
   $('pvEditor').addEventListener('input', (e) => { PV.buffer = e.target.value; PV.escArmed = false; $('preview').classList.toggle('dirty', PV.buffer !== PV.base); clearTimeout(pvTimer); pvTimer = setTimeout(pvRender, 180); });
   async function pvSave() {
-    if (PV.mode !== 'edit' || !SESSION) return;
+    if (PV.mode !== 'edit' || (!SESSION && !FSA)) return;
+    if (FSA) {
+      try { await fsaWrite(PV.path, PV.buffer); PV.base = PV.buffer; upsertFile(PV.path, PV.buffer, null, true); pvNote('сохранено в файл · коммит – в терминале или GitHub Desktop'); } catch (err) { pvNote(`не сохранилось: ${err.message}`); }
+      pvRender(); return;
+    }
     const r = await post('/api/file', { path: PV.path, content: PV.buffer });
     if (r.ok) { PV.base = PV.buffer; upsertFile(PV.path, PV.buffer, null, true); pvNote(r.commit ? `сохранено · коммит ${r.commit}` : 'сохранено'); }
     else pvNote(`не сохранилось: ${r.error || 'ошибка'}`);
@@ -735,7 +749,6 @@
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
       if (stopOpen) {
         if (['Space', 'Enter', 'ArrowRight'].includes(e.code)) { e.preventDefault(); closeStop(true); }
-        if (e.key === 'Escape') closeStop(false);
         return;
       }
       if (e.code === 'Space') { e.preventDefault(); btnPlay.click(); }
@@ -744,7 +757,6 @@
       if (e.key === 's') setStops(!STOPS);
       if (e.code === 'End') { seek(sc.duration); setPlay(false); }
       if (e.key === 'r') { seek(0); setPlay(true); }
-      if (e.key === 'Escape') closePreview();
     });
     if (introWanted) {
       R.playing = false;
@@ -788,9 +800,12 @@
       const sc = await fetch('scenario.json', { cache: 'no-store' }).then((r) => r.json());
       META = { questions: sc.questions, answers: sc.answers, phases: sc.phases, duration: sc.duration };
     } catch { /* live works without scenario */ }
-    if (!TEAM) { try { SESSION = await fetch('/api/session').then((r) => r.json()); document.getElementById('consoleHost').textContent = SESSION.serverHost; folderBar(); } catch { /* static host */ } }
+    if (!TEAM) { try { SESSION = await fetch('/api/session').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }); document.getElementById('consoleHost').textContent = SESSION.serverHost; folderBar(); } catch { SERVERLESS = true; } }
+    consolePane();
+    if (SERVERLESS) await connectCard();
     if (introWanted) {
-      $('inTitle').textContent = TEAM ? 'командный вид: рабочая папка спринта из git' : 'живая папка: харнесс на этом компьютере';
+      $('inTitle').textContent = TEAM ? 'командный вид: рабочая папка спринта из git' : SERVERLESS ? 'живая папка: подключи свою папку' : 'живая папка: харнесс на этом компьютере';
+      if (SERVERLESS && !TEAM) $('inPoints').innerHTML = '<li>на сайте папку можно выбрать прямо в браузере или перетащить из Finder: граф, поиск, правка файлов</li><li>агенты, Obsidian и коммиты – в полном режиме: <code>bin/open.sh</code> на своём компьютере, команды на следующем экране</li><li>командный вид – рабочая папка спринта из git, без установки</li>';
       if (TEAM) $('inPoints').innerHTML = '<li>граф собран из репозитория ai-mindset-org/marketing-harness-sprint и обновляется после каждого push</li><li>правка и агенты – у себя: клонируй репозиторий, bin/open.sh, коммит, push</li><li>клик по узлу открывает файл; ⌘K – поиск; пробел – заморозить картинку</li>';
       $('inGo').textContent = 'открыть граф →'; $('inEnd').hidden = true;
       $('intro').hidden = false; $('inGo').focus();
@@ -799,9 +814,10 @@
     const hint = document.getElementById('liveHint');
     let started = null, fails = 0, liveSeen = new Set();
     async function poll() {
-      if (LIVE_FROZEN) { setTimeout(poll, 700); return; }
+      if (LIVE_FROZEN || (SERVERLESS && !FSA && !TEAM)) { setTimeout(poll, 700); return; }
       try {
-        const st = await fetch(TEAM ? 'team/state.json' : '/api/state', { cache: TEAM ? 'no-cache' : 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+        const st = FSA ? await fsaState() : await fetch(TEAM ? 'team/state.json' : '/api/state', { cache: TEAM ? 'no-cache' : 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+        if (FSA) fsaBar(st);
         if (TEAM && st.git) { SESSION_T = st; teamBar(st); }
         fails = 0; hint.hidden = true;
         const h = st.harness || {};
@@ -835,25 +851,25 @@
         const runLive = S.runs.find((r) => r.status === 'running');
         const text = runLive ? `${runLive.runner} работает: ${runLive.prompt.slice(0, 90)}` : last?.text;
         if (text && text !== S.narr) { S.narr = text; S.narrTag = runLive ? 'агент' : (!h.phase || h.phase === 'done') ? 'готово' : `фаза ${h.phase.slice(1)}`; markDirty(); }
-        S.answersShown = h.answersShown ?? META.questions.length;
+        S.answersShown = FSA ? 0 : (h.answersShown ?? META.questions.length);
         const cur = META.phases.findIndex((p) => p.id === S.phase);
         const progress = S.phase === 'done' || !h.phase ? 1 : cur < 0 ? 0 : (cur + 0.5) / META.phases.length;
         if (!h.phase) S.phase = 'done';
-        document.getElementById('clock').textContent = TEAM ? `команда · ${st.name} · ${st.head || ''} · ${String(st.exported || '').slice(11, 16)} UTC` : `live · ${started ? fmt(Date.now() - started) : '–'} · ${st.name}`;
+        document.getElementById('clock').textContent = TEAM ? `команда · ${st.name} · ${st.head || ''} · ${String(st.exported || '').slice(11, 16)} UTC` : FSA ? `папка в браузере · ${st.name}` : `live · ${started ? fmt(Date.now() - started) : '–'} · ${st.name}`;
         renderAll(progress);
       } catch (err) {
         if (++fails >= 2) {
-          hint.hidden = false;
-          hint.innerHTML = TEAM ? 'командный вид ещё не опубликован.<br>кто держит рабочую папку: <code>bin/publish-team.sh ~/harness/marketing-sprint</code><br>или открой <a href="?mode=replay">повтор</a>.' : 'живой режим читает папку через локальный сервер.<br>в терминале:<br><code>bin/open.sh ~/harness/marketing</code><br>или сборка с нуля: <code>bin/demo.sh ~/Demos/новая-папка</code><br>или открой <a href="?mode=replay">повтор</a>.';
+          if (TEAM) { hint.hidden = false; hint.innerHTML = 'командный вид ещё не опубликован.<br>кто держит рабочую папку: <code>bin/publish-team.sh ~/harness/marketing-sprint</code><br>или открой <a href="?mode=replay">демо</a>.'; }
+          else if (FSA) { hint.hidden = false; hint.textContent = 'папка недоступна: браузер отозвал доступ. нажми «другая папка» и выбери её снова.'; }
+          else { SERVERLESS = true; connectCard(); }
         }
       }
-      setTimeout(poll, TEAM ? 20000 : 700);
+      setTimeout(poll, TEAM ? 20000 : FSA ? 2000 : 700);
     }
     poll();
     setInterval(treeTick, 500);
     window.addEventListener('keydown', (e) => {
-      if (stopOpen && (e.code === 'Enter' || (e.code === 'Space' && e.target.tagName !== 'TEXTAREA'))) { e.preventDefault(); closeStop(true); return; }
-      if (e.key === 'Escape') closePreview();
+      if (stopOpen && (e.code === 'Enter' || (e.code === 'Space' && e.target.tagName !== 'TEXTAREA'))) { e.preventDefault(); closeStop(true); }
     });
 
     // console: model list follows the runner; Claude defaults to Opus
@@ -879,19 +895,158 @@
     });
   }
 
+  // ---------- live sources: local server · folder picked in the browser · team json ----------
+  let SERVERLESS = false; // no local server behind this page (content.aimindset.org)
+  let FSA = null; // FileSystemDirectoryHandle of a folder picked in the browser
+  const fsaCache = new Map();
+  const FSA_SKIP = new Set(['.git', '.obsidian', '.claude', '.agents', '.harness', 'node_modules', '.trash']);
+  const SHOW_RE = /\.(md|json|canvas|css|html|mjs)$/;
+  async function fsaRead(fh, r, out) {
+    const f = await fh.getFile();
+    const c = fsaCache.get(r);
+    if (c && c.mtime === f.lastModified && c.size === f.size) { out.push({ path: r, mtime: c.mtime, content: c.content }); return; }
+    const content = (await f.text()).slice(0, 20000);
+    fsaCache.set(r, { mtime: f.lastModified, size: f.size, content });
+    out.push({ path: r, mtime: f.lastModified, content });
+  }
+  async function fsaWalk(dirH, rel, out) {
+    for await (const [name, h] of dirH.entries()) {
+      const r = rel ? `${rel}/${name}` : name;
+      if (h.kind === 'directory') {
+        if (name === '.githooks' && !rel) { await fsaWalk(h, r, out); continue; }
+        if (name === '.claude' && !rel) { try { await fsaRead(await h.getFileHandle('settings.json'), `${r}/settings.json`, out); } catch { /* none */ } continue; }
+        if (FSA_SKIP.has(name) || name.startsWith('.')) continue;
+        await fsaWalk(h, r, out);
+      } else if ((SHOW_RE.test(name) || rel === '.githooks') && (!name.startsWith('.') || name === '.mcp.json')) await fsaRead(h, r, out);
+    }
+    return out;
+  }
+  const fsaText = async (dirH, name) => (await (await dirH.getFileHandle(name)).getFile()).text();
+  async function fsaGit() {
+    const out = { commits: [], git: {} };
+    try {
+      const g = await FSA.getDirectoryHandle('.git');
+      out.git.branch = (/ref: refs\/heads\/(.+)/.exec(await fsaText(g, 'HEAD')) || [])[1] || '';
+      try { const u = (/\[remote "origin"\][^[]*?url\s*=\s*(\S+)/.exec(await fsaText(g, 'config')) || [])[1]; if (u) out.git.remote = u.replace(/^git@github\.com:/, 'https://github.com/').replace(/\.git$/, ''); } catch { /* no remote */ }
+      try {
+        const txt = await fsaText(await g.getDirectoryHandle('logs'), 'HEAD');
+        out.commits = txt.trim().split('\n').map((l) => { const [meta, msg = ''] = l.split('\t'); return { hash: (meta.split(' ')[1] || '').slice(0, 7), msg }; })
+          .filter((c) => /^commit/.test(c.msg)).map((c) => ({ hash: c.hash, msg: c.msg.replace(/^commit[^:]*: /, '') })).slice(-60);
+      } catch { /* no reflog */ }
+    } catch { /* not a git folder */ }
+    return out;
+  }
+  async function fsaState() {
+    const files = await fsaWalk(FSA, '', []);
+    const g = await fsaGit();
+    return { name: FSA.name, files, harness: {}, commits: g.commits, runs: [], git: g.git, now: Date.now() };
+  }
+  function fsaBar(st) {
+    const g = st.git || {};
+    $('fbPath').textContent = `${st.name} · папка в браузере`;
+    $('fbGit').innerHTML = g.remote ? `git: ${esc(g.branch || '–')} → <a href="${esc(g.remote)}" target="_blank" rel="noopener">${esc(g.remote.replace(/^https:\/\/github\.com\//, 'github/'))}</a> · коммит – в терминале` : g.branch ? `git: ${esc(g.branch)} · коммит – в терминале` : 'без git: правки сохраняются в файлы';
+  }
+  // remember the picked folder between visits (IndexedDB keeps the handle; permission is asked again)
+  const idb = (mode, fn) => new Promise((res) => {
+    try {
+      const r = indexedDB.open('marketing-harness', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('h');
+      r.onsuccess = () => { try { const tx = r.result.transaction('h', mode); const q = fn(tx.objectStore('h')); tx.oncomplete = () => res(q && q.result); tx.onerror = () => res(null); } catch { res(null); } };
+      r.onerror = () => res(null);
+    } catch { res(null); }
+  });
+  async function setFolder(h) {
+    try { if ((await h.queryPermission({ mode: 'readwrite' })) !== 'granted' && (await h.requestPermission({ mode: 'readwrite' })) !== 'granted') return; } catch { /* read-only is fine */ }
+    FSA = h; fsaCache.clear(); reset(); nodeById.clear(); gFx.selectAll('*').remove(); markDirty();
+    document.body.classList.add('fsa'); document.body.classList.remove('nosrc');
+    $('connect').hidden = true; $('liveHint').hidden = true; $('empty').style.opacity = 0;
+    idb('readwrite', (st) => st.put(h, 'last'));
+    consolePane();
+  }
+  async function pickFolder() {
+    if (!window.showDirectoryPicker) { $('fsaNote').textContent = 'этот браузер не открывает папки: Chrome, Arc или Edge, либо полный режим ниже'; return; }
+    try { await setFolder(await window.showDirectoryPicker({ mode: 'readwrite', id: 'harness' })); } catch { /* cancelled */ }
+  }
+  async function connectCard() {
+    $('connect').hidden = false; $('liveHint').hidden = true;
+    if (!FSA) document.body.classList.add('nosrc');
+    if (!window.showDirectoryPicker) $('fsaNote').textContent = 'в этом браузере выбор папки недоступен: Chrome, Arc, Edge';
+    const last = await idb('readonly', (st) => st.get('last'));
+    if (last && last.kind === 'directory') { $('resumeFolder').hidden = false; $('resumeFolder').textContent = `продолжить: ${last.name}`; $('resumeFolder').onclick = () => setFolder(last); }
+  }
+  $('pickFolder').onclick = pickFolder;
+  if (qs.get('test') === '1') window.__mh = { setFolder }; // browser tests feed a fake folder handle
+  $('pickAgain').onclick = pickFolder;
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-copy]'); if (!b) return;
+    try { await navigator.clipboard.writeText($(b.dataset.copy).textContent.replace(/ /g, ' ')); b.textContent = 'скопировано'; b.classList.add('done'); setTimeout(() => { b.textContent = 'копировать'; b.classList.remove('done'); }, 1600); } catch { b.textContent = 'выдели и ⌘C'; }
+  });
+  // drop a folder from Finder onto the graph
+  $('stage').addEventListener('dragover', (e) => { if (MODE === 'live' && !SESSION) { e.preventDefault(); $('stage').classList.add('drop'); } });
+  $('stage').addEventListener('dragleave', () => $('stage').classList.remove('drop'));
+  $('stage').addEventListener('drop', async (e) => {
+    $('stage').classList.remove('drop');
+    if (MODE !== 'live' || SESSION) return;
+    e.preventDefault();
+    const it = [...(e.dataTransfer.items || [])].find((x) => x.kind === 'file');
+    if (it && it.getAsFileSystemHandle) { const h = await it.getAsFileSystemHandle(); if (h && h.kind === 'directory') setFolder(h); else $('fsaNote').textContent = 'перетащи папку целиком'; }
+    else $('fsaNote').textContent = 'перетаскивание папок работает в Chrome, Arc и Edge';
+  });
+  async function fsaWrite(rel, content) {
+    const parts = rel.split('/');
+    let d = FSA;
+    for (const seg of parts.slice(0, -1)) d = await d.getDirectoryHandle(seg, { create: true });
+    const w = await (await d.getFileHandle(parts[parts.length - 1], { create: true })).createWritable();
+    await w.write(content); await w.close();
+  }
+  // new file in the current folder (local server or browser folder)
+  $('newFileBtn').onclick = () => { $('newFile').hidden = !$('newFile').hidden; if (!$('newFile').hidden) $('nfPath').focus(); };
+  $('newFile').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    let rel = $('nfPath').value.trim().replace(/^\/+/, '');
+    if (!rel || rel.includes('..') || rel.split('/').some((x) => x.startsWith('.'))) { $('nfPath').value = ''; $('nfPath').placeholder = 'путь внутри папки, без .. и скрытых'; return; }
+    if (!/\.(md|json|css|html|mjs|canvas|txt)$/.test(rel)) rel += '.md';
+    const name = bare(base(rel));
+    const body = rel.endsWith('.md') ? `---\ntitle: ${name}\n---\n# ${name}\n\n` : '';
+    if (FSA) await fsaWrite(rel, body);
+    else if (SESSION) { const r = await post('/api/file', { path: rel, content: body }); if (!r.ok) { $('nfPath').value = ''; $('nfPath').placeholder = r.error || 'не создалось'; return; } }
+    upsertFile(rel, body, null, true);
+    $('newFile').hidden = true; $('nfPath').value = '';
+    openPreview(rel); $('pvEdit').click();
+  });
+  // console tab: agents need the local server; elsewhere explain how and who pays
+  function consolePane() {
+    const off = !SESSION;
+    $('consoleForm').hidden = off; $('runs').hidden = off; $('consoleOff').hidden = !off;
+    if (!off) return;
+    $('consoleOff').innerHTML = `<b>агенты запускаются на твоём компьютере</b>
+      <p>эта страница открыта ${TEAM ? 'в командном виде' : FSA ? 'с папкой в браузере' : 'с сайта'}: у неё нет доступа к терминалу и ключам. консоль работает в полном режиме:</p>
+      <div class="cmd"><code id="cmdOpen2">~/harness-engine/bin/open.sh ~/harness/marketing-sprint</code><button type="button" data-copy="cmdOpen2">копировать</button></div>
+      <p class="cap">откроется localhost:4747 – эта же вкладка с выбором исполнителя и модели.</p>
+      <b>исполнители и чем платишь</b>
+      <table>
+        <tr><td>claude · локально</td><td>твоя подписка Claude Pro или Max (или ключ API); модели opus · sonnet · haiku; запускается <code>claude -p</code> внутри папки</td></tr>
+        <tr><td>codex · локально</td><td>подписка ChatGPT Plus, Pro или Business; модели terra · sol · luna</td></tr>
+        <tr><td>сотник</td><td>Codex на сервере команды AI Mindset, подписка команды; нужен ssh-доступ к серверу (через Сашу Васильева); папка уезжает на сервер и возвращается каждые 4 секунды</td></tr>
+      </table>
+      <p class="cap">запуск агентов прямо с общего сайта требует отдельного сервиса с логинами и лимитами – он в планах; до него агенты живут локально или у Сотника.</p>`;
+  }
+
   // ---------- search: ⌘K over files and phases ----------
   const QS = { list: [], i: 0 };
   function searchRun(q) {
     const t = q.trim().toLowerCase();
     const out = [];
     for (const f of S.files.values()) {
-      const title = f.title.toLowerCase(), path = f.path.toLowerCase();
+      const title = f.title.toLowerCase(), path = f.path.toLowerCase(), name = bare(base(f.path)).toLowerCase();
       let score = 0, hit = '';
+      const aliases = String(f.fm.aliases || '').toLowerCase().replace(/[[\]"]/g, '').split(',').map((x) => x.trim()).filter(Boolean);
+      const ns = nameScore(t, name), ts = nameScore(t, title), as = Math.max(0, ...aliases.map((a) => nameScore(t, a) - 5));
       if (!t) score = 1;
-      else if (title.startsWith(t)) score = 100;
-      else if (title.includes(t)) score = 80;
-      else if (String(f.fm.aliases || '').toLowerCase().includes(t)) score = 75;
-      else if (path.includes(t)) score = 60;
+      else if (Math.max(ns, ts, as) >= 60) score = Math.max(ns, ts, as);
+      else if (String(f.fm.aliases || '').toLowerCase().includes(t)) score = 58;
+      else if (path.includes(t)) score = 55;
+      else if (ns || ts || as) score = Math.max(ns, ts, as);
       else {
         const k = (f.content || '').toLowerCase().indexOf(t);
         if (k >= 0) { score = 30; hit = f.content.slice(Math.max(0, k - 30), k + 70).replace(/\s+/g, ' '); }
@@ -906,8 +1061,21 @@
     QS.i = 0;
     searchPaint();
   }
+  // filename first: exact · prefix · substring · all words · letters in order (typos, «лднг» → «лендинг»)
+  function nameScore(t, name) {
+    if (!t) return 0;
+    if (name === t) return 130;
+    if (name.startsWith(t)) return 115;
+    const k = name.indexOf(t); if (k >= 0) return 100 - Math.min(20, k);
+    const words = t.split(/\s+/).filter(Boolean);
+    if (words.length > 1 && words.every((w) => name.includes(w))) return 90;
+    let i = 0, gaps = 0, last = -1;
+    for (let j = 0; j < name.length && i < t.length; j++) if (name[j] === t[i]) { if (last >= 0) gaps += j - last - 1; last = j; i++; }
+    return i === t.length && t.length >= 3 ? Math.max(35, 62 - gaps * 2) : 0;
+  }
+  const hl = (label, q) => { const t = q.trim().toLowerCase(); const k = t ? label.toLowerCase().indexOf(t) : -1; return k < 0 ? esc(label) : `${esc(label.slice(0, k))}<mark>${esc(label.slice(k, k + t.length))}</mark>${esc(label.slice(k + t.length))}`; };
   function searchPaint() {
-    $('qres').innerHTML = QS.list.map((r, k) => `<li class="${k === QS.i ? 'on' : ''}" data-k="${k}"><span>${r.glyph}</span><span>${esc(r.label)}</span><small>${esc(r.kind === 'file' ? r.sub.split('/').slice(0, -1).join('/') || './' : 'карточка фазы')}</small>${r.hit ? `<span class="hit">…${esc(r.hit)}…</span>` : ''}</li>`).join('') || '<li><span></span><span>ничего не нашлось</span></li>';
+    $('qres').innerHTML = QS.list.map((r, k) => `<li class="${k === QS.i ? 'on' : ''}" data-k="${k}"><span>${r.glyph}</span><span>${hl(r.kind === 'file' ? bare(base(r.p)) : r.label, $('q').value)}</span><small>${esc(r.kind === 'file' ? r.sub.split('/').slice(0, -1).join('/') || './' : 'карточка фазы')}</small>${r.hit ? `<span class="hit">…${esc(r.hit)}…</span>` : ''}</li>`).join('') || '<li><span></span><span>ничего не нашлось</span></li>';
     const on = $('qres').querySelector('li.on'); if (on) on.scrollIntoView({ block: 'nearest' });
   }
   function searchPick(k) {
@@ -945,6 +1113,19 @@
     $('narrText').textContent = LIVE_FROZEN ? 'граф заморожен: папка меняется, картинка стоит. пробел – продолжить' : S.narr || '–';
   }, true);
 
+  // ---------- Esc closes the top open layer: search · intro · phase card · new file · file panel ----------
+  window.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!$('search').hidden) searchClose();
+    else if (!$('intro').hidden) introClose();
+    else if (stopOpen) closeStop(false);
+    else if (!$('newFile').hidden) $('newFile').hidden = true;
+    else if (!$('preview').hidden) closePreview();
+    else if (!$('connect').hidden && FSA) $('connect').hidden = true;
+    else return;
+    e.preventDefault(); e.stopPropagation();
+  }, true);
+
   // ---------- intro: what this is, before the build starts ----------
   const introWanted = qs.get('intro') !== '0' && !qs.get('at') && !qs.get('phase');
   function introClose(go) { $('intro').hidden = true; if (go) go(); }
@@ -962,8 +1143,13 @@
   function teamBar(st) {
     const g = st.git || {};
     $('fbPath').textContent = `${st.name} · общий вид`;
-    $('fbGit').innerHTML = g.remote ? `git: ${esc(g.branch || 'main')} → <a href="${esc(g.remote)}" target="_blank" rel="noopener">${esc(g.remote.replace(/^https:\/\/github\.com\//, 'github/'))}</a>` : 'git: –';
+    $('fbGit').innerHTML = (g.remote ? `git: ${esc(g.branch || 'main')} → <a href="${esc(g.remote)}" target="_blank" rel="noopener">${esc(g.remote.replace(/^https:\/\/github\.com\//, 'github/'))}</a>` : 'git: –')
+      + `<br><a href="team/${encodeURIComponent(st.name)}.zip" download>скачать папку zip</a> · <a data-copyval="gh repo clone ${esc((g.remote || '').replace(/^https:\/\/github\.com\//, ''))} ~/harness/${esc(st.name)}">копировать команду клонирования</a>`;
   }
+  document.addEventListener('click', async (e) => {
+    const a = e.target.closest('[data-copyval]'); if (!a) return;
+    try { await navigator.clipboard.writeText(a.dataset.copyval); a.textContent = 'скопировано'; } catch { a.textContent = a.dataset.copyval; }
+  });
 
   resize();
   if (MODE === 'replay') startReplay(); else startLive();

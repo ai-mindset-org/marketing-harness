@@ -336,3 +336,48 @@ code,kbd,pre,textarea{font-family:inherit}
 #legend .lg-all button + button{border-left:none}
 #legend .lg-all button:hover{border-color:var(--ink); color:var(--ink); background:var(--bg)}
 body.team .localonly{display:none !important}
+/* v6: connect card, browser folder, console explanation */
+body.team .srvonly,body.team .editonly,body.team .fsaonly{display:none !important}
+body.fsa .srvonly{display:none !important}
+body:not(.fsa) .fsaonly{display:none !important}
+body:not(.live) .editonly,body:not(.live) .srvonly{display:none}
+#connect{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:min(640px,calc(100% - 32px)); max-height:calc(100% - 24px); overflow:auto; border:1px solid var(--ink); background:var(--bg); box-shadow:10px 10px 0 rgba(0,0,0,.08); padding:12px 14px; z-index:3}
+#connect[hidden]{display:none}
+.cn-hd{display:flex; justify-content:space-between; align-items:baseline; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); border-bottom:1px dashed var(--soft); padding-bottom:6px; margin-bottom:6px}
+.cn-hd .cap{letter-spacing:.02em; text-transform:none; color:var(--muted); margin:0}
+.cn-opt{padding:8px 0; border-bottom:1px dotted var(--soft)}
+.cn-opt:last-child{border-bottom:none}
+.cn-opt b{display:block; font-size:12.5px; margin-bottom:4px}
+.cn-opt p{margin:0 0 6px; font-size:11.5px; line-height:1.55}
+.cn-row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.cn-row .go{background:var(--ink); color:var(--bg)}
+.cn-row .go:hover{background:var(--accent); border-color:var(--accent)}
+.cmd{display:grid; grid-template-columns:minmax(0,1fr) auto; border:1px solid var(--ink); margin:0 0 6px}
+.cmd code{padding:6px 8px; font-size:11px; overflow-wrap:anywhere; background:var(--paper)}
+.cmd button{border:none; border-left:1px solid var(--ink); font-size:10.5px}
+.cmd button.done{background:var(--ink); color:var(--bg)}
+#stage.drop{outline:2px dashed var(--accent); outline-offset:-8px}
+#newFile{display:flex; margin-top:4px}
+#newFile input{flex:1; min-width:0; font:inherit; font-size:10.5px; border:1px solid var(--ink); padding:2px 6px}
+#newFile button{padding:2px 7px; font-size:10.5px; border-left:none}
+.fb-act button{padding:2px 7px; font-size:10.5px}
+#consoleOff{font-size:11px; line-height:1.55}
+#consoleOff b{display:block; margin:6px 0 2px}
+#consoleOff table{border-collapse:collapse; width:100%; font-size:10.5px; margin:4px 0 8px}
+#consoleOff td{border-bottom:1px dotted var(--soft); padding:3px 4px; vertical-align:top}
+#consoleOff td:first-child{white-space:nowrap; font-weight:500}
+.trow .sub{grid-column:2 / -1; font-size:10px; color:var(--muted)}
+.trow .sub a{color:var(--ink); border-bottom:1px solid var(--soft); cursor:pointer; margin-right:6px}
+.trow .set{color:var(--ink); border-bottom:1px solid var(--accent); cursor:pointer; white-space:nowrap}
+mark{background:none; color:var(--accent); font-weight:700}
+#qres li.on mark{color:#ff8a80}
+#consoleForm[hidden],#runs[hidden],#newFile[hidden],#consoleOff[hidden]{display:none !important}
+.fb-git a[data-copyval]{cursor:pointer; border-bottom:1px solid var(--soft); color:var(--ink)}
+body.nosrc #folderBar{display:none !important}
+.fb-act{flex-wrap:wrap}
+.fb-act button{white-space:nowrap; border-left:1px solid var(--ink) !important; margin:0 -1px -1px 0}
+#tools .trow{grid-template-columns:12px minmax(0,1fr); align-items:start; padding:6px 0}
+#tools .trow i{margin-top:3px}
+#tools .trow span,#tools .trow .sub{grid-column:2}
+#tools .trow span{white-space:normal; font-size:10.5px}
+#connect a,#consoleOff a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--accent)}
