@@ -119,3 +119,15 @@ nav.pages a.on{background:var(--ink); color:var(--bg)}
 #qres li.on{background:var(--ink); color:var(--bg)}
 #qres li small{color:var(--muted); font-size:10px}
 @media (max-width:760px){ #hd{grid-template-columns:30px minmax(0,1fr)} .navs,.clock{grid-column:1 / -1; justify-content:flex-start; align-items:flex-start} }
+/* the header sits where the instrument's does: full width, same paddings and type */
+body{padding:10px 12px 40px; letter-spacing:.02em}
+#hd{font-size:12px; margin:0 0 18px; padding-bottom:9px}
+#hd .brand h1{letter-spacing:.01em}
+.wrap{padding:0 8px}
+/* one header geometry on every page */
+#hd{min-height:58px}
+.brand p{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.brand{min-width:0}
+.clock{width:250px; min-width:250px}
+.navs button,.navs a{line-height:1.45; font-size:12px; padding:5px 10px}
+button.search{letter-spacing:.04em}

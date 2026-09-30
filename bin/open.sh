@@ -1,21 +1,32 @@
 #!/usr/bin/env bash
-# Open an existing harness folder in the live instrument (graph + console).
-#   bin/open.sh ~/harness/marketing        then work in the folder with claude / codex
+# Open a harness folder in the live instrument: graph, file editor, agent console.
+#   ~/harness-engine/bin/open.sh ~/harness/marketing-sprint
+# Already running for this folder → just opens the browser. Port busy with another
+# folder → takes the next free port. Stop: <engine>/bin/stop.sh [port]
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DIR="$(cd "${1:?укажи папку харнесса}" && pwd)"
-PORT="${PORT:-4747}"
-lsof -ti tcp:"$PORT" >/dev/null 2>&1 && { echo "порт $PORT занят – bin/stop.sh"; exit 1; }
+[[ -d "${1:-}" ]] || { echo "папки нет: ${1:-<не указана>}"; echo "пример: $ROOT/bin/open.sh ~/harness/marketing-sprint"; exit 1; }
+DIR="$(cd "$1" && pwd)"
+command -v node >/dev/null || { echo "нужен node ≥ 18: brew install node"; exit 1; }
+. "$ROOT/bin/_port.sh"
+read -r MODE PORT < <(harness_port "$DIR")
+URL="http://localhost:$PORT/?mode=live&intro=0"
+if [[ "$MODE" == reuse ]]; then
+  echo "уже запущен для этой папки: $URL"
+  [[ "${NO_OPEN:-0}" == 1 ]] || open "$URL" 2>/dev/null || true
+  exit 0
+fi
+[[ "$MODE" == new ]] || { echo "свободного порта нет: $ROOT/bin/stop.sh"; exit 1; }
 node "$ROOT/tools/harness-server.mjs" --dir "$DIR" --port "$PORT" &
 SERVER=$!
 trap 'kill $SERVER 2>/dev/null || true' EXIT INT TERM
 sleep 0.6
-URL="http://localhost:$PORT/?mode=live"
-[[ "${NO_OPEN:-0}" == 1 ]] || { open "$URL" 2>/dev/null || true; open "$DIR" 2>/dev/null || true; }
+[[ "${NO_OPEN:-0}" == 1 ]] || open "$URL" 2>/dev/null || true
 cat <<MSG
-граф:     $URL   (вкладка «консоль» – claude, codex, сотник)
-папка:    $DIR   (Obsidian: Open folder as vault)
+граф:     $URL
+          консоль – claude, codex, сотник; правка файлов; Obsidian
+папка:    $DIR
 агент:    cd "$DIR" && claude
-Ctrl-C – остановить сервер.
+стоп:     Ctrl-C здесь или $ROOT/bin/stop.sh $PORT
 MSG
 wait $SERVER

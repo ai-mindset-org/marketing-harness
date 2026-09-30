@@ -13,7 +13,9 @@ node_ok() { "$NODE" -e 'process.exit(Number(process.versions.node.split(".")[0])
 node_ok || { echo "нужен node ≥ 18"; exit 1; }
 
 mkdir -p "$DIR"
-lsof -ti tcp:"$PORT" >/dev/null 2>&1 && { echo "порт $PORT занят – останови старый сервер: bin/stop.sh"; exit 1; }
+. "$ROOT/bin/_port.sh"
+read -r _M PORT < <(harness_port "$(cd "$DIR" && pwd)")
+[[ "$_M" == new ]] || { echo "порт занят: $ROOT/bin/stop.sh"; exit 1; }
 "$NODE" "$ROOT/tools/harness-server.mjs" --dir "$DIR" --port "$PORT" > "$ROOT/.server.log" 2>&1 &
 SERVER=$!
 trap 'kill $SERVER 2>/dev/null || true' EXIT INT TERM

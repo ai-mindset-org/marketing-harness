@@ -381,3 +381,14 @@ body.nosrc #folderBar{display:none !important}
 #tools .trow span,#tools .trow .sub{grid-column:2}
 #tools .trow span{white-space:normal; font-size:10.5px}
 #connect a,#consoleOff a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--accent)}
+.btnlink{border:1px solid var(--ink); padding:4px 10px; text-decoration:none; color:var(--ink) !important; border-bottom:1px solid var(--ink) !important}
+.btnlink:hover{background:var(--ink); color:var(--bg) !important}
+/* one header geometry on every page */
+#hd{min-height:58px}
+.brand p{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.brand{min-width:0}
+.clock{width:250px; min-width:250px}
+.navs button,.navs a{line-height:1.45; font-size:12px; padding:5px 10px}
+#pvBar .pvlink{border:1px solid var(--soft); border-left:none; padding:2px 7px; font-size:10.5px; text-decoration:none; color:var(--ink)}
+#pvBar .pvlink:hover{background:var(--ink); color:var(--bg)}
+#pvBar .pvlink[hidden]{display:none}

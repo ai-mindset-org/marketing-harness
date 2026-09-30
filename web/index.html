@@ -52,11 +52,12 @@
         </div>
         <div class="cn-opt">
           <b>02 · полный режим: агенты, Obsidian, коммиты</b>
-          <p>в терминале, один раз:</p>
-          <div class="cmd"><code id="cmdClone">gh repo clone ai-mindset-org/marketing-harness ~/harness-engine &amp;&amp; gh repo clone ai-mindset-org/marketing-harness-sprint ~/harness/marketing-sprint</code><button type="button" data-copy="cmdClone">копировать</button></div>
-          <p>потом каждый раз – откроется <code>localhost:4747</code> с консолью агентов:</p>
+          <p>в терминале: скачать движок и рабочую папку (уже скачанное пропускается) и обновить:</p>
+          <div class="cmd"><code id="cmdClone">[ -d ~/harness-engine ] || gh repo clone ai-mindset-org/marketing-harness ~/harness-engine; [ -d ~/harness/marketing-sprint ] || gh repo clone ai-mindset-org/marketing-harness-sprint ~/harness/marketing-sprint; git -C ~/harness-engine pull -q; git -C ~/harness/marketing-sprint pull -q</code><button type="button" data-copy="cmdClone">копировать</button></div>
+          <p>запустить – откроется граф с консолью агентов; если уже запущен, просто откроется вкладка:</p>
           <div class="cmd"><code id="cmdOpen">~/harness-engine/bin/open.sh ~/harness/marketing-sprint</code><button type="button" data-copy="cmdOpen">копировать</button></div>
-          <p class="cap">свой харнесс с нуля: <code>~/harness-engine/bin/new.sh ~/harness/мой-продукт b2b-consultant</code> · нет gh – GitHub → Code → Download ZIP</p>
+          <div class="cn-row"><a class="btnlink" href="http://localhost:4747/?mode=live&amp;intro=0" target="_blank" rel="noopener">открыть localhost:4747 ↗</a><span class="cap">если граф уже запущен на этом компьютере</span></div>
+          <p class="cap">свой харнесс с нуля: <code>~/harness-engine/bin/new.sh ~/harness/мой-продукт b2b-consultant</code> · остановить: <code>~/harness-engine/bin/stop.sh</code> · нет gh: <code>brew install gh &amp;&amp; gh auth login</code></p>
         </div>
         <div class="cn-opt">
           <b>03 · командный вид</b>
@@ -116,7 +117,7 @@
     <button id="pvFull" title="во весь экран · f">⤢</button><button id="pvView" class="on" title="как читается">вид</button><button id="pvRaw" title="исходный текст">исходник</button><button id="pvEdit" class="liveonly editonly" title="править файл с живым превью">править</button>
     <span class="sp"></span>
     <button id="pvSave" class="liveonly editonly" hidden title="сохранить и закоммитить · ⌘S">сохранить</button>
-    <button id="pvObs" class="liveonly srvonly" title="открыть файл в Obsidian">Obsidian</button><button id="pvApp" class="liveonly srvonly" title="открыть в приложении по умолчанию">приложение</button><button id="pvFinder" class="liveonly srvonly" title="показать в Finder">Finder</button>
+    <button id="pvDl" title="скачать файл и открыть у себя">скачать</button><a id="pvGh" class="pvlink" target="_blank" rel="noopener" title="файл в репозитории GitHub">GitHub ↗</a><button id="pvObs" class="liveonly srvonly" title="открыть файл в Obsidian">Obsidian</button><button id="pvApp" class="liveonly srvonly" title="открыть в приложении по умолчанию">приложение</button><button id="pvFinder" class="liveonly srvonly" title="показать в Finder">Finder</button>
   </div>
   <div id="pvLinks"></div>
   <div id="pvWrap">

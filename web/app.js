@@ -582,6 +582,7 @@
     $('preview').hidden = false;
     $('preview').classList.toggle('full', !!(PV.full && p.endsWith('.html')));
     pvRender();
+    pvLinks();
     select(p, true);
   }
   function closePreview() {
@@ -642,6 +643,25 @@
     const msg = r.ok ? (r.hint || 'открыто') : `не открылось: ${r.error || 'ошибка'}`;
     if (p === '') { $('narrText').textContent = msg; } else pvNote(msg);
   }
+  // every file: download it, or open it in the repository it lives in
+  let FSA_GIT = null;
+  function remoteOf() {
+    const g = TEAM ? (SESSION_T && SESSION_T.git) : SESSION ? SESSION.git : FSA ? FSA_GIT : null;
+    if (g && g.remote) return { base: g.remote, branch: g.branch || 'main', prefix: '' };
+    if (MODE === 'replay') return { base: 'https://github.com/ai-mindset-org/marketing-harness', branch: 'main', prefix: 'kit/files/' };
+    return null;
+  }
+  function pvLinks() {
+    const r = remoteOf();
+    $('pvGh').hidden = !r;
+    if (r) $('pvGh').href = `${r.base}/blob/${r.branch}/${(r.prefix + PV.path).split('/').map(encodeURIComponent).join('/')}`;
+  }
+  $('pvDl').onclick = () => {
+    const f = S.files.get(PV.path); if (!f) return;
+    const url = URL.createObjectURL(new Blob([PV.mode === 'edit' ? PV.buffer : f.content], { type: 'text/plain;charset=utf-8' }));
+    const a = document.createElement('a'); a.href = url; a.download = PV.path.split('/').pop(); document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  };
   $('pvObs').onclick = () => openIn('obsidian', PV.path);
   $('pvApp').onclick = () => openIn('default', PV.path);
   $('pvFinder').onclick = () => openIn('finder', PV.path);
@@ -879,6 +899,12 @@
     };
     const fillModels = () => { const list = MODELS[$('cRunner').value === 'claude' ? 'claude' : 'codex']; $('cModel').innerHTML = list.map(([v, l]) => `<option value="${v}">${l}</option>`).join(''); };
     $('cRunner').addEventListener('change', fillModels); fillModels();
+    // сотник needs ssh to the team server; without it the option stays visible but disabled
+    fetch('/api/tools').then((r) => r.json()).then((j) => {
+      const t = (j.tools || []).find((x) => x.id === 'sotnik');
+      const o = $('cRunner').querySelector('option[value=sotnik]');
+      if (o && t && !t.ready) { o.disabled = true; o.textContent = 'сотник · нужен ssh к серверу команды'; }
+    }).catch(() => {});
     document.getElementById('consoleForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const prompt = document.getElementById('cPrompt').value.trim();
@@ -939,6 +965,7 @@
   async function fsaState() {
     const files = await fsaWalk(FSA, '', []);
     const g = await fsaGit();
+    FSA_GIT = g.git;
     return { name: FSA.name, files, harness: {}, commits: g.commits, runs: [], git: g.git, now: Date.now() };
   }
   function fsaBar(st) {
