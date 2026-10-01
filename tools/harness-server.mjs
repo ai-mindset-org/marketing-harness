@@ -33,7 +33,8 @@ const args = Object.fromEntries(
 const dir = path.resolve((args.dir || '.').replace(/^~/, process.env.HOME));
 const port = Number(args.port || 4747);
 const web = path.join(root, 'web');
-const SERVER_HOST = process.env.HARNESS_SERVER_HOST || 'ws-povalyaev';
+// Sotnik host: the ssh alias of your team server, from the environment; empty = Sotnik is off
+const SERVER_HOST = process.env.HARNESS_SERVER_HOST || '';
 const SERVER_BASE = process.env.HARNESS_SERVER_BASE || '~/harness';
 const TOKEN = crypto.randomBytes(16).toString('hex');
 const DEFAULT_CLAUDE_MODEL = process.env.HARNESS_CLAUDE_MODEL || 'opus';
@@ -54,13 +55,13 @@ function toolsStatus() {
   if (Date.now() - toolsCache.at < 60000 && toolsCache.data) return toolsCache.data;
   const has = (bin) => !!sh('which', [bin]);
   const lms = sh('curl', ['-s', '-m', '4', 'https://learn.aimindset.org/api/v1']);
-  const ssh = sh('ssh', ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=4', SERVER_HOST, 'command -v codex >/dev/null && echo ok']);
+  const ssh = SERVER_HOST ? sh('ssh', ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=4', SERVER_HOST, 'command -v codex >/dev/null && echo ok']) : '';
   const data = [
     ...ENV_TOOLS.map(([id, env, what]) => ({ id, what, ready: !!process.env[env], hint: `export ${env}=… в ~/.zshrc`, env })),
     { id: 'lms-api', what: 'learn.aimindset.org/api/v1 отвечает', ready: !!lms && lms.includes('"ok":true') },
     { id: 'claude', what: 'Claude Code CLI', ready: has('claude') },
     { id: 'codex', what: 'Codex CLI локально', ready: has('codex') },
-    { id: 'sotnik', what: `Сотник: codex на ${SERVER_HOST}`, ready: ssh === 'ok' },
+    { id: 'sotnik', what: SERVER_HOST ? `Сотник: codex на ${SERVER_HOST}` : 'Сотник: задай HARNESS_SERVER_HOST', ready: ssh === 'ok' },
     { id: 'gh', what: 'GitHub CLI', ready: has('gh') },
     { id: 'gitleaks', what: 'gitleaks – секрет-скан в pre-commit', ready: has('gitleaks') },
     { id: 'hooks', what: 'гейты включены (core.hooksPath .githooks)', ready: sh('git', ['-C', dir, 'config', 'core.hooksPath']) === '.githooks' },

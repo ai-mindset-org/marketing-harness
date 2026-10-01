@@ -6,6 +6,10 @@
   'use strict';
   const qs = new URLSearchParams(location.search);
   // replay: scenario.json · live: this computer's folder via the local server · team: the sprint folder from git, static state.json
+  // the open copy (*.lab.aimindset.org) has no team state: Team lives on the team's internal show
+  const TEAM_URL = 'https://content.aimindset.org/marketing-harness/?mode=team';
+  const PUBLIC_COPY = /\.lab\.aimindset\.org$/.test(location.hostname);
+  if (PUBLIC_COPY && qs.get('mode') === 'team') location.replace(TEAM_URL);
   const MODE = ['live', 'team'].includes(qs.get('mode')) ? qs.get('mode') : 'replay';
   const TEAM = MODE === 'team';
   // the local server lives only on this computer: on the site the page never asks /api
@@ -14,7 +18,8 @@
   document.body.classList.toggle('team', TEAM);
   document.querySelectorAll('.modes button').forEach((b) => {
     b.classList.toggle('on', b.dataset.mode === MODE);
-    b.onclick = () => { const u = new URL(location.href); u.searchParams.set('mode', b.dataset.mode); location.href = u.toString(); };
+    b.onclick = () => { if (PUBLIC_COPY && b.dataset.mode === 'team') { location.href = TEAM_URL; return; } const u = new URL(location.href); u.searchParams.set('mode', b.dataset.mode); location.href = u.toString(); };
+    if (PUBLIC_COPY && b.dataset.mode === 'team') b.title = 'Team: рабочая папка спринта – для команды AI Mindset, открывается во внутреннем показе';
   });
 
   // ---------- layers: one shape per abstraction ----------
@@ -627,7 +632,9 @@
     const f = S.files.get(p); if (!f) return;
     if (PV.mode === 'edit' && PV.buffer !== PV.base && PV.path !== p) pvNote(`правки в ${bare(base(PV.path))} не сохранены и сброшены`); else pvNote('');
     setKind('file');
-    const idx = resolveIndex();
+    const idx0 = resolveIndex();
+    // a link written with the final name ({context} truth-pack) still finds the file before the renaming phase
+    const idx = { get: (t) => idx0.get(t) || idx0.get(norm(bare(String(t).split('/').pop()))) };
     const out = [...new Set(f.links.map((t) => idx.get(t)).filter((x) => x && x !== p))];
     const miss = [...new Set(f.links.filter((t) => !idx.get(t)))];
     const back = [...S.files.values()].filter((g) => g.path !== p && g.links.some((t) => idx.get(t) === p)).map((g) => g.path);
@@ -704,6 +711,9 @@
   }
   // every file: download it, or open it in the repository it lives in
   let FSA_GIT = null;
+  // Demo shows files before phase 03 renames them; GitHub keeps only the final names
+  const FINAL = new Map();
+  const finalPath = (p) => { let q = p, n = 0; while (FINAL.has(q) && n++ < 9) q = FINAL.get(q); return q; };
   function remoteOf() {
     const g = TEAM ? (SESSION_T && SESSION_T.git) : SESSION ? SESSION.git : FSA ? FSA_GIT : null;
     if (g && g.remote) return { base: g.remote, branch: g.branch || 'main', prefix: '' };
@@ -713,7 +723,7 @@
   function pvLinks() {
     const r = remoteOf();
     $('pvGh').hidden = !r;
-    if (r) $('pvGh').href = `${r.base}/blob/${r.branch}/${(r.prefix + PV.path).split('/').map(encodeURIComponent).join('/')}`;
+    if (r) $('pvGh').href = `${r.base}/blob/${r.branch}/${(r.prefix + (MODE === 'replay' ? finalPath(PV.path) : PV.path)).split('/').map(encodeURIComponent).join('/')}`;
   }
   $('pvDl').onclick = () => {
     const f = S.files.get(PV.path); if (!f) return;
@@ -789,6 +799,7 @@
   async function startReplay() {
     const sc = await fetch('scenario.json', { cache: 'no-store' }).then((r) => r.json());
     META = { questions: sc.questions, answers: sc.answers, phases: sc.phases, duration: sc.duration };
+    for (const e of sc.events) if (e.type === 'rename') FINAL.set(e.from, e.to);
     const phaseFiles = {};
     { let cur = null; for (const e of sc.events) { if (e.type === 'phase') cur = e.id; if (cur && (e.type === 'file' || e.type === 'rename')) (phaseFiles[cur] ||= new Set()).add(e.type === 'file' ? e.path : e.to); } }
     const R = { t: 0, i: 0, playing: qs.get('autoplay') !== '0', speed: Number(qs.get('speed') || 1), last: now() };
@@ -874,6 +885,7 @@
     try {
       const sc = await fetch('scenario.json', { cache: 'no-store' }).then((r) => r.json());
       META = { questions: sc.questions, answers: sc.answers, phases: sc.phases, duration: sc.duration };
+    for (const e of sc.events) if (e.type === 'rename') FINAL.set(e.from, e.to);
     } catch { /* live works without scenario */ }
     // the local server lives only on localhost; on the site the page never asks for /api
     if (!TEAM && LOCALHOST) { try { SESSION = await fetch('/api/session').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }); document.getElementById('consoleHost').textContent = SESSION.serverHost; folderBar(); } catch { SERVERLESS = true; } }

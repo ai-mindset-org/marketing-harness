@@ -711,24 +711,6 @@
     },
     {
      "lane": "ingest",
-     "path": "sources/{source} audience growth system – 2026-09-03.md",
-     "dwell": 2400,
-     "note": "система роста аудитории"
-    },
-    {
-     "lane": "ingest",
-     "path": "sources/{source} smm weekly program – 2026-09-09.md",
-     "dwell": 2400,
-     "note": "недельная SMM-программа"
-    },
-    {
-     "lane": "ingest",
-     "path": "sources/{source} content strategy – 2026-07-28.md",
-     "dwell": 2400,
-     "note": "контент-стратегия команды"
-    },
-    {
-     "lane": "ingest",
      "path": "sources/{source} index.md",
      "dwell": 2400,
      "note": "перечень источников: все занятия спринта, внешние репозитории, что уже разобрано"

@@ -1,6 +1,8 @@
 /* shared helpers of the document pages: kit docs, markdown, drawer */
 window.HDOC = (() => {
   'use strict';
+  // the open copy has no team state: Team links lead to the team's internal show
+  if (/\.lab\.aimindset\.org$/.test(location.hostname)) document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('a[href*="mode=team"]').forEach((a) => { a.href = 'https://content.aimindset.org/marketing-harness/?mode=team'; a.title = 'Team: рабочая папка спринта – для команды AI Mindset, открывается во внутреннем показе'; }));
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const unesc = (s) => s.replace(/&amp;/g, '&').replace(/&quot;/g, '"');
   const norm = (s) => s.trim().replace(/\.md$/, '').toLowerCase();
