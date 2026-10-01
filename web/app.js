@@ -365,7 +365,7 @@
   function renderCommits() {
     const ol = document.getElementById('commits');
     const clickable = MODE !== 'replay';
-    ol.innerHTML = S.commits.map((c, i) => `<li class="${i === S.commits.length - 1 && S.freshCommit && now() - S.freshCommit < 2500 ? 'fresh' : ''}${/^agent\(|^session\(/.test(c.msg) ? ' ag' : ''}${clickable ? ' click' : ''}"${clickable ? ` data-h="${esc(c.hash)}" title="${esc(c.who || '')} · клик – что в коммите, откатить, форк"` : ''}><b>${esc(c.hash)}</b><span>${esc(c.msg)}</span></li>`).join('');
+    ol.innerHTML = S.commits.map((c, i) => `<li class="${i === S.commits.length - 1 && S.freshCommit && now() - S.freshCommit < 2500 ? 'fresh' : ''}${/^agent\(|^session\(/.test(c.msg) ? ' ag' : ''}${clickable ? ' click' : ''}"${clickable ? ` data-h="${esc(c.hash)}" title="${esc(c.who || '')} · клик – что в коммите, откатить, форк"` : ''}><b>${esc(c.hash)}</b><span><i class="cm">${esc(c.msg)}</i>${c.who || c.date ? `<small class="cw">${esc(c.who || '')}${c.date ? ` · ${new Date(c.date).toLocaleString('ru', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}</small>` : ''}</span></li>`).join('');
     ol.scrollTop = ol.scrollHeight;
     document.getElementById('commitCount').textContent = S.commits.length;
   }
@@ -481,9 +481,25 @@
 
   document.getElementById('tools').addEventListener('click', (e) => { const el = e.target.closest('[data-p]'); if (el && !e.target.closest('a[href]')) openPreview(el.dataset.p); });
 
+  // ---------- folding panels: click a panel title, state survives reload ----------
+  const FOLD_KEY = 'mh-fold';
+  const foldGet = () => { try { return JSON.parse(localStorage.getItem(FOLD_KEY) || '[]'); } catch { return []; } };
+  function toggleFold(id, force) {
+    const on = force ?? !document.body.classList.contains(`fold-${id}`);
+    document.body.classList.toggle(`fold-${id}`, on);
+    document.querySelectorAll(`[data-fold="${id}"]`).forEach((h) => h.classList.toggle('folded', on));
+    try { const set = new Set(foldGet()); on ? set.add(id) : set.delete(id); localStorage.setItem(FOLD_KEY, JSON.stringify([...set])); } catch {}
+  }
+  foldGet().forEach((id) => toggleFold(id, true));
+  document.addEventListener('click', (e) => {
+    const h = e.target.closest('[data-fold]'); if (!h || e.target.closest('a,input')) return;
+    toggleFold(h.dataset.fold);
+  });
+
   // ---------- tabs ----------
   document.getElementById('tabs').addEventListener('click', (e) => {
-    const b = e.target.closest('button'); if (!b) return;
+    const b = e.target.closest('button[data-tab]'); if (!b) return;
+    if (document.body.classList.contains('fold-tabBody')) toggleFold('tabBody');
     document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x === b));
     document.querySelectorAll('.tabpane').forEach((p) => { p.hidden = p.dataset.tab !== b.dataset.tab; });
     if (b.dataset.tab === 'tools' && SESSION) loadTools();
@@ -1107,7 +1123,7 @@
     $('consoleOff').innerHTML = TEAM ? `<b>запуск из Team готовится</b>
       <p>здесь агенты пока не запускаются: у страницы нет входа и нет исполнителя. схема согласована с Сашей Васильевым 30.09:</p>
       <ul class="plain"><li>вход через Леночку, как в Техничке: тот же сервис входа подключается к этому сайту, логин по Telegram, допуск по списку команды;</li>
-      <li>исполнение в контуре Сотника на сервере команды (VM107), отдельный клон рабочей папки, лимиты: один запуск на человека, 15 минут;</li>
+      <li>исполнение в контуре Сотника на сервере команды, отдельный клон рабочей папки, лимиты: один запуск на человека, 15 минут;</li>
       <li>результат – коммит <code>agent(sotnik-site)</code> в репозиторий спринта и сессия в <code>sessions/</code>, Team покажет их через 5 минут.</li></ul>
       <p class="cap">кнопка «войти через Леночку» появится здесь, когда Саша включит сервис. до этого – Local на своём компьютере:</p>${local}${runners}`
       : `<b>агенты запускаются на твоём компьютере</b>
@@ -1120,10 +1136,10 @@
     const t = q.trim().toLowerCase();
     const out = [];
     for (const f of S.files.values()) {
-      const title = f.title.toLowerCase(), path = f.path.toLowerCase(), name = bare(base(f.path)).toLowerCase();
+      const title = f.title.toLowerCase(), path = f.path.toLowerCase(), name = bare(base(f.path)).toLowerCase(), full = base(f.path).toLowerCase();
       let score = 0, hit = '';
       const aliases = String(f.fm.aliases || '').toLowerCase().replace(/[[\]"]/g, '').split(',').map((x) => x.trim()).filter(Boolean);
-      const ns = nameScore(t, name), ts = nameScore(t, title), as = Math.max(0, ...aliases.map((a) => nameScore(t, a) - 5));
+      const ns = Math.max(nameScore(t, name), nameScore(t, full), nameScore(t, full.replace(/[{}]/g, ''))), ts = nameScore(t, title), as = Math.max(0, ...aliases.map((a) => nameScore(t, a) - 5));
       if (!t) score = 1;
       else if (Math.max(ns, ts, as) >= 60) score = Math.max(ns, ts, as);
       else if (String(f.fm.aliases || '').toLowerCase().includes(t)) score = 58;
@@ -1157,7 +1173,7 @@
   }
   const hl = (label, q) => { const t = q.trim().toLowerCase(); const k = t ? label.toLowerCase().indexOf(t) : -1; return k < 0 ? esc(label) : `${esc(label.slice(0, k))}<mark>${esc(label.slice(k, k + t.length))}</mark>${esc(label.slice(k + t.length))}`; };
   function searchPaint() {
-    $('qres').innerHTML = QS.list.map((r, k) => `<li class="${k === QS.i ? 'on' : ''}" data-k="${k}"><span>${r.glyph}</span><span>${hl(r.kind === 'file' ? bare(base(r.p)) + (r.p.endsWith('.md') ? '' : ` .${r.p.split('.').pop()}`) : r.label, $('q').value)}</span><small>${esc(r.kind === 'file' ? r.sub.split('/').slice(0, -1).join('/') || './' : 'карточка фазы')}</small>${r.hit ? `<span class="hit">…${esc(r.hit)}…</span>` : ''}</li>`).join('') || '<li><span></span><span>ничего не нашлось</span></li>';
+    $('qres').innerHTML = QS.list.map((r, k) => `<li class="${k === QS.i ? 'on' : ''}" data-k="${k}"><span>${r.glyph}</span><span>${hl(r.kind === 'file' ? base(r.p) + (r.p.endsWith('.md') ? '' : ` .${r.p.split('.').pop()}`) : r.label, $('q').value)}</span><small>${esc(r.kind === 'file' ? r.sub.split('/').slice(0, -1).join('/') || './' : 'карточка фазы')}</small>${r.hit ? `<span class="hit">…${esc(r.hit)}…</span>` : ''}</li>`).join('') || '<li><span></span><span>ничего не нашлось</span></li>';
     const on = $('qres').querySelector('li.on'); if (on) on.scrollIntoView({ block: 'nearest' });
   }
   function searchPick(k) {

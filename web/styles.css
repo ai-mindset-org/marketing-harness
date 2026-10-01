@@ -523,3 +523,36 @@ button.danger:hover,.confirm .yes{background:var(--accent); border-color:var(--a
 .md .propsd{margin:0 0 10px}
 .md .propsd summary{cursor:pointer; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
 .md .propsd[open] summary{margin-bottom:6px}
+
+/* full file names: wrap instead of cutting (01.10) */
+.file{white-space:normal; align-items:baseline; line-height:1.35; padding:2px 4px}
+.file span:last-child{overflow:visible; text-overflow:clip; overflow-wrap:anywhere}
+#qres li > span:nth-child(2){overflow-wrap:anywhere}
+
+/* folding panels */
+.fold-h{cursor:pointer; user-select:none}
+.fold-h span::after{content:' ▾'; color:var(--muted); letter-spacing:0}
+.fold-h.folded span::after{content:' ▸'}
+.fold-h:hover span{color:var(--ink)}
+body.fold-tree #tree, body.fold-tree #folderBar{display:none !important}
+body.fold-tree #commits{max-height:none; flex:1 1 auto}
+body.fold-commits #commits{display:none}
+body.fold-qa #qa, body.fold-lanes #lanes, body.fold-tabBody #tabBody{display:none}
+#tabs .fold-t{margin-left:auto; border-right:none; border-left:1px solid var(--ink); padding:7px 10px; letter-spacing:0}
+#tabs .fold-t.folded{background:var(--bg); color:var(--ink)}
+body.fold-tabBody #tabs .fold-t::after{content:''}
+body.fold-tabBody #tabs{margin-bottom:0}
+body.fold-tabBody #colR{grid-template-rows:auto auto auto}
+
+/* file toolbar: second row "открыть" (01.10) */
+#pvBar{row-gap:6px; align-items:center}
+#pvBar .pvbr{flex-basis:100%; height:0}
+#pvBar .pvlab{font-size:10px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; margin-right:8px}
+#pvBar .pvbr[hidden], #pvBar .pvlab[hidden]{display:none}
+
+/* commits: author and time under the message, message up to 3 lines (01.10) */
+#commits li .cm{font-style:normal; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden}
+#commits li .cw{display:block; color:var(--muted); font-size:10px; margin-top:1px}
+#tabs{overflow:hidden}
+#tabs button{white-space:nowrap; flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; padding:7px 8px; letter-spacing:.06em}
+#tabs .fold-t{flex:0 0 auto; padding:7px 8px}
