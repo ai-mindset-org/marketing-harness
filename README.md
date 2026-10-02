@@ -22,6 +22,15 @@ gh repo clone ai-mindset-org/marketing-harness ~/harness-engine
 - **набор** (`kit/`) – сам харнесс: папка с контекстом, правилами, ролями, инструментами, скиллами, evals, дизайн-системой, рутинами, сырьём и результатом. 138 файлов, имена по конвенции `{тип} имя`;
 - **инструмент** (`web/`, `tools/`, `bin/`) – разворачивает набор в пустую папку по таймлайну и рисует граф папки вживую; консоль отдаёт задачи агентам внутри папки.
 
+## как добавить своё
+
+Команда AI Mindset и ведущие воркшопа пишут прямо в `main`, участники присылают pull request.
+1. `gh repo clone ai-mindset-org/marketing-harness ~/harness-engine` (уже есть – `git -C ~/harness-engine pull`);
+2. файл кладётся в `kit/files/<ветка>/` с именем `{тип} имя.md`: правило – `rules/`, скилл – `skills/`, дизайн – `design/`, кейс – `guides/`. Это та папка, которую получают участники;
+3. `node tools/build-scenario.mjs` – файл попадает в Demo, ⌘K и архив набора;
+4. `git add -A && git commit -m "…" && git push`;
+5. `bin/deploy-site.sh` – гид и Demo на открытой копии и на внутреннем показе обновятся за минуту (нужен клон `ai-mindset-org/lab-sites`).
+
 Открытый гид и Demo: https://marketing-harness.lab.aimindset.org/ (Guide – `guide.html`, About – `access.html`, набор архивом – `marketing-harness-kit.zip`). Внутренний показ команды с режимом Team: `https://content.aimindset.org/marketing-harness/`. Харнесс собран для маркетинг-спринта AI Mindset: https://marketing.aimindset.org/. Режимы в шапке: **Demo** · **Local** · **Team**, страницы: **Guide** (`guide.html`: запуск, Local, сессии агентов, откат и форк, таймлайн блоков, ресёрч, гейты, кейсы) и **About** (`access.html`: что это, инструменты, ключи, проверки, готовность этого компьютера). В Demo: `?at=end` – сразу финал, `?speed=4` – быстрее, `?phase=p05` – с фазы, `?stops=0` – без остановок.
 
 ## команды
