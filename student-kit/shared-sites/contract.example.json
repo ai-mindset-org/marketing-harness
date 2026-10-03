@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "requiredMounts": ["site-header", "site-footer"],
+  "allowedShellSettings": {
+    "theme": ["light", "dark"],
+    "partnerLabel": { "type": "string", "maxLength": 60 },
+    "cta": { "label": "string", "href": "internal-path" }
+  },
+  "parentOwned": ["navigationStructure", "footerRequiredLinks", "keyboardBehavior"]
+}

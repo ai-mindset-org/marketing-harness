@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-30T10:00:00Z",
+  "sourceRevision": "example-commit-001",
+  "sites": [
+    {
+      "id": "course",
+      "name": "Страница курса",
+      "url": "https://example.test/course",
+      "owner": "Команда курса",
+      "checks": [
+        { "id": "course-desktop", "label": "Десктоп: структура", "status": "pass", "detail": "Ключевые секции доступны.", "evidence": null },
+        { "id": "course-mobile", "label": "Телефон: кнопка", "status": "warn", "detail": "Проверить расстояние до нижнего края экрана.", "evidence": null },
+        { "id": "course-form", "label": "Форма заявки", "status": "pass", "detail": "Сухой прогон принят сервером.", "evidence": null }
+      ]
+    },
+    {
+      "id": "event",
+      "name": "Страница события",
+      "url": "https://example.test/event",
+      "owner": "Команда событий",
+      "checks": [
+        { "id": "event-desktop", "label": "Десктоп: навигация", "status": "pass", "detail": "Ссылки ведут на ожидаемые секции.", "evidence": null },
+        { "id": "event-mobile", "label": "Телефон: карточки", "status": "fail", "detail": "Одна карточка выходит за ширину экрана.", "evidence": null },
+        { "id": "event-form", "label": "Форма заявки", "status": "unknown", "detail": "Проверка доставки не выполнялась.", "evidence": null }
+      ]
+    }
+  ]
+}

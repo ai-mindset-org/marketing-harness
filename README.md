@@ -35,6 +35,8 @@ gh repo clone ai-mindset-org/marketing-harness ~/harness-engine
 
 Отдельная страница [«Шаблон дизайн-системы»](web/design-system-template/) сохраняет структуру AIM material system с пустыми значениями бренда. Реестр для заполнения: [`template-values.json`](web/design-system-template/template-values.json). Страница лежит в `web/`, поэтому входит в обычную выкладку сайта. Workflow [GitHub Pages](.github/workflows/pages.yml) публикует тот же статический каталог по адресу `https://ai-mindset-org.github.io/marketing-harness/design-system-template/` после включения источника GitHub Actions в настройках Pages. Карта переноса находится в [`docs/design-system-template-transfer.md`](docs/design-system-template-transfer.md).
 
+Отдельно от сайта и сценария спринта лежит [микрохарнесс для студентов](student-kit/README.md): учебные схемы лид → бот, общего родительского блока и дочерних страниц, редактируемых страниц и QA-дашборда. В нём есть синтетические данные, запускаемые локально примеры и [карта источников и ограничений](student-kit/SOURCE-MAP.md). Эта папка не входит автоматически в `kit/`, Demo или архив набора.
+
 ## команды
 
 | что | команда |

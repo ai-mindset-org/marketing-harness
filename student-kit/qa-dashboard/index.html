@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QA обзор страниц</title>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#17202c;background:#f4f5f3}*{box-sizing:border-box}body{margin:0}header,main,footer{max-width:1200px;margin:auto;padding:0 24px}header{padding-top:38px;padding-bottom:32px}h1{font-size:clamp(2.3rem,5vw,4.5rem);letter-spacing:-.05em;line-height:1;margin:.4rem 0 1rem}h2{font-size:1.35rem;margin:0}.eyebrow{font-size:.77rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700}.muted{color:#5f6974}.meta{margin-top:12px;font-size:.9rem}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 24px}.metric{background:#fff;border:1px solid #dce0dc;border-radius:16px;padding:18px}.metric strong{display:block;font-size:2rem;line-height:1.1;margin-bottom:6px}.metric span{font-size:.85rem}.sites{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.site{background:#fff;border:1px solid #dce0dc;border-radius:20px;overflow:hidden}.site-head{padding:22px;border-bottom:1px solid #e6e9e6}.site-head p{margin:8px 0 0;font-size:.86rem}.site-head a{color:#275a77}.check{padding:15px 22px;border-bottom:1px solid #edf0ec;display:grid;grid-template-columns:74px 1fr;gap:12px;align-items:start}.check:last-child{border:0}.badge{display:inline-block;text-align:center;border-radius:999px;padding:4px 8px;font-size:.72rem;font-weight:750;text-transform:uppercase}.pass{background:#e3f3e8;color:#12502c}.warn{background:#fff1cf;color:#755010}.fail{background:#fde6e4;color:#842e29}.unknown{background:#e7ecf1;color:#3b5064}.check strong{font-size:.92rem}.check p{margin:4px 0 0;font-size:.83rem;line-height:1.45;color:#5f6974}footer{padding-top:30px;padding-bottom:40px;font-size:.82rem;color:#5f6974}@media(max-width:760px){header,main,footer{padding-left:16px;padding-right:16px}.summary{grid-template-columns:repeat(2,1fr)}.sites{grid-template-columns:1fr}}@media(max-width:390px){.check{grid-template-columns:1fr;gap:5px}.badge{width:max-content}}
+  </style>
+</head>
+<body>
+  <header><div class="eyebrow">Учебные данные</div><h1>QA обзор страниц</h1><p class="muted">Результаты проверки страниц курса и события.</p><div class="meta" id="meta">Загружаем отчёт…</div></header>
+  <main><section class="summary" id="summary" aria-label="Сводка"></section><section class="sites" id="sites" aria-label="Страницы"></section></main>
+  <footer>Данные примера · Последняя проверка: 30 сентября 2026</footer>
+  <script type="module">
+    const labels={pass:'Прошла',warn:'Внимание',fail:'Проблема',unknown:'Нет данных'};
+    function node(tag,className,text){const item=document.createElement(tag);if(className)item.className=className;if(text!==undefined)item.textContent=text;return item}
+    try{
+      const response=await fetch('./report.example.json',{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);
+      const report=await response.json();if(!Array.isArray(report.sites))throw new Error('Неверный формат отчёта');
+      document.querySelector('#meta').textContent=`Проверка: ${new Date(report.generatedAt).toLocaleString('ru-RU',{dateStyle:'long',timeStyle:'short'})} · Ревизия: ${report.sourceRevision}`;
+      const checks=report.sites.flatMap(site=>site.checks);const summary=document.querySelector('#summary');
+      for(const status of ['pass','warn','fail','unknown']){const card=node('div','metric');card.append(node('strong','',String(checks.filter(check=>check.status===status).length)),node('span','',labels[status]));summary.append(card)}
+      const sites=document.querySelector('#sites');
+      for(const site of report.sites){const card=node('article','site');const head=node('div','site-head');head.append(node('h2','',site.name));const owner=node('p','muted',`Ответственный: ${site.owner}`);head.append(owner);const link=node('a','','Адрес страницы');link.href=site.url;link.rel='noopener noreferrer';link.target='_blank';head.append(link);card.append(head);
+        for(const check of site.checks){const row=node('div','check');row.append(node('span',`badge ${labels[check.status]?check.status:'unknown'}`,labels[check.status]||labels.unknown));const body=node('div');body.append(node('strong','',check.label),node('p','',check.detail));if(check.evidence){const evidence=node('a','','Доказательство');evidence.href=check.evidence;body.append(evidence)}row.append(body);card.append(row)}sites.append(card)}
+    }catch(error){document.querySelector('#meta').textContent=`Не удалось открыть отчёт: ${error.message}`}
+  </script>
+</body>
+</html>

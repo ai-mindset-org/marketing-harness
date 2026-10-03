@@ -1,0 +1,6 @@
+{
+  "parentRepository": "your-org/shared-site-blocks",
+  "parentCommit": "0123456789abcdef0123456789abcdef01234567",
+  "contractVersion": 1,
+  "entrypoint": "components/site-shell"
+}

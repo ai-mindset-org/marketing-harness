@@ -1,0 +1,14 @@
+{
+  "pageId": "sample-course",
+  "title": "Пример курса",
+  "shell": {
+    "theme": "light",
+    "partnerLabel": "Учебный проект",
+    "cta": { "label": "Оставить заявку", "href": "/apply" }
+  },
+  "blocks": [
+    { "id": "intro", "type": "hero" },
+    { "id": "outcomes", "type": "cards" },
+    { "id": "questions", "type": "faq" }
+  ]
+}
