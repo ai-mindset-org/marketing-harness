@@ -11,7 +11,7 @@ if (!validSlug(slug) || !title?.trim() || !intro?.trim() || title.length > 120 |
   const directory = join(dirname(fileURLToPath(import.meta.url)), 'pages');
   const pagePath = join(directory, `${slug}.json`);
   const editsPath = join(directory, `${slug}.edits.jsonl`);
-  const page = { pageId: slug, slug, title: title.trim(), intro: intro.trim(), ctaLabel: 'Посмотреть результаты', blocks: ['intro', 'outcomes', 'cta'] };
+  const page = { pageId: slug, slug, kicker: 'Учебная программа', title: title.trim(), intro: intro.trim(), outcomesHeading: 'Что получится', ctaTitle: 'Начните со своего проекта', ctaLabel: 'Посмотреть результаты', blocks: ['intro', 'outcomes', 'cta'] };
   try {
     await writeFile(pagePath, `${JSON.stringify(page, null, 2)}\n`, { flag: 'wx' });
     await writeFile(editsPath, '', { flag: 'wx' });
