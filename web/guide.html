@@ -22,7 +22,7 @@
   <div class="navs">
     <button class="search" data-search title="поиск по файлам и разделам · ⌘K">⌕ поиск <kbd>⌘K</kbd></button>
     <nav class="modes" aria-label="режим"><a class="mlink" href="index.html" title="Demo: сборка по сценарию">Demo</a><a class="mlink" href="index.html?mode=live" title="Local – локальное хранение: папка на этом компьютере">Local</a><a class="mlink" href="index.html?mode=team" title="Team: рабочая папка спринта из git">Team</a></nav>
-    <nav class="pages" aria-label="страницы"><a class="pagelink on" href="guide.html">Guide</a><a class="pagelink" href="access.html">About</a></nav>
+    <nav class="pages" aria-label="страницы"><a class="pagelink on" href="guide.html">Guide</a><a class="pagelink" href="access.html">About</a><a class="pagelink" href="design-system-template/">Дизайн-система</a></nav>
   </div>
   <div class="clock"><b>Guide</b><span>маркетинг-спринт AI Mindset · n25</span></div>
 </header>
@@ -40,6 +40,7 @@
     <tr><th>что взять</th><th>где</th><th>зачем</th></tr>
     <tr><td>шаблон-репозиторий: движок, набор, гайд</td><td><a href="https://github.com/ai-mindset-org/marketing-harness" target="_blank" rel="noopener">github.com/ai-mindset-org/marketing-harness</a></td><td>клонировать и развернуть свою папку: <code>bin/new.sh ~/harness/my-product b2b-consultant</code></td></tr>
     <tr><td>набор одним архивом</td><td><a href="marketing-harness-kit.zip">marketing-harness-kit.zip</a></td><td>без git и терминала: распаковать, открыть папку <code>kit/files</code> в Obsidian или в Local на этом сайте</td></tr>
+    <tr><td>шаблон дизайн-системы</td><td><a href="design-system-template/">открыть страницу</a> · <a href="design-system-template/template-values.json">значения для заполнения</a></td><td>сохранённая структура компонентов, токенов и адаптивных правил для нового проекта</td></tr>
     <tr><td>любой файл набора</td><td>Demo → клик по файлу → «скачать» или «GitHub ↗»</td><td>взять одно правило, скилл или гейт в свою папку</td></tr>
     <tr><td>три пресета продукта</td><td><code>b2b-consultant</code> · <code>b2c-shop</code> · <code>saas-founder</code></td><td>анкета уже заполнена под тип бизнеса, дальше правишь под себя</td></tr>
     <tr><td>скиллы для агента</td><td><code>skills/</code> в наборе, 18 рецептов</td><td>контент-фабрика, нуклеусы, ресёрч через Exa, критик, LinkedIn, карусель, трендвотчинг</td></tr>
@@ -169,11 +170,12 @@
 </section>
 
 <section class="panel">
-  <h2><span>13 · дизайн</span><em>канон Анки · плашки 3:1 · язык инструмента</em></h2>
+  <h2><span>13 · дизайн</span><em>канон Анки · плашки 3:1 · язык инструмента · шаблон</em></h2>
   <div class="cols">
     <div><h3>канон Анки Ставенски</h3><p>field journal из hero lab: бумага, чернила, глина, Inter, Lora, IBM Plex Mono. из него рендерятся карусель и превью LinkedIn. <a href="https://eppelas.github.io/s26-flow-hero-lab/10-field-journal.html" target="_blank" rel="noopener">файл 10 ↗</a></p></div>
     <div><h3>язык инструмента</h3><p>моно, рамки 1px, сетка, один красный акцент. в нём граф, Guide, About, лендинг набора и плашки 3:1.</p></div>
     <div><h3>плашка 3:1</h3><p>3000×1000 для поста: заголовок до 6 слов, код креатива, номер нуклеуса. <code>node bin/render.mjs cover &lt;бриф&gt;</code>.</p></div>
+    <div><h3>шаблон для нового проекта</h3><p><a href="design-system-template/">отдельная страница дизайн-системы</a> сохраняет структуру исходной material system: роли цветов, девять ступеней шрифтов, компоненты, состояния, сетку и движение. Значения бренда оставлены пустыми в <a href="design-system-template/template-values.json">реестре</a>.</p></div>
   </div>
   <details class="doc"><summary>канон Анки: токены и где используется</summary><div class="md" data-render="design/{design} anca field journal.md"></div></details>
   <details class="doc"><summary>плашка 3:1: бриф и рендер</summary><div class="md" data-render="design/{design} cover 3x1.md"></div></details>

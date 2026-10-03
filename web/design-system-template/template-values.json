@@ -1,0 +1,129 @@
+{
+  "title": "Design system values to fill",
+  "source": "Structure transferred from AIM material-system/index.html; values intentionally blank",
+  "brand": {
+    "name": null,
+    "wordmark": null,
+    "logo_asset": null
+  },
+  "color": {
+    "accent_primary": null,
+    "accent_primary_on_dark": null,
+    "accent_primary_deep": null,
+    "accent_primary_rich": null,
+    "accent_primary_signal": null,
+    "accent_support": null,
+    "accent_secondary": null,
+    "accent_secondary_light": null,
+    "accent_secondary_pale": null,
+    "surface_base": null,
+    "text_primary": null,
+    "link_underline": null,
+    "border_hairline": null,
+    "surface_hover": null,
+    "text_muted": null,
+    "on_primary": null,
+    "on_support": null,
+    "text_lead": null,
+    "text_row": null,
+    "text_card": null,
+    "scene_surface_1": null,
+    "scene_surface_2": null,
+    "scene_surface_3": null,
+    "scene_line_1": null,
+    "scene_line_2": null,
+    "scene_depth_1": null,
+    "scene_depth_2": null,
+    "scene_warm_signal": null,
+    "scene_emphasis": null,
+    "voxel_ink": null,
+    "voxel_mid": null,
+    "voxel_signal": null,
+    "voxel_highlight": null,
+    "voxel_deep": null,
+    "voxel_light": null,
+    "voxel_trail": null
+  },
+  "typography": {
+    "body_family": null,
+    "wordmark_family": null,
+    "size_steps": {
+      "01": null,
+      "02": null,
+      "03": null,
+      "04": null,
+      "05": null,
+      "06": null,
+      "07": null,
+      "08": null,
+      "09": null
+    },
+    "weight_roles": {
+      "regular": null,
+      "medium": null,
+      "bold": null
+    },
+    "tracking_roles": {
+      "body": null,
+      "ui": null,
+      "heading": null,
+      "tight": null
+    },
+    "leading_roles": {
+      "solid": null,
+      "label": null,
+      "heading": null,
+      "card": null,
+      "ui": null,
+      "body": null,
+      "quote": null,
+      "display": null,
+      "small": null
+    }
+  },
+  "geometry": {
+    "page_shell_max": null,
+    "page_gutter": null,
+    "grid_gap": null,
+    "columns_desktop": 8,
+    "columns_mobile": 1,
+    "section_rhythm": null,
+    "button_corner_unit": null,
+    "button_corner_unit_double": null
+  },
+  "spacing": {
+    "01": null,
+    "02": null,
+    "03": null,
+    "04": null,
+    "05": null,
+    "06": null,
+    "07": null,
+    "08": null,
+    "09": null
+  },
+  "motion": {
+    "feedback": null,
+    "step_hover": null,
+    "scene_transition": null,
+    "ambient": null,
+    "reduced_motion_fallback": null
+  },
+  "content": {
+    "sample_brand_name": null,
+    "sample_product_name": null,
+    "sample_url": null,
+    "calendar_url": null,
+    "timezone": null
+  },
+  "component_structure": {
+    "button_roles": 3,
+    "row_variants": 4,
+    "card_types": 4,
+    "quote_types": 3,
+    "typography_steps": 9,
+    "spacing_steps": 9,
+    "desktop_grid_columns": 8,
+    "mobile_grid_columns": 1
+  }
+}

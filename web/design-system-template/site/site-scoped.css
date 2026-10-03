@@ -1,0 +1,117 @@
+/* Общие компоненты внутри .ms-site; адаптивные правила подключаются отдельно. */
+.ms-site{--font-body:system-ui,sans-serif;--frame:1px;--pxu:5px;--pxu2:10px;--type-11:11px;--type-12:12px;--type-13:13px;--type-14:14px;--type-16:16px;--type-18:18px;--type-24:24px;--tracking-ui:.08em;--weight-medium:500;--grid-gap:14px;--surface-hover:white;--surface-base:white;--text-primary:black;--text-muted:dimgray;--border-hairline:whitesmoke;--accent-primary:dimgray;--on-primary:white;--accent-support:dimgray;--on-support:white;font-family:var(--font-body);color:var(--text-primary)}
+.ms-site a{text-decoration:none;border:0}
+.ms-site .btn,.ms-site .product-cta,.ms-site .learning-action{margin:0}
+.ms-site{--surface-base:white;--text-primary:black;--border-hairline:whitesmoke;--surface-hover:white;--text-muted:dimgray;--accent-primary:dimgray;--on-primary:white;--accent-support:dimgray;--on-support:white;--frame:1px;--font-body:ui-monospace,ui-monospace,SFMono-Regular,Menlo,monospace;--grid-gap:clamp(18px,1.8vw,24px)}
+.ms-site .btn{display:inline-block;color:var(--surface-base);padding:10px 20px;letter-spacing:.04em}
+.ms-site .btn:hover{color:var(--surface-base)}
+.ms-site .product-cta{display:inline-flex;align-items:center;justify-content:space-between;gap:28px;min-width:min(100%,280px);margin-top:auto;padding:13px 15px;font-weight:600;line-height:1.3;transition:color .16s,transform .16s,filter .16s}
+.ms-site .product-cta:hover, .ms-site .product-cta:focus-visible{transform:translate(-3px,-3px);outline:none}
+.ms-site .product-block--direction .product-cta{min-width:0;margin-top:25px;padding:10px 12px}
+.ms-site #product-teams .product-cta{color:white}
+.ms-site #product-teams .product-cta:hover, .ms-site #product-teams .product-cta:focus-visible{color:black}
+.ms-site .product-block--support .product-cta{grid-column:2;grid-row:1/span 2;align-self:center;min-width:0;margin:0;padding:9px 11px;color:var(--text-primary)}
+.ms-site .product-block--support .product-cta:hover, .ms-site .product-block--support .product-cta:focus-visible{color:var(--surface-base)}
+.ms-site #product-space .product-copy .product-cta{margin-top:32px}
+.ms-site .learning-action{align-self:center;min-width:122px;padding:9px 13px;border:var(--frame) solid var(--text-primary);background:var(--surface-base);color:var(--text-primary);font:500 11px/1.25 var(--font-body);text-align:center;white-space:nowrap;cursor:pointer;transition:background .15s,color .15s}
+.ms-site .learning-action:hover, .ms-site .learning-action:focus-visible{border-color:var(--text-primary);background:var(--text-primary);color:var(--surface-base);outline:none}
+.ms-site{--type-11:11px;--type-12:12px;--type-13:13px;--type-14:14px;--type-16:16px;--type-18:18px;--type-24:24px;--type-32:32px;--type-44:44px;--weight-regular:400;--weight-medium:600;--weight-bold:700;--tracking-body:0;--tracking-ui:.14em;--tracking-heading:-.01em;--tracking-tight:-.025em}
+.ms-site .k, .ms-site .btn, .ms-site .row .go, .ms-site .project-links, .ms-site footer{font-size:var(--type-12);letter-spacing:var(--tracking-body)}
+.ms-site .product-block--direction .product-cta, .ms-site .product-support-copy .product-meta{font-size:var(--type-13)}
+.ms-site #product-teams .product-block--direction .product-cta, .ms-site #product-consulting .product-block--direction .product-cta{margin-top:26px;font-size:var(--type-12)}
+.ms-site #product-nonprofit .product-block--support .product-cta{grid-column:6;grid-row:auto;justify-self:end;align-self:center;font-size:var(--type-12)}
+.ms-site{--pxu:5px;--pxu2:10px}
+.ms-site .btn, .ms-site .product-cta, .ms-site .section-page-cta, .ms-site .waitlist-submit{position:relative;isolation:isolate;border:0;border-radius:0;background:transparent;box-shadow:none}
+.ms-site .btn::before, .ms-site .product-cta::before, .ms-site .section-page-cta::before, .ms-site .waitlist-submit::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--px-line,var(--text-primary));
+  transition:background .18s steps(3,end)}
+.ms-site .product-cta::after{content:"";position:absolute;inset:1px;z-index:-1;background:var(--px-fill,var(--surface-base));
+  transition:background .18s steps(3,end)}
+.ms-site .btn::before, .ms-site .section-page-cta::before{clip-path:polygon(
+    var(--pxu2) 0,calc(100% - var(--pxu2)) 0,calc(100% - var(--pxu2)) var(--pxu),calc(100% - var(--pxu)) var(--pxu),
+    calc(100% - var(--pxu)) var(--pxu2),100% var(--pxu2),100% calc(100% - var(--pxu2)),
+    calc(100% - var(--pxu)) calc(100% - var(--pxu2)),calc(100% - var(--pxu)) calc(100% - var(--pxu)),
+    calc(100% - var(--pxu2)) calc(100% - var(--pxu)),calc(100% - var(--pxu2)) 100%,var(--pxu2) 100%,
+    var(--pxu2) calc(100% - var(--pxu)),var(--pxu) calc(100% - var(--pxu)),var(--pxu) calc(100% - var(--pxu2)),
+    0 calc(100% - var(--pxu2)),0 var(--pxu2),var(--pxu) var(--pxu2),var(--pxu) var(--pxu),
+    var(--pxu2) var(--pxu),var(--pxu2) 0)}
+.ms-site .product-cta::before, .ms-site .product-cta::after{clip-path:polygon(
+    var(--pxu2) 0,100% 0,100% calc(100% - var(--pxu2)),
+    calc(100% - var(--pxu)) calc(100% - var(--pxu2)),calc(100% - var(--pxu)) calc(100% - var(--pxu)),
+    calc(100% - var(--pxu2)) calc(100% - var(--pxu)),calc(100% - var(--pxu2)) 100%,
+    0 100%,0 var(--pxu2),var(--pxu) var(--pxu2),var(--pxu) var(--pxu),var(--pxu2) var(--pxu),var(--pxu2) 0)}
+.ms-site .product-cta{font-size:var(--type-12)}
+.ms-site .product-cta:hover, .ms-site .product-cta:focus-visible{color:var(--px-ink-hover,var(--surface-base));filter:drop-shadow(3px 3px 0 var(--accent-primary))}
+.ms-site .product-cta:hover::after, .ms-site .product-cta:focus-visible::after{background:var(--px-fill-hover,var(--text-primary))}
+.ms-site #product-teams .product-cta{--px-line:dimgray;--px-fill:rgba(0,0,0,.72);--px-fill-hover:white;--px-ink-hover:black}
+.ms-site .product-block--support .product-cta{--px-line:dimgray;--px-fill:white;--px-fill-hover:var(--text-primary)}
+.ms-site .btn{transition:transform .18s steps(3,end),filter .18s steps(3,end)}
+.ms-site .btn:hover, .ms-site .btn:focus-visible{transform:translate(-2px,-2px);filter:drop-shadow(4px 4px 0 var(--accent-primary));outline:none}
+.ms-site #product-teams .product-block--direction .product-cta, .ms-site #product-consulting .product-block--direction .product-cta{font-size:var(--type-13)}
+.ms-site #product-nonprofit .product-support-copy .product-cta{grid-column:3;grid-row:auto;align-self:center;min-width:0;margin:0;padding:9px 11px;font-size:var(--type-12)}
+.ms-site{--px-a:polygon(var(--pxu2) 0,calc(100% - var(--pxu2)) 0,calc(100% - var(--pxu2)) var(--pxu),calc(100% - var(--pxu)) var(--pxu),calc(100% - var(--pxu)) var(--pxu2),100% var(--pxu2),100% calc(100% - var(--pxu2)),calc(100% - var(--pxu)) calc(100% - var(--pxu2)),calc(100% - var(--pxu)) calc(100% - var(--pxu)),calc(100% - var(--pxu2)) calc(100% - var(--pxu)),calc(100% - var(--pxu2)) 100%,var(--pxu2) 100%,var(--pxu2) calc(100% - var(--pxu)),var(--pxu) calc(100% - var(--pxu)),var(--pxu) calc(100% - var(--pxu2)),0 calc(100% - var(--pxu2)),0 var(--pxu2),var(--pxu) var(--pxu2),var(--pxu) var(--pxu),var(--pxu2) var(--pxu),var(--pxu2) 0);--px-b:polygon(var(--pxu2) 0,100% 0,100% calc(100% - var(--pxu2)),calc(100% - var(--pxu)) calc(100% - var(--pxu2)),calc(100% - var(--pxu)) calc(100% - var(--pxu)),calc(100% - var(--pxu2)) calc(100% - var(--pxu)),calc(100% - var(--pxu2)) 100%,0 100%,0 var(--pxu2),var(--pxu) var(--pxu2),var(--pxu) var(--pxu),var(--pxu2) var(--pxu),var(--pxu2) 0)}
+.ms-site .learning-action, .ms-site .row .go{display:inline-block;padding:9px 13px;border:var(--frame) solid var(--text-primary);background:var(--surface-base);color:var(--text-primary);font:500 var(--type-11)/1.25 var(--font-body);letter-spacing:0;text-decoration:none;text-align:center;white-space:nowrap;cursor:pointer;clip-path:var(--px-a);transition:background .15s,color .15s}
+.ms-site .learning-action:hover, .ms-site .learning-action:focus-visible, .ms-site .row .go:hover, .ms-site .row .go:focus-visible{background:var(--text-primary);color:var(--surface-base);outline:none}
+.ms-site{}
+.ms-site #product-space .product-cta:hover, .ms-site #product-space .product-cta:focus-visible{filter:drop-shadow(3px 3px 0 dimgray)}
+.ms-site .space-rhythm{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:0 var(--grid-gap);padding:0;border-top:var(--frame) solid var(--text-primary);background-color:var(--surface-hover);background-image:linear-gradient(var(--accent-primary) 0 0),linear-gradient(var(--text-muted) 0 0),linear-gradient(var(--text-primary) 0 0),linear-gradient(var(--text-muted) 0 0),linear-gradient(var(--accent-primary) 0 0),linear-gradient(var(--text-muted) 0 0),linear-gradient(var(--accent-primary) 0 0),linear-gradient(var(--text-primary) 0 0);background-repeat:no-repeat;background-size:8px 8px,5px 5px,8px 8px,5px 5px,8px 8px,5px 5px,5px 5px,5px 5px;background-position:6% 24%,11% 68%,91% 20%,86% 76%,15% 42%,95% 58%,4% 82%,89% 46%}
+.ms-site .space-schedule{grid-column:3/span 4;justify-self:center;width:100%;max-width:720px;margin:0}
+.ms-site .space-schedule__bar{display:flex;align-items:baseline;justify-content:space-between;gap:20px;padding:18px 0;border-bottom:var(--frame) solid var(--text-primary)}
+.ms-site .space-schedule__bar h3{margin:0;font-size:clamp(24px,2.6vw,32px);line-height:1;letter-spacing:-.035em}
+.ms-site .space-schedule__descriptor{font:500 var(--type-11)/1.35 var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);white-space:nowrap}
+.ms-site .space-schedule__event, .ms-site .space-schedule__empty{display:grid;grid-template-columns:116px minmax(0,1fr) auto;gap:18px;align-items:center;padding:18px 0;border-bottom:1px solid rgba(0,0,0,.35)}
+.ms-site .space-schedule__date{font:600 var(--type-11)/1.4 var(--font-body);letter-spacing:.06em;text-transform:uppercase}
+.ms-site .space-schedule__time{display:block;margin-top:3px;color:var(--text-muted);font-weight:400}
+.ms-site .space-schedule__event-title, .ms-site .space-schedule__empty-title{margin:0;font-size:18px;line-height:1.2;letter-spacing:-.02em}
+.ms-site .space-schedule__event-note, .ms-site .space-schedule__empty-copy{margin:5px 0 0;color:dimgray;font:400 11px/1.45 var(--font-body)}
+.ms-site .space-schedule__action{color:var(--text-primary);font:600 9px/1.25 var(--font-body);letter-spacing:.04em;text-decoration:none;border-bottom:1px solid currentColor;white-space:nowrap}
+.ms-site .space-schedule__action:hover, .ms-site .space-schedule__action:focus-visible{color:dimgray;outline:none}
+.ms-site .space-schedule__toggle{display:inline-flex;width:auto;margin:18px 0;padding:10px 12px;border:var(--frame) solid var(--text-primary);background:transparent;color:var(--text-primary);font:600 var(--type-11)/1.25 var(--font-body);letter-spacing:.055em;cursor:pointer}
+.ms-site .space-schedule__toggle:hover, .ms-site .space-schedule__toggle:focus-visible{background:var(--accent-primary);color:white;outline:none}
+.ms-site .space-schedule__all{display:inline-flex;align-items:center;justify-content:space-between;gap:22px;max-width:100%;margin:14px 0 18px;padding:9px 11px;background:var(--text-primary);color:var(--surface-base);font:600 var(--type-11)/1.3 var(--font-body);letter-spacing:.05em;text-decoration:none}
+.ms-site .space-schedule__all:hover, .ms-site .space-schedule__all:focus-visible{background:var(--accent-primary);color:var(--on-primary);outline:none}
+.ms-site .space-schedule__all span:last-child{flex:none;font-size:14px;line-height:1}
+.ms-site .space-schedule-quote{width:min(760px,100%);margin:0 auto;padding:88px 0 96px;background:transparent}
+.ms-site .space-schedule-quote .rhythm-quote--space{margin:0}
+.ms-site .sec-head .num, .ms-site .sec-head .num:first-child, .ms-site .stats span, .ms-site .row .key, .ms-site .product-meta, .ms-site .space-schedule__eyebrow, .ms-site .space-schedule__status, .ms-site .learning-topic__meta, .ms-site .waitlist-dialog__eyebrow, .ms-site .waitlist-field span, .ms-site .project-meta, .ms-site .company-proof .label, .ms-site .team-inline-head span, .ms-site .team-role, .ms-site .about-quote--origin .quote-src, .ms-site .follow-intro .follow-kicker, .ms-site .follow-more>span, .ms-site blockquote .src, .ms-site footer .h, .ms-site .eco-root .eco-kicker, .ms-site .eco-branch-head .eco-index, .ms-site .eco-card .eco-type, .ms-site .eco-branch-note, .ms-site .ecosystem-direction-meta, .ms-site .ecosystem-map-dialog__title, .ms-site .section-rail-title, .ms-site .about-origin-note, .ms-site .origin-src{font-size:var(--type-11);line-height:var(--leading-ui);letter-spacing:var(--tracking-ui)}
+.ms-site .product-block-drag-handle, .ms-site .space-schedule__toggle, .ms-site .ecosystem-map-open, .ms-site .back-to-top, .ms-site .section-rail-index{font-size:var(--type-11);letter-spacing:var(--tracking-ui)}
+.ms-site .space-schedule__toggle{font-weight:var(--weight-medium)}
+.ms-site .space-schedule__toggle-icon, .ms-site .follow-link__arrow{font-size:var(--type-16)}
+.ms-site .space-schedule__head h3{font-size:var(--type-18);line-height:var(--leading-heading)}
+.ms-site .space-schedule-quote{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));column-gap:var(--grid-gap);width:100%;margin:0}
+.ms-site .space-schedule-quote .rhythm-quote{display:block;grid-column:1/span 4;margin:0}
+.ms-site .space-schedule-quote .rhythm-quote p{text-wrap:balance}
+.ms-site .section-page-cta, .ms-site .ecosystem-map-open, .ms-site .space-schedule__all, .ms-site .waitlist-submit{position:relative;isolation:isolate;display:inline-block;width:auto;max-width:100%;margin-top:18px;padding:10px 20px;border:0;border-radius:0;background:transparent;box-shadow:none;color:var(--surface-base);font:600 var(--type-12)/1.3 var(--font-body);letter-spacing:.04em;text-decoration:none;text-transform:none;cursor:pointer;filter:none;transition:transform .18s steps(3,end),filter .18s steps(3,end)}
+.ms-site .space-schedule__all{display:inline-flex;align-items:center;justify-content:space-between;gap:22px;margin:14px 0 18px}
+.ms-site .section-page-cta::before, .ms-site .ecosystem-map-open::before, .ms-site .space-schedule__all::before, .ms-site .waitlist-submit::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--text-primary);clip-path:var(--px-a);transition:background .18s steps(3,end)}
+.ms-site .section-page-cta:hover, .ms-site .section-page-cta:focus-visible, .ms-site .ecosystem-map-open:hover, .ms-site .ecosystem-map-open:focus-visible, .ms-site .space-schedule__all:hover, .ms-site .space-schedule__all:focus-visible, .ms-site .waitlist-submit:hover, .ms-site .waitlist-submit:focus-visible{transform:translate(-2px,-2px);filter:drop-shadow(4px 4px 0 var(--accent-primary));background:transparent;color:var(--surface-base);box-shadow:none;outline:none}
+.ms-site .space-schedule__toggle, .ms-site .space-schedule__action{position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:space-between;gap:28px;width:auto;margin:18px 0 0;padding:13px 15px;border:0;border-radius:0;background:transparent;box-shadow:none;color:var(--text-primary);font:600 var(--type-12)/1.3 var(--font-body);letter-spacing:0;text-decoration:none;white-space:nowrap;cursor:pointer;transition:color .18s steps(3,end),filter .18s steps(3,end)}
+.ms-site .space-schedule__toggle::before, .ms-site .space-schedule__action::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--text-primary);clip-path:var(--px-b)}
+.ms-site .space-schedule__toggle::after, .ms-site .space-schedule__action::after{content:"";position:absolute;inset:1px;z-index:-1;background:var(--surface-base);clip-path:var(--px-b);transition:background .18s steps(3,end)}
+.ms-site .space-schedule__toggle:hover, .ms-site .space-schedule__toggle:focus-visible, .ms-site .space-schedule__action:hover, .ms-site .space-schedule__action:focus-visible{color:var(--surface-base);background:transparent;filter:drop-shadow(3px 3px 0 var(--accent-primary));outline:none}
+.ms-site .space-schedule__toggle:hover::after, .ms-site .space-schedule__toggle:focus-visible::after, .ms-site .space-schedule__action:hover::after, .ms-site .space-schedule__action:focus-visible::after{background:var(--text-primary)}
+.ms-site .product-block-drag-handle, .ms-site .follow-link:hover, .ms-site .follow-link:focus-visible, .ms-site .space-schedule__toggle:hover, .ms-site .space-schedule__toggle:focus-visible, .ms-site .space-schedule__all:hover, .ms-site .space-schedule__all:focus-visible, .ms-site .back-to-top:hover, .ms-site .back-to-top:focus-visible{color:var(--on-primary,white) !important}
+.ms-site #spaceSchedule .space-schedule__controls{display:flex;justify-content:center;width:100%;padding:18px 0}
+.ms-site #spaceSchedule .space-schedule__toggle{margin:0;max-width:100%;white-space:normal;text-align:center;justify-content:center;line-height:1.4}
+.ms-site .space-schedule-quote--violet .rhythm-highlight{background:dimgray;color:white}
+.ms-site .space-schedule-quote--violet{padding-top:0}
+.ms-site .space-schedule-quote--violet .rhythm-quote{grid-column:5/-1}
+.ms-site .space-schedule__toggle:hover, .ms-site .space-schedule__toggle:focus-visible, .ms-site .space-schedule__action:hover, .ms-site .space-schedule__action:focus-visible{filter:drop-shadow(3px 3px 0 dimgray)}
+.ms-site .space-schedule__all:hover, .ms-site .space-schedule__all:focus-visible{background:dimgray;color:white}
+.ms-site .space-schedule__bar h3{font-size:var(--type-18);line-height:1.2;margin:0}
+.ms-site .space-schedule{max-width:720px}
+
+.ms-site .aim-button-outline{--pxu:5px;--pxu2:10px;--px-fill:var(--surface-base);position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:space-between;align-self:flex-start;gap:28px;min-width:0;width:fit-content;margin:0;padding:13px 15px;border:0;border-radius:0;background:transparent;color:var(--text-primary);font-family:var(--font-body);font-size:var(--type-13);font-weight:var(--weight-medium);line-height:var(--leading-heading);text-decoration:none;white-space:nowrap;cursor:pointer;box-shadow:none;transition:color .16s,transform .16s,filter .16s}
+.ms-site .aim-button-outline::before,.ms-site .aim-button-outline::after{content:"";position:absolute;inset:0;z-index:-1;background:var(--px-line,var(--text-primary));transition:background .18s steps(3,end);clip-path:polygon(var(--pxu2) 0,100% 0,100% calc(100% - var(--pxu2)),calc(100% - var(--pxu)) calc(100% - var(--pxu2)),calc(100% - var(--pxu)) calc(100% - var(--pxu)),calc(100% - var(--pxu2)) calc(100% - var(--pxu)),calc(100% - var(--pxu2)) 100%,0 100%,0 var(--pxu2),var(--pxu) var(--pxu2),var(--pxu) var(--pxu),var(--pxu2) var(--pxu),var(--pxu2) 0)}
+.ms-site .aim-button-outline::after{inset:1px;background:var(--px-fill)}
+.ms-site .aim-button-outline:hover,.ms-site .aim-button-outline:focus-visible{background:transparent!important;transform:translate(-3px,-3px);outline:none;color:var(--surface-base)!important}
+.ms-site .aim-button-outline:hover::after,.ms-site .aim-button-outline:focus-visible::after{background:var(--text-primary)}
+@media(prefers-reduced-motion:reduce){.ms-site .aim-button-outline{transition:none}.ms-site .aim-button-outline:hover,.ms-site .aim-button-outline:focus-visible{transform:none}}
+
+/* Ink and fill invert together; intermediate greys make labels unreadable. */
+.ms-site .product-cta,.ms-site .aim-button-outline{transition:transform .16s,filter .16s}
+.ms-site .space-schedule__toggle,.ms-site .space-schedule__action{transition:filter .18s steps(3,end)}
+.ms-site .product-cta::before,.ms-site .product-cta::after,
+.ms-site .aim-button-outline::before,.ms-site .aim-button-outline::after,
+.ms-site .space-schedule__toggle::before,.ms-site .space-schedule__toggle::after,
+.ms-site .space-schedule__action::before,.ms-site .space-schedule__action::after{transition:none}
+@media(prefers-reduced-motion:reduce){.ms-site .product-cta,.ms-site .aim-button-outline,.ms-site .space-schedule__toggle,.ms-site .space-schedule__action{transition:none}}

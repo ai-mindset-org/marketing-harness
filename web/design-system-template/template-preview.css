@@ -1,0 +1,7 @@
+/* Neutral preview only. The project values live in template-values.json. */
+:root { --surface-base:white; --text-primary:black; --accent-primary:dimgray; --accent-primary-on-dark:white;
+  --accent-support:dimgray; --accent-secondary:dimgray; --accent-secondary-light:silver; --accent-secondary-pale:gainsboro;
+  --on-primary:white; --on-support:white; --text-muted:dimgray; --font-body:system-ui,sans-serif; }
+.template-mark{display:inline-grid;place-items:center;width:31px;height:31px;border:1px solid currentColor;font:700 11px ui-monospace,monospace}
+.template-swatch-chip{background:repeating-linear-gradient(135deg,white 0 8px,gainsboro 8px 16px)!important;border:1px solid dimgray}
+.ms-swatch__hex{font-style:italic}

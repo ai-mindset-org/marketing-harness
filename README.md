@@ -33,6 +33,8 @@ gh repo clone ai-mindset-org/marketing-harness ~/harness-engine
 
 Открытый гид и Demo: https://marketing-harness.lab.aimindset.org/ (Guide – `guide.html`, About – `access.html`, набор архивом – `marketing-harness-kit.zip`). Внутренний показ команды с режимом Team: `https://content.aimindset.org/marketing-harness/`. Харнесс собран для маркетинг-спринта AI Mindset: https://marketing.aimindset.org/. Режимы в шапке: **Demo** · **Local** · **Team**, страницы: **Guide** (`guide.html`: запуск, Local, сессии агентов, откат и форк, таймлайн блоков, ресёрч, гейты, кейсы) и **About** (`access.html`: что это, инструменты, ключи, проверки, готовность этого компьютера). В Demo: `?at=end` – сразу финал, `?speed=4` – быстрее, `?phase=p05` – с фазы, `?stops=0` – без остановок.
 
+Отдельная страница [«Шаблон дизайн-системы»](web/design-system-template/) сохраняет структуру AIM material system с пустыми значениями бренда. Реестр для заполнения: [`template-values.json`](web/design-system-template/template-values.json). Страница лежит в `web/`, поэтому входит в обычную выкладку сайта. Workflow [GitHub Pages](.github/workflows/pages.yml) публикует тот же статический каталог по адресу `https://ai-mindset-org.github.io/marketing-harness/design-system-template/` после включения источника GitHub Actions в настройках Pages. Карта переноса находится в [`docs/design-system-template-transfer.md`](docs/design-system-template-transfer.md).
+
 ## команды
 
 | что | команда |

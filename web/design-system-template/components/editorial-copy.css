@@ -1,0 +1,7 @@
+/* Editorial-copy layout rules. */
+.aim-editorial-copy { max-width:700px; margin:22px 0 0; font-size:14px; line-height:1.6; color:dimgray; }
+.aim-editorial-copy p { text-align:justify; text-align-last:start; text-justify:inter-word; hanging-punctuation:allow-end; -webkit-hyphens:auto; hyphens:auto; -webkit-hyphenate-limit-before:3; -webkit-hyphenate-limit-after:3; -webkit-hyphenate-limit-lines:2; hyphenate-limit-chars:6 3 3; hyphenate-limit-lines:2; font-kerning:normal; font-variant-ligatures:common-ligatures contextual; letter-spacing:-.0075em; word-break:normal; overflow-wrap:normal; }
+.aim-editorial-copy span.hang { margin-right:-.6ch; }
+.aim-editorial-copy figcaption { margin-top:10px; color:var(--text-muted); font-size:var(--type-13); font-style:italic; }
+@media(max-width:700px){.aim-editorial-copy p{overflow-wrap:anywhere}}
+@media(max-width:359px){.aim-editorial-copy p{text-align:start;text-align-last:auto;letter-spacing:var(--tracking-body)}}

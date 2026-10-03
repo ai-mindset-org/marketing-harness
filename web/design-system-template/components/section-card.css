@@ -1,0 +1,54 @@
+/* Section entry: one destination, interchangeable illustration and optional label. */
+.aim-section-card {
+  --card-surface:black;--card-ink:white;--card-meta:whitesmoke;--card-line:dimgray;
+  position:relative;isolation:isolate;display:grid;align-content:end;min-width:0;
+  min-height:176px;aspect-ratio:1.6;overflow:hidden;border:1px solid var(--card-line);
+  background:var(--card-surface);color:var(--card-ink);
+  font-family:var(--font-body,ui-monospace,ui-monospace,SFMono-Regular,Menlo,monospace);
+}
+.aim-section-card[data-aim-scene="platform"] {--card-surface:whitesmoke;--card-ink:dimgray;--card-meta:dimgray;--card-line:whitesmoke}
+.aim-section-card[data-aim-scene="research"] {--card-surface:white;--card-ink:black;--card-meta:dimgray;--card-line:gainsboro}
+.aim-section-card[data-aim-scene="consulting"] {--card-surface:whitesmoke;--card-ink:dimgray;--card-meta:dimgray;--card-line:whitesmoke}
+.aim-section-card__visual {position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.aim-section-card__visual canvas {display:block;width:100%;height:100%}
+.aim-section-card__visual img,.aim-section-card__visual svg {display:block;width:100%;height:100%;object-fit:contain}
+.aim-section-card__meta {
+  position:relative;z-index:1;align-self:start;justify-self:end;margin:15px 16px 0;
+  color:var(--card-meta);font-size:var(--type-11,11px);font-weight:var(--weight-medium,600);
+  line-height:var(--leading-ui,1.45);letter-spacing:var(--tracking-ui,.14em);text-transform:uppercase;
+}
+.aim-section-card:has(.aim-section-card__meta) {grid-template-rows:auto 1fr;align-content:stretch}
+.aim-section-card__title {
+  position:relative;z-index:2;align-self:end;margin:0!important;padding:100px 44px 18px 16px;
+  color:var(--card-ink);font-family:inherit;font-size:var(--type-24,24px)!important;
+  font-weight:var(--weight-medium,600);line-height:var(--leading-heading,1.25);
+  letter-spacing:var(--tracking-tight,-.025em);overflow-wrap:anywhere;
+}
+.aim-section-card__link {position:static;display:block;border:0!important;color:inherit;text-decoration:none!important}
+.aim-section-card__link::before {content:"";position:absolute;inset:0;z-index:3}
+.aim-section-card__title {position:static}
+.aim-section-card__link::after {content:"";position:absolute;inset:0;z-index:1;pointer-events:none}
+.aim-section-card__label {position:relative;z-index:2}
+.aim-section-card__arrow {
+  position:absolute;right:14px;bottom:14px;z-index:2;display:grid;width:22px;height:22px;place-items:center;
+  font-size:var(--type-18,18px);font-weight:var(--weight-medium,600);line-height:1;transition:transform .22s ease;
+}
+.aim-section-card:hover .aim-section-card__arrow,.aim-section-card:focus-within .aim-section-card__arrow {transform:translate(3px,2px)}
+.aim-section-card__link:focus-visible::before {outline:2px solid var(--card-ink);outline-offset:-4px}
+.aim-section-card__link:focus-visible {outline:none}
+.aim-section-card:hover {border-color:var(--card-ink)}
+.aim-section-card-group {display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:var(--grid-gap,24px);margin:0;padding:0;list-style:none}
+.aim-section-card-group>li {grid-column:span 4;min-width:0;list-style:none}
+.aim-section-card-group[data-density="compact"]>li {grid-column:span 2}
+.aim-section-card-connections {margin:0 0 0 18px;padding:20px 0 0 16px;border-left:1px solid rgba(0,0,0,.24);list-style:none;font-size:var(--type-13,13px);line-height:var(--leading-body,1.6)}
+.aim-section-card-connections>li {position:relative;margin:0 0 8px;padding:0;list-style:none}
+.aim-section-card-connections>li::before {content:"";position:absolute;left:-16px;top:.8em;width:8px;border-top:1px solid rgba(0,0,0,.24)}
+.aim-section-card-connections a {color:var(--text-primary,black);text-decoration:underline;text-underline-offset:3px}
+@media(max-width:1200px) {.aim-section-card-group[data-density="compact"]>li {grid-column:span 4}}
+@media(max-width:700px) {
+  .aim-section-card-group {grid-template-columns:minmax(0,1fr);row-gap:24px}
+  .aim-section-card-group>li,.aim-section-card-group[data-density="compact"]>li {grid-column:1}
+  .aim-section-card {aspect-ratio:auto;min-height:205px}
+  .aim-section-card-connections a {display:inline-flex;align-items:center;min-height:44px}
+}
+@media(prefers-reduced-motion:reduce) {.aim-section-card__arrow {transition:none}.aim-section-card:hover .aim-section-card__arrow,.aim-section-card:focus-within .aim-section-card__arrow {transform:none}}

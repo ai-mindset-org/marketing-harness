@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Шаблон дизайн-системы</title>
+<meta name="description" content="Структура и компоненты дизайн-системы для нового проекта.">
+<link rel="stylesheet" href="aim-material-system.css">
+<link rel="stylesheet" href="site/site-scoped.css">
+<link rel="stylesheet" href="site/site-composition.css">
+<link rel="stylesheet" href="components/editorial-copy.css">
+<link rel="stylesheet" href="site/responsive-spec.css">
+<link rel="stylesheet" href="template-preview.css">
+</head>
+<body>
+
+<header class="ms-top">
+  <div class="ms-wrap">
+    <a class="ms-brand" href="#top"><span class="template-mark" aria-hidden="true">DS</span><span>Дизайн-система</span><small>структура для заполнения</small></a>
+    <nav class="ms-pages" aria-label="Страницы">
+      <a href="./" aria-current="page">система</a>
+
+    </nav>
+  </div>
+</header>
+
+<nav class="ms-tabs" aria-label="Разделы системы">
+  <div class="ms-wrap">
+    <a href="#mobile">мобильная версия</a>
+    <a href="#tokens">токены</a>
+    <a href="#type">типографика</a>
+    <a href="#atoms">атомы</a>
+    <a href="#buttons">кнопки</a>
+    <a href="#lists">строки</a>
+    <a href="#cards">карточки</a>
+    <a href="#quotes">цитаты</a>
+    <a href="#schedule">расписание</a>
+    <a href="#grid">сетка</a>
+    <a href="#page-composition">композиция страниц</a>
+    <a href="#program-morphs">мини-ASCII</a>
+    <a href="#space">интервалы</a>
+    <a href="#graphics">графика и движение</a>
+    <a href="#layouts">рецепты секций</a>
+    <a href="#handoff">выгрузка</a>
+  </div>
+</nav>
+
+<main>
+
+<section id="top" class="ms-section ms-hero">
+  <div class="ms-wrap">
+    <h1>Шаблон дизайн-системы</h1>
+    <p class="ms-hero-lead ms-lead">Токены, типографика, компоненты, адаптивность и движение.</p><div class="ms-hero-meta"><dl><dt>статус</dt><dd>значения бренда не заданы</dd><dt>структура</dt><dd>21 раздел · компоненты и правила</dd><dt>гарнитуры</dt><dd>основная и словомарка · не заданы</dd></dl></div>
+  </div>
+</section>
+
+<!-- ============================== 01 ТОКЕНЫ ============================== -->
+<section id="mobile" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head"><p class="ms-num">экраны</p><h2>Десктоп и мобильная версия</h2></div>
+    <p class="ms-lead">На телефоне сохраняются содержание, порядок чтения и&nbsp;все действия. Меняются пролёты, отступы и&nbsp;способ взаимодействия. Уменьшение всей страницы через масштабирование не&nbsp;используется.</p>
+    <div class="ms-device-pair">
+      <article><h3>Десктоп</h3><p>Структурная сетка из&nbsp;восьми колонок. Парные композиции, крупные поля и&nbsp;состояния наведения для точного указателя. Клавиатурный фокус виден независимо от&nbsp;ховера.</p></article>
+      <article><h3>Мобильная версия</h3><p>При ширине до&nbsp;700px включительно страница собирается в одну колонку. Таблицы, статистика и внутренние сетки карточек сохраняют свои правила; широкая таблица прокручивается внутри своего контейнера.</p></article>
+    </div>
+    <nav class="ms-mobile-index" aria-label="Мобильные правила">
+      <a href="#type-mobile">Шрифты и переносы</a><a href="#grid-mobile">Сетка и поля</a><a href="#space-mobile">Отступы</a><a href="#buttons-mobile">Кнопки и касания</a><a href="#cards-mobile">Карточки</a><a href="#navigation-mobile">Меню и якоря</a><a href="#forms-mobile">Формы</a><a href="#motion-mobile">Движение</a><a href="#mobile-checks">Проверка макета</a>
+    </nav>
+  </div>
+</section>
+<section id="tokens" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">01 · токены</p>
+      <h2>Цвет и поверхности</h2>
+    </div>
+    <p class="ms-lead">Назначения поверхностей, текста, границ и акцентов сохранены. Цветовые значения задаются для нового проекта.</p>
+
+    <h3 class="ms-palette-title">основной и дополнительный акценты</h3>
+    <div class="ms-swatches ms-swatches--primary" data-swatches="primary-support"></div>
+    <p class="ms-lead">Сочетание двух акцентов проверяется на контраст и согласованность ролей. Для каждого заполните значение, текст поверх заливки и состояния взаимодействия.</p>
+    <h3 class="ms-palette-title">второй акцент</h3>
+    <div class="ms-swatches ms-swatches--primary" data-swatches="secondary"></div>
+
+    <div class="ms-swatches" data-swatches="core"></div>
+
+    <div class="ms-rule-box">
+      <b>Геометрия канта.</b> Два размерных токена в <code>:root</code>:
+      <code>--pxu: 5px</code> и <code>--pxu2: 10px</code>. Из них собран пиксельный срез углов
+      у кнопок. Варианты формы — в
+      <a href="#buttons">разделе кнопок</a>.
+    </div>
+
+    <div class="ms-rule-box">
+      <b>Базовая поверхность.</b> Белый фон — основа страницы. Тёмная поверхность применяется у компонентов, где она нужна содержанию и контрасту; её цвета описываются рядом с этим компонентом.
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 02 ТИПОГРАФИКА =========================== -->
+<section id="type" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">02 · типографика</p>
+      <h2>Девять кеглей, три веса, четыре трекинга</h2>
+    </div>
+    <p class="ms-lead">Основная гарнитура — заполнить. Иерархия задаётся кеглем, весом и трекингом.</p>
+
+    <div class="ms-fonts">
+      <div class="ms-font-card">
+        <p class="ms-font-card__name">Основной · var(--font-body)</p>
+        <p class="ms-font-card__sample">основная гарнитура · заполнить</p>
+        <p class="ms-font-card__note">Весь текст сайта: заголовки, тело, подписи, интерфейс.
+          Веса 400 / 600 / 700. <code>font-feature-settings:"tnum"</code> — цифры табличные,
+          с одинаковой шириной знаков.</p>
+      </div>
+      <div class="ms-font-card ms-font-card--brand">
+        <p class="ms-font-card__name">Словомарка · гарнитура не задана</p>
+        <p class="ms-font-card__sample">Дизайн-система</p>
+        <p class="ms-font-card__note">Только словомарка в шапке: гарнитура, вес, кегль и трекинг · заполнить.
+          Основной текст и интерфейс используют основную гарнитуру проекта.</p>
+      </div>
+    </div>
+
+    <div class="ms-rule-box">
+      <b>Шкала кеглей.</b> Кегль берётся только из девяти объявленных размеров
+      <code>девять ступеней · значения задаются проектом</code>. Новые промежуточные значения добавляют только после проверки всей шкалы. Понизить значимость блока = сдвинуть на ступень по шкале,
+      а не подобрать промежуточный размер.
+    </div>
+
+    <div class="ms-rule-box" id="content-preservation">
+      <b>Сохранность текста.</b> Названия, описания, даты, ссылки и подписи кнопок
+      не меняются при работе с оформлением. Изменение текста требует предварительного
+      согласования с автором. Пунктуация и неразрывные пробелы сохраняются.
+    </div>
+
+    <figure id="editorial-copy" class="aim-editorial-copy">
+      <p>Когда тексту нужна общая правая граница, редакционный вариант выключает абзац по ширине. Последняя строка остаётся у левого края; на экранах уже 360px текст возвращается к обычному левому краю.</p>
+      <figcaption>редакционный абзац · CSS и JavaScript для выключки рядом</figcaption>
+    </figure>
+
+    <div class="ms-type-scale ms-specimen" data-type-scale></div>
+
+    <div id="type-mobile" class="ms-responsive-spec">
+      <h3>Типографика: десктоп и мобильная версия</h3>
+      <p>Гарнитура и&nbsp;девять токенов кегля общие. Размер выбирается по&nbsp;роли текста, а&nbsp;не&nbsp;только по&nbsp;тегу <code>h1–h3</code>. Значения токенов на&nbsp;телефоне не&nbsp;переопределяются глобально.</p>
+      <p>Основная гарнитура используется для текста и&nbsp;интерфейса. Гарнитура словомарки задаётся отдельно; её значение пока не&nbsp;выбрано. Начертания не&nbsp;меняются при переходе на&nbsp;телефон.</p>
+      <table class="ms-device-table"><caption>Девять текстовых ролей · кегль и интерлиньяж заполняются для каждого экрана</caption><thead><tr><th scope="col">Роль</th><th scope="col">Десктоп</th><th scope="col">Мобильная версия</th></tr></thead><tbody>
+        <tr><th scope="row">Крупный вход</th><td>кегль / интерлиньяж · заполнить</td><td>кегль / интерлиньяж · заполнить</td></tr>
+        <tr><th scope="row">Заголовок страницы</th><td>кегль / интерлиньяж · заполнить</td><td>кегль / интерлиньяж · заполнить</td></tr>
+        <tr><th scope="row">Заголовок секции</th><td>кегль / интерлиньяж · заполнить</td><td>кегль / интерлиньяж · заполнить</td></tr>
+        <tr><th scope="row">Основной текст</th><td>кегль / интерлиньяж · заполнить</td><td>кегль / интерлиньяж · заполнить</td></tr>
+        <tr><th scope="row">Описание карточки</th><td>кегль / интерлиньяж · заполнить</td><td>кегль / интерлиньяж · заполнить</td></tr>
+        <tr><th scope="row">Цитата</th><td>кегль / интерлиньяж · заполнить</td><td>кегль / интерлиньяж · заполнить</td></tr>
+        <tr><th scope="row">Дата, статус, подпись</th><td>кегль / интерлиньяж · заполнить</td><td>кегль / интерлиньяж · заполнить</td></tr>
+        <tr><th scope="row">Кнопка</th><td>кегль / интерлиньяж · заполнить</td><td>кегль / интерлиньяж · заполнить</td></tr>
+        <tr><th scope="row">Ввод в форме</th><td>кегль / интерлиньяж · заполнить</td><td>кегль / интерлиньяж · заполнить</td></tr>
+      </tbody></table>
+      <div class="ms-device-pair">
+        <article><h4>Десктоп</h4><p>Обычный абзац — до 62 символов ширины строки; в продукте — до 52, в направлении — до 44, в отзыве — до 48. Крупный заголовок занимает 22–29 символов. 11px остаётся для необязательных коротких меток, не для условий участия и действий.</p></article>
+        <article><h4>Мобильная версия</h4><p>На ширине 360px и больше редакционный абзац сохраняет выключку по ширине; до 359px переходит к левому краю. Основной текст остаётся 16px. Длинное название переносится, карточка растёт по содержимому. Метки, необходимые для выбора, не набираются 11px.</p></article>
+      </div>
+      <h4>Переносы и выключка</h4>
+      <p>Обычные мобильные абзацы выравниваются по&nbsp;началу строки. Редакционный абзац сохраняет выключку по&nbsp;ширине от 360px; на&nbsp;ширине 359px и&nbsp;меньше&nbsp;— <code>text-align:start</code>. Заголовки, кнопки, даты и&nbsp;поля формы по&nbsp;ширине не&nbsp;выключаются.</p>
+      <p>Короткие служебные слова связываются с&nbsp;последующим словом. Неразрывной остаётся короткая смысловая пара, а&nbsp;не&nbsp;целое предложение. URL и&nbsp;длинные идентификаторы могут переноситься; текст не&nbsp;обрезается многоточием ради одинаковой высоты карточек.</p>
+      <p>При увеличении текста до&nbsp;200% сохраняются слова, действия и&nbsp;порядок чтения. Запрет пользовательского zoom в&nbsp;<code>viewport</code> не&nbsp;допускается. <a href="https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html">WCAG: увеличение текста</a>.</p>
+      <h4>Загрузка шрифтов</h4>
+      <p>Текст остаётся видимым во&nbsp;время загрузки: <code>font-display:swap</code> и&nbsp;моноширинный резервный шрифт. Переносы проверяются до&nbsp;и&nbsp;после загрузки; смена гарнитуры не&nbsp;должна скрывать название или действие. Ширина текстового блока не&nbsp;зависит от&nbsp;размера анимации.</p>
+    </div>
+
+    <details class="ms-details">
+      <summary><b>Типографические роли</b><span>подробности</span></summary>
+      <div class="ms-details__body"><div class="ms-rows" data-type-roles></div></div>
+    </details>
+
+    <details class="ms-details">
+      <summary><b>Трекинг и интерлиньяж</b> — четыре роли разрядки и девять интерлиньяжей <span>подробности</span></summary>
+      <div class="ms-details__body">
+        <p class="ms-specimen__note">Разрядка у капслочных меток
+          (<code>.14em</code>) и отрицательная у крупных заголовков (<code>-.025em</code>);
+          тело текста набирается без разрядки. Интерлиньяж растёт от <code>1</code> у словомарки
+          до <code>1.65</code> у компактных описаний. Цитаты — <code>18px / 1.45</code>.</p>
+        <div class="ms-rows" data-type-metrics></div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<section id="atoms" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">02b · атомы</p>
+      <h2>Базовые элементы</h2>
+    </div>
+    <p class="ms-lead">Метки, ссылки, выделения, кнопки и подписи.</p>
+
+    <div class="ms-atoms">
+      <div class="ms-atom">
+        <div class="ms-atom__stage"><span class="ms-badge">01 · кто мы</span></div>
+        <p class="ms-atom__label"><span class="ms-atom__caption">номер секции</span>Контрастная плашка с текстом, цвет и контраст задаются проектом.
+          Первый элемент в <code>.sec-head</code>.</p>
+      </div>
+      <div class="ms-atom">
+        <div class="ms-atom__stage"><span class="ms-key">направление</span><span class="ms-key ms-row__key is-live">набор открыт</span></div>
+        <p class="ms-atom__label"><span class="ms-atom__caption">ключ строки</span>11px, трекинг .12em, строчные буквы. Живое состояние —
+          пульсирующая точка перед словом, без цвета.</p>
+      </div>
+      <div class="ms-atom">
+        <div class="ms-atom__stage"><a class="ms-go" href="#atoms">смотреть →</a></div>
+        <p class="ms-atom__label"><span class="ms-atom__caption">переход</span>12px, не переносится. Подчёркивание — серая линейка,
+          на ховере чернеет.</p>
+      </div>
+      <div class="ms-atom">
+        <div class="ms-atom__stage"><a class="ms-lab-card__title" href="#handoff" target="_blank" rel="noopener" style="border:0;font-size:var(--type-18)">Программа A <span class="ms-arrow" aria-hidden="true">↗</span></a></div>
+        <p class="ms-atom__label"><span class="ms-atom__caption">стрелка перехода</span>«↗» обозначает реальный внешний переход. Стрелка входит в кликабельную область ссылки;
+          для пунктов списка и неинтерактивных заголовков она не используется. Кегль — <code>.62em</code>.</p>
+      </div>
+      <div class="ms-atom">
+        <div class="ms-atom__stage"><p style="font-size:var(--type-18);line-height:var(--leading-quote)">Здесь показано <span class="ms-highlight">смысловое выделение</span> внутри обычной строки.</p></div>
+        <p class="ms-atom__label"><span class="ms-atom__caption">выделение в цитате</span>Инверсия, а не цвет: чернильная плашка
+          с <code>box-decoration-break:clone</code>, чтобы перенос строки не рвал плашку.</p>
+      </div>
+      <div class="ms-atom">
+        <div class="ms-atom__stage"></div>
+        <p class="ms-atom__label"><span class="ms-atom__caption">кнопки</span>Основная — чёрная плашка. При наведении смещается на 2px;
+          появляется акцентная тень.</p>
+      </div>
+      <div class="ms-atom">
+        <div class="ms-atom__stage"><a class="ms-cta" href="#handoff" target="_blank" rel="noopener">открыть платформу <span>↗</span></a></div>
+        <p class="ms-atom__label"><span class="ms-atom__caption">переход на страницу продукта</span>Тот же чернильный блок, но с разведением
+          подписи и стрелки по краям и постоянной акцентной тенью.</p>
+      </div>
+      <div class="ms-atom">
+        <div class="ms-atom__stage"><p class="ms-small">Короткая служебная подпись компонента</p></div>
+        <p class="ms-atom__label"><span class="ms-atom__caption">мелкая подпись</span>13px, серый. Не 11px — 11px зарезервирован
+          за капслочными метками интерфейса.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="buttons" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">03 · кнопки</p>
+      <h2>Три роли кнопок</h2>
+    </div>
+    <p class="ms-lead">Три типа кнопок: A — основное действие, B — действие внутри карточки, C — второстепенное действие.</p>
+    <div class="ms-rule-box"><b>Правило.</b> Новых кнопок не создавать. Кнопка с обычной рамкой и кнопка с тенью в системе не существуют. Всё нажимаемое приводится к A, B или C; «наверх» и <code>↗</code> в тексте — не кнопки, а подписи и знаки.</div>
+    <div class="ms-buttons-three">
+      <div class="ms-button-card">
+        <div class="ms-site ms-button-stage"><a class="btn" href="#buttons" onclick="return false">присоединиться</a></div>
+        <div class="ms-button-card__body"><b>A · <code>.btn</code></b><small>Чёрная, полный пиксельный кант (<code>--px-a</code>, 21 точка), текст <code>--on-primary</code>, <code>--type-12</code>. Главное действие.</small></div>
+      </div>
+      <div class="ms-button-card">
+        <div class="ms-site ms-button-stage"><a class="product-cta" href="#buttons" onclick="return false">открыть платформу<span class="go-arrow" aria-hidden="true">↗</span></a></div>
+        <div class="ms-button-card__body"><b>B · <code>.product-cta</code></b><small>Контурная, диагональный кант (<code>--px-b</code>), стрелка справа, <code>--type-12</code>. Действие внутри карточки или блока.</small></div>
+      </div>
+      <div class="ms-button-card">
+        <div class="ms-site ms-button-stage"><div style="display:flex"><button class="aim-button-outline" type="button">второе действие <span aria-hidden="true">↗</span></button></div></div>
+        <div class="ms-button-card__body" style="align-content:start"><b>C · <code>.aim-button-outline</code></b><small>Контур 1px со ступенчатыми срезами двух углов. Текст <code>--type-13</code>, стрелка справа. Второстепенное действие.</small></div>
+      </div>
+    </div>
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>Где какая</h3><code>.btn · .product-cta · .aim-button-outline</code></div>
+      <div class="ms-rows" data-action-rows></div>
+    </div>
+    <div id="buttons-mobile" class="ms-responsive-spec">
+      <h3>Кнопки: десктоп и мобильная версия</h3>
+      <div class="ms-device-pair">
+        <article><h4>Десктоп</h4><p>Три существующие формы A/B/C, те&nbsp;же названия и&nbsp;приоритеты действий. Hover дополняет обычное состояние. Фокус клавиатуры заметен на&nbsp;белой и&nbsp;цветной поверхности; после закрытия диалога возвращается к&nbsp;исходной кнопке.</p></article>
+        <article><h4>Мобильная версия</h4><p>Зона касания отдельного элемента&nbsp;— не&nbsp;меньше 44&nbsp;×&nbsp;44 CSS-px. Это размер активной области, не&nbsp;иконки. Между соседними целями&nbsp;— минимум 8px; области не&nbsp;пересекаются. Форма A/B/C сохраняется.</p><p>Один тап запускает действие, не&nbsp;только показывает hover. Длинная подпись переносится целиком вместе со&nbsp;стрелкой; высота кнопки растёт. В&nbsp;узкой группе действия размещаются друг под другом.</p></article>
+      </div>
+      <p>44px&nbsp;— целевой размер касания в&nbsp;системе. Минимум WCAG&nbsp;2.2&nbsp;AA&nbsp;— 24&nbsp;×&nbsp;24 CSS-px с&nbsp;оговорёнными исключениями, включая достаточное расстояние и&nbsp;ссылки внутри строки. <a href="https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html">WCAG: размер цели</a>.</p>
+      <p>Загрузка, ошибка и&nbsp;успех различаются текстом, а&nbsp;не&nbsp;только цветом. Повторная отправка блокируется на&nbsp;время запроса. Цвет ожидания не&nbsp;приравнивается к&nbsp;главному действию.</p>
+    </div>
+    <div class="ms-rule-box"><b>Геометрия.</b> <code>--pxu: 5px</code> — малый шаг, <code>--pxu2: 10px</code> — большой; форму рисует <code>::before</code> с <code>clip-path: polygon(…)</code>, контейнер — <code>border:0; background:transparent</code>. У A ховер сдвигает кнопку на −2px/−2px и добавляет <code>drop-shadow(4px 4px 0 var(--accent-primary))</code> ступенями <code>steps(3,end)</code>. У C — чёрная заливка, белый текст и сдвиг на −3px/−3px.</div>
+  </div>
+</section>
+
+<section id="lists" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">04 · строки</p>
+      <h2>Четыре варианта одной строки</h2>
+    </div>
+    <p class="ms-lead">Заголовок и список не разделяются чёрной линией. Ключ строки — прописными буквами.
+      Варианты различаются составом и шириной колонок.</p>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>1 · базовый</h3><code>.row</code></div>
+      <p class="ms-specimen__note">Три колонки <code>150px 1fr auto</code>, <code>padding:14px 2px</code>.
+        Справа — статус или переход. На ≤700px схлопывается в одну колонку с зазором 4px.</p>
+      <div class="ms-rows">
+        <div class="ms-row"><span class="ms-row__key is-live">платформа</span><p>Материалы и инструменты продукта в одном месте.</p><span class="ms-row__val">открыто</span></div>
+        <div class="ms-row"><span class="ms-row__key">сообщество</span><p>Регулярные встречи, office-hours и фокус-сессии.</p><span class="ms-row__val">по расписанию</span></div>
+      </div>
+    </div>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>2 · подход — вложенная сетка</h3><code>#approach .row</code></div>
+      <p class="ms-specimen__note">Строка использует сетку на 6 колонок
+        внутри пролёта <code>3/-1</code>: ключ в первой колонке, содержимое во всех остальных.
+        Правая ячейка скрыта. Отступы крупнее — <code>padding:20px 0</code>. Внутри есть заголовок h3,
+        которого в базовом варианте не бывает.</p>
+      <div class="ms-rows ms-rows--approach">
+        <div class="ms-row ms-row--approach"><span class="ms-row__key">создавать</span><div><h4>Руками, не конспектом</h4><p>Каждую неделю — работающая система своими руками: свои ассистенты, свои процессы.</p></div></div>
+        <div class="ms-row ms-row--approach"><span class="ms-row__key">замедление</span><div><h4>Пауза как рабочий инструмент</h4><p>Вместо гонки — остановка: непопулярное решение, которое возвращает авторство.</p></div></div>
+      </div>
+    </div>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>3 · исследования — с превью</h3><code>#research .row</code></div>
+      <p class="ms-specimen__note">Четыре колонки <code>112px 128px 1fr auto</code>, отступы сжаты до
+        <code>10px 2px</code>, выравнивание по центру. Превью 128×82 в чернильной рамке; на ховере
+        (только мышь) масштабируется до 1.18 и прокручивается внутри себя 5.8s.</p>
+      <div class="ms-rows">
+        <div class="ms-row ms-row--research">
+          <span class="ms-row__key">2026</span>
+          <span class="ms-research-thumb"></span>
+          <div><h4>Исследование A</h4><p>Краткое описание исследования.</p></div>
+          <a class="ms-go" href="#lists">открыть →</a>
+        </div>
+        <div class="ms-row ms-row--research">
+          <span class="ms-row__key">2025</span>
+          <span class="ms-research-thumb"></span>
+          <div><h4>Исследование B</h4><p>Краткое описание исследования.</p></div>
+          <a class="ms-go" href="#lists">открыть →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>4 · обучение — с блоком меты</h3><code>.learning-topic</code></div>
+      <p class="ms-specimen__note">Три колонки <code>150px 1fr auto</code>, но слева не одно слово,
+        а сетка из даты и времени; отступы <code>18px 2px</code>, выравнивание по верху.
+        Заголовок 16px. Активный набор помечается пульсирующей строкой в мете.</p>
+      <div class="ms-topics">
+        <article class="ms-topic">
+          <div class="ms-topic__meta"><time>дата события</time><span>время · зона</span></div>
+          <div><h4>Название события</h4><p>Краткое описание и формат события.</p></div>
+          <a class="ms-go" href="#lists">зарегистрироваться →</a>
+        </article>
+      </div>
+    </div>
+
+    <div class="ms-rule-box">
+      <b>Применение.</b> Базовый вариант — перечень; подход — заголовок с описанием;
+      исследования — превью; обучение — дата и время.
+    </div>
+  </div>
+</section>
+
+<section id="cards" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">05 · карточки</p>
+      <h2>Типы карточек</h2>
+    </div>
+    <p class="ms-lead">Лаборатория, проект, направление и отзыв.</p>
+    <details class="ms-details" id="card-scene-colors">
+      <summary><b>цвета карточек направлений</b><span>подробности</span></summary>
+      <div class="ms-details__body">
+        <p class="ms-specimen__note">В текущих карточках направлений это фоны, линии и движение. При повторном использовании сохраняйте их роль внутри компонента.</p>
+        <div class="ms-swatches" data-swatches="scene"></div>
+      </div>
+    </details>
+    <div id="cards-mobile" class="ms-responsive-spec">
+      <h3>Карточки: десктоп и мобильная версия</h3>
+      <div class="ms-device-pair">
+        <article><h4>Десктоп</h4><p>Структурные группы занимают целые пролёты восьми колонок. Внутри ряда совпадают роли и&nbsp;базовые линии: заголовок, описание, мета, действие. Высота не&nbsp;создаётся пустыми растянутыми строками.</p></article>
+        <article><h4>Мобильная версия</h4><p>Карточки программ выстраиваются в&nbsp;одну колонку: название, статус и&nbsp;даты, описание, действие. Порядок карточек сохраняется. <code>min-width:0</code> и&nbsp;полная ширина текстового слота обязательны; место под боковую анимацию из&nbsp;ширины абзаца не&nbsp;вычитается.</p><p>Высота определяется содержимым. Мета и&nbsp;CTA доступны сразу, без ховера. Компактная графика стоит в&nbsp;отдельной свободной зоне и&nbsp;не&nbsp;накрывает текст.</p></article>
+      </div>
+      <table class="ms-device-table"><caption>Мобильное поведение по типу</caption><thead><tr><th scope="col">Компонент</th><th scope="col">Раскладка</th><th scope="col">Содержание</th></tr></thead><tbody>
+        <tr><th scope="row">Программа</th><td>Одна колонка</td><td>Название и&nbsp;кнопка без обрезания</td></tr>
+        <tr><th scope="row">Кейсы</th><td>Первые 3; остальные по&nbsp;кнопке B</td><td>Порядок, тексты и&nbsp;все кейсы сохранены</td></tr>
+        <tr><th scope="row">Команда</th><td>Одна карточка в&nbsp;ряд; фото рядом с&nbsp;текстом. Если тексту тесно, фото над ним</td><td>Имя, роль и&nbsp;ссылки видны без наведения</td></tr>
+        <tr><th scope="row">Статистика</th><td>2 локальные колонки до&nbsp;640px</td><td>Число 24px; подпись переносится</td></tr>
+        <tr><th scope="row">Направление</th><td>Одна колонка либо отдельная карусель</td><td>Карусель имеет доступное управление, а&nbsp;не&nbsp;только свайп</td></tr>
+      </tbody></table>
+      <p>Раскрываемые кейсы используют <code>aria-expanded</code> и&nbsp;<code>aria-controls</code>. Скрытые элементы не&nbsp;попадают в&nbsp;Tab-порядок. Сворачивание не&nbsp;теряет фокус и&nbsp;не&nbsp;уводит страницу от&nbsp;кнопки.</p>
+    </div>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>1 · лаборатория</h3><code>.hero-lab-card</code></div>
+      <p class="ms-specimen__note">Карточка использует сдвинутый на 5px чернильный
+        отпечаток <code>0 0 0 1px var(--border-hairline), 5px 5px 0 rgba(0,0,0,.08)</code>. Статус сверху —
+        акцентная плашка. Живёт только в герое, по две в ряд.</p>
+      <div class="ms-lab-cards">
+        <article class="ms-lab-card">
+          <p class="ms-lab-card__status">набор открыт</p>
+          <div class="ms-lab-card__body">
+            <h4 class="ms-lab-card__title">Программа A <span class="ms-arrow" aria-hidden="true">↗</span></h4>
+            <p class="ms-lab-card__meta">дата · длительность · формат</p>
+          </div>
+        </article>
+        <article class="ms-lab-card">
+          <p class="ms-lab-card__status">идёт сейчас</p>
+          <div class="ms-lab-card__body">
+            <h4 class="ms-lab-card__title">Программа B <span class="ms-arrow" aria-hidden="true">↗</span></h4>
+            <p class="ms-lab-card__meta">краткое описание программы</p>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>2 · сделано внутри</h3><code>.project-card</code></div>
+      <p class="ms-specimen__note">Пять в ряд на широком экране, жёсткая сетка строк
+        <code>126px 28px auto minmax(132px,1fr) 42px</code> — поэтому карточки с разным текстом
+        всё равно выравниваются по нижней линии ссылок. Стоят вплотную, шов — волосяная линейка.
+        На наведении появляется внутренняя обводка 2px, карточка поднимается на 2px, арт внутри увеличивается до 1.025.
+        На 1179px их становится три, на 900px — две, на 560px — одна с артом 180px.</p>
+      <div class="ms-project-cards">
+        <article class="ms-project-card">
+          <div class="ms-project-card__art"></div>
+          <p class="ms-project-card__meta">тип · год</p>
+          <h4>Исследование A</h4>
+          <p>Описание проекта с проверяемым результатом.</p>
+          <div class="ms-project-card__links"><a href="#cards">пост</a><a href="#cards">сайт</a></div>
+        </article>
+        <article class="ms-project-card">
+          <div class="ms-project-card__art"></div>
+          <p class="ms-project-card__meta">тип · год</p>
+          <h4>Проект B</h4>
+          <p>Описание проекта и его роли.</p>
+          <div class="ms-project-card__links"><a href="#cards">пост</a><a href="#cards">сайт</a></div>
+        </article>
+        <article class="ms-project-card">
+          <div class="ms-project-card__art"></div>
+          <p class="ms-project-card__meta">тип · год</p>
+          <h4>Исследование B</h4>
+          <p>Краткое описание проекта.</p>
+          <div class="ms-project-card__links"><a href="#cards">пост</a><a href="#cards">сайт</a></div>
+        </article>
+      </div>
+    </div>
+
+    <div id="section-card" class="ms-specimen">
+      <div class="ms-specimen__title"><h3>3 · переход к разделу</h3><code>.aim-section-card</code></div>
+      <p class="ms-specimen__note">Кратко представляет тему и ведёт к её подробному описанию ниже на странице. Вся карточка — одна ссылка. Для выбора тарифа, отправки формы или нескольких равнозначных действий этот компонент не подходит.</p>
+      <div style="max-width:760px;margin-block:24px">
+        <ul id="section-card-example" class="aim-section-card-group">
+          <li>
+            <article class="aim-section-card" data-aim-scene="learning">
+              <div class="aim-section-card__visual" aria-hidden="true"><canvas></canvas></div>
+              <span class="aim-section-card__meta">основа</span>
+              <h4 class="aim-section-card__title"><a class="aim-section-card__link" href="#type"><span class="aim-section-card__label">Типографика</span><span class="aim-section-card__arrow" aria-hidden="true">↘</span></a></h4>
+            </article>
+          </li>
+          <li>
+            <article class="aim-section-card" data-aim-scene="research">
+              <div class="aim-section-card__visual" aria-hidden="true"><canvas></canvas></div>
+              <h4 class="aim-section-card__title"><a class="aim-section-card__link" href="#graphics"><span class="aim-section-card__label">Графика и движение</span><span class="aim-section-card__arrow" aria-hidden="true">↘</span></a></h4>
+            </article>
+            <ul class="aim-section-card-connections"><li><a href="#program-morphs">Небольшая графика</a></li><li><a href="#graphics">Графика и движение</a></li></ul>
+          </li>
+        </ul>
+      </div>
+      <h4>Состав</h4>
+      <ul class="ms-pieces">
+        <li><b>Заголовок и ссылка — обязательны.</b> Заголовок называет тему, <code>href</code> ведёт к существующему разделу. Стрелка входит в ту же ссылку.</li>
+        <li><b>Иллюстрация.</b> Внутри <code>__visual</code> можно разместить canvas, SVG или изображение. Она не содержит отдельного действия и не заменяет текст.</li>
+        <li><b>Метка — необязательна.</b> Короткое уточнение над заголовком; без неё пустое место не резервируется.</li>
+        <li><b>Связи — необязательны.</b> Список <code>.aim-section-card-connections</code> находится снаружи карточки. Линии показывают подчинённые темы; ссылки доступны и без наведения.</li>
+      </ul>
+      <div class="ms-device-pair">
+        <article><h4>Десктоп</h4><p>В группе карточка занимает четыре колонки; компактная — две. Заголовок переносится, высота растёт с содержимым. Hover двигает стрелку, фокус обводит карточку целиком.</p></article>
+        <article><h4>Мобильная версия</h4><p>До 700px — одна колонка. Первый тап открывает ссылку. Иллюстрация не требует жеста; дочерние ссылки видны постоянно. При уменьшенном движении сцена остаётся статичной.</p></article>
+      </div>
+      <details class="ms-details"><summary>Подключение и HTML примера</summary>
+        <p>Подключите <a href="components/section-card.css">CSS компонента</a>. Для canvas добавьте <a href="components/section-card-scenes.js">JS иллюстраций</a> с атрибутом <code>defer</code>. Для изображения или SVG скрипт не нужен. Используются шрифт и токены общей системы.</p>
+        <p><code>data-aim-scene</code>: <code>learning</code>, <code>platform</code>, <code>research</code> или <code>consulting</code>. Название сцены выбирает иллюстрацию, но не задаёт заголовок и адрес. Для своей графики уберите этот атрибут и замените содержимое <code>__visual</code>.</p>
+        <p>Текст, адрес, метка и иллюстрация меняются в HTML; CSS компонента не копируется и не переписывается. Для динамически добавленных карточек вызовите <code>DSSectionCards.mount(container)</code>; возвращённая функция отключает их анимацию и наблюдателей при удалении контейнера.</p>
+        <p>Сохраните HTML рядом с <code>index.html</code> системы или перенесите CSS и JS в свой проект, сохранив относительные пути. Якорные ссылки примера ведут к разделам системы; на новой странице задайте свои адреса.</p>
+        <button class="ms-btn" type="button" data-download-live="section-card-example">Скачать HTML примера</button>
+        <pre class="ms-code" data-live-code="section-card-example"></pre>
+      </details>
+    </div>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>4 · отзыв</h3><code>.reviews-grid &gt; blockquote</code></div>
+      <p class="ms-specimen__note">Отзыв без рамки, с подписью
+        источника. Текст 13px, выделение — та же чернильная плашка. Отзывы
+        воспроизводятся дословно, без редактуры.</p>
+      <div class="ms-reviews">
+        <blockquote class="ms-review"><p>Текст цитаты с <span class="ms-highlight">выделенным фрагментом</span> и подписью источника.</p><cite>источник цитаты</cite></blockquote>
+        <blockquote class="ms-review"><p>Вторая цитата показывает работу карточки с другой длиной текста.</p><cite>источник цитаты</cite></blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="quotes" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">06 · цитаты</p>
+      <h2>Цитаты</h2>
+    </div>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>1 · цитата-ритм</h3><code>.rhythm-quote</code></div>
+      <p class="ms-specimen__note">Самостоятельная узкая цитата стоит слева или справа; свободное поле рядом участвует в композиции.
+        Ей не обязательно пояснение в той же строке. Базовая роль цитаты: 18px, интерлиньяж 1.45. Инверсия переносится вместе со строкой; отдельный крупный знак « не добавляется.</p>
+      <figure class="ms-quote">
+        <p>Здесь находится цитата с <span class="ms-highlight">выделенным фрагментом</span> — её текст, источник и длину задаёт проект,
+          а с тем, как меняется человек рядом с ними.</p>
+      </figure>
+      <figure class="ms-quote ms-quote--left" style="margin-top:26px">
+        <p>Вторая цитата показывает другую длину и ритм текста.<cite>источник цитаты</cite></p>
+      </figure>
+    </div>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>2 · врезка-голос</h3><code>.product-visual-quote</code></div>
+      <p class="ms-specimen__note">Располагается внутри сцены продукта, поверх холста: абсолютное
+        позиционирование, ширина не больше 235px, 16px с интерлиньяжем 1.45. Фона у неё нет —
+        читается за счёт того, что сцена в этом углу разрежена.</p>
+      <div class="ms-voice-demo"><p class="ms-voice">Данные как глина, <span class="ms-highlight">сеть как зеркало</span>.</p></div>
+    </div>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>3 · цитата-источник</h3><code>.about-quote--origin</code></div>
+      <p class="ms-specimen__note">С подписью-источником отдельной строкой: 11px, строчные буквы, серый,
+        с отступом 16px сверху.</p>
+      <figure class="ms-quote ms-quote--left">
+        <p>Человек входит пользователем, выходит создателем.<cite>из канала, 2025</cite></p>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="schedule" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">07 · расписание</p>
+      <h2>Расписание событий</h2>
+    </div>
+    <p class="ms-lead">Расписание <code>.space-schedule</code>. Событие раскрывает регистрацию кнопкой B; список сворачивается кнопкой B «показать все события (N)»; ссылка на календарь — кнопка A.</p>
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>Живая разметка</h3><code>outerHTML</code></div>
+      <div class="ms-site ms-site--scene-surface-1"><div class="space-schedule" id="spaceSchedule" data-events="[]" aria-labelledby="spaceScheduleTitle">
+      <div class="space-schedule__bar"><h3 id="spaceScheduleTitle">Расписание событий</h3><span class="space-schedule__descriptor">форматы событий</span></div>
+      <div id="spaceScheduleBoard" aria-live="polite"><article class="space-schedule__event"><div class="space-schedule__date">дата события<span class="space-schedule__time">время · зона</span></div><div><h4 class="space-schedule__event-title">Название события и краткая тема</h4><p class="space-schedule__event-note">ведущие · заполнить</p></div><a class="space-schedule__action" href="#schedule">регистрация ↗</a></article></div>
+    </div></div>
+    </div>
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>Три состояния</h3><code>data → DOM</code></div>
+      <div class="ms-rows" data-schedule-states></div>
+    </div>
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>Календарь и формат даты</h3></div>
+      <div class="ms-rows" data-schedule-data></div>
+    </div>
+  </div>
+</section>
+
+<section id="missing" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">чего нет</p>
+      <h2>Ограничения</h2>
+    </div>
+    <div class="ms-rows" data-missing-rows></div>
+  </div>
+</section>
+
+<!-- =============================== 03 СЕТКА ============================== -->
+<section id="navigation-mobile" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head"><p class="ms-num">навигация</p><h2>Меню, списки и якоря</h2></div>
+    <p><a href="#navigation-mobile">Header и&nbsp;footer: свойства и&nbsp;связанные варианты</a>. Одна общая навигация для desktop и&nbsp;mobile; у&nbsp;страницы — своя кнопка, партнёрская подпись, подменю и&nbsp;дополнительный столбец футера. <a href="#navigation-mobile">Открыть живые примеры</a>.</p>
+    <div class="ms-device-pair">
+      <article><h3>Десктоп</h3><p>Меню и&nbsp;футер используют общую оболочку продукта. Выпадающее меню ведёт между страницами, лента якорей&nbsp;— по&nbsp;длинной странице, когда она нужна. Hover не&nbsp;заменяет активное состояние; фокус и&nbsp;открытие с&nbsp;клавиатуры доступны независимо от&nbsp;мыши.</p><p>В&nbsp;строке списка мета, содержимое и&nbsp;действие располагаются в&nbsp;своих колонках.</p></article>
+      <article><h3>Мобильная версия</h3><p>Основное меню переносится под словомарку или раскрывается явной кнопкой. Пункты не&nbsp;уменьшаются ради одной строки. Лента якорей прокручивается внутри своего контейнера; последний пункт остаётся достижим.</p><p>Мета строки переходит над содержимым, действие&nbsp;— под него. Дата, время и&nbsp;часовой пояс остаются рядом. Длинная подпись расписания переносится, а&nbsp;не&nbsp;выталкивает страницу за&nbsp;край.</p></article>
+    </div>
+    <h3>Закреплённая шапка</h3>
+    <p>Отступ якоря учитывает фактическую суммарную высоту шапки и&nbsp;подменю после переноса строк. Закреплённые панели не&nbsp;закрывают заголовок, сфокусированное поле или кнопку. В&nbsp;горизонтальном положении телефона панели не&nbsp;занимают основную область чтения. <a href="https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html">WCAG: видимость фокуса</a>.</p>
+    <p>Меню открывается и&nbsp;закрывается той&nbsp;же кнопкой; <code>aria-expanded</code> соответствует состоянию. Закрытие доступно по&nbsp;Escape и&nbsp;по&nbsp;кнопке. Ни&nbsp;одно действие не&nbsp;требует точного наведения.</p>
+  </div>
+</section>
+<section id="forms-mobile" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head"><p class="ms-num">формы</p><h2>Диалоги и ввод</h2></div>
+    <div class="ms-device-pair">
+      <article><h3>Десктоп</h3><p>Диалог списка ожидания&nbsp;— до&nbsp;520px, поля по&nbsp;краям окна не&nbsp;меньше 16px. Заголовок, явные labels и&nbsp;кнопка закрытия доступны с&nbsp;клавиатуры. Tab остаётся внутри открытого диалога.</p></article>
+      <article><h3>Мобильная версия</h3><p>Ширина&nbsp;— доступная область окна минус боковые поля. Внутренний контент прокручивается по&nbsp;вертикали; закрытие и&nbsp;отправка достижимы с&nbsp;открытой экранной клавиатурой. Учитываются safe-area и&nbsp;изменение высоты окна.</p><p>Ввод&nbsp;— 16px, без запрета увеличения страницы. Тип клавиатуры и&nbsp;автозаполнение соответствуют полю. Placeholder не&nbsp;заменяет label. Кнопка закрытия имеет зону касания 44&nbsp;×&nbsp;44px.</p></article>
+    </div>
+    <p>При ошибке введённые данные сохраняются. Сообщение связано с&nbsp;полем, статус запроса объявляется через <code>aria-live</code>. Успех показывается только после подтверждения ответа. Закрытие возвращает фокус к&nbsp;кнопке, открывшей диалог.</p>
+    <p>Автофокус не&nbsp;должен открывать клавиатуру раньше, чем человек увидит назначение формы. На&nbsp;телефоне отдельно проверяются поворот экрана, клавиатура, длинный заголовок и&nbsp;сообщение об&nbsp;ошибке.</p>
+  </div>
+</section>
+<section id="page-composition" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head"><p class="ms-num">композиция</p><h2>Один сайт, разные раскладки</h2></div>
+    <p class="ms-lead">единая сетка и ритм содержания. Типографика различает заголовок секции, крупный вход, основной текст и цитату.</p>
+    <div class="ms-composition-grid">
+      <article class="ms-composition-card"><h3>Оболочка продукта</h3><p>Шапка и футер собираются из общих компонентов внутри одного продукта. Новый продукт определяет собственную оболочку, сохраняя общие токены, типографику, сетку и состояния взаимодействия.</p><p>Меню и подменю выбираются по структуре продукта. Для длинной страницы подменю может быть закреплено вместе с шапкой; обычный текст — <code>--text-muted</code>, активный раздел — чёрный с подчёркиванием.</p></article>
+      <article class="ms-composition-card"><h3>вход в секцию</h3><p>Обычная секция начинается одним <code>.sec-head</code>: акцентная плашка с номером и названием слева, необязательная подпись справа. 11px / 1.45, трекинг .14em. Дублирующий обычный h2 не добавляется.</p><p>Для крупного самостоятельного утверждения – <code>.sec-headline</code>: 44px на широком экране, 32px до 640px; вес 600, интерлиньяж 1.10. Компактный заголовок внутри блока остаётся 18px / 1.35.</p><p>Заголовок и его список составляют одну группу. Секции разделяются пространством; границы допустимы внутри карточной группы. Перечисления – <code>ul/li</code> или <code>ol/li</code>.</p></article>
+      <article class="ms-composition-card"><h3>Целые пролёты восьми колонок</h3><p>Структурная сетка: восемь колонок и общий <code>--grid-gap</code>. Блоки занимают 2, 3, 4 или 5 колонок; пары 3/5 и 5/3 чередуют текст и графику. Выносная цитата может стоять отдельной строкой. Внутренние поля карточек не меняют межколонник страницы.</p><p>При ширине 700px и ниже структура становится одноколоночной. Внешний межколонник одноколоночной структуры – 0. При 640px и ниже поля страницы – 16px, межколонник внутри компонентов – 14px.</p></article>
+      <article class="ms-composition-card"><h3>Просторный ритм маркетинговой секции</h3><p>Перед содержимым: <code>clamp(104px,9vw,148px)</code>; после: <code>clamp(92px,7.5vw,124px)</code>. На мобильном – 64px до и 48px после.</p><p>Выносная маркетинговая цитата стоит вне основного текста, занимает 4–5 колонок слева или справа и получает 64–96px до и после. Кегль – 24px на широком экране, 18px на мобильном; интерлиньяж 1.45. Соседний поясняющий блок не обязателен.</p></article>
+      <article class="ms-composition-card"><h3>Кейсы с раскрытием</h3><p>На компьютере сначала открыты 6 карточек, на мобильном – 3. Кнопка B раскрывает остальные и сворачивает группу. Все 15 кейсов, их порядок и описания сохраняются.</p><p>Пролёты первого ряда: 4 + 2 + 2; второго: 3 + 3 + 2. На ширине 701–1100px – две карточки по четыре колонки. Светлая или тёмная поверхность берётся из метаданных кейса. Категории получают акценты по смысловой роли, а не по случайному цвету. Контур 1.3px, непрозрачность .76 на светлом и .95 на тёмном; подпись категории поддерживает цвет иллюстрации. Видео сохраняют обложку и ссылку в новой вкладке.</p></article>
+      <article class="ms-composition-card"><h3>Графика по смыслу</h3><p>Компактная иллюстрация поддерживает соседний текст. Фоновая ASCII-метафора занимает свободную зону карточки: архитектура для контекста, обратная связь для поддержки, мост для сообщества, синтез данных для кейса.</p><p>Набор метафор определяется проектом. Фоновая роль движется спокойно; компактный каталог сохраняет собственный темп.</p></article>
+    </div>
+    <div class="ms-specimen ms-rhythm-specimen">
+      <div class="ms-specimen__title"><h3>вход в секцию и выносная цитата</h3><span>восемь колонок · свободное поле · 24 / 18px</span></div>
+      <div class="ms-section-entry-demo">
+        <div class="sec-head"><span class="num">03 · название секции</span><span class="num">необязательная подпись</span></div>
+        <p>Вводный текст секции с выбранной длиной строки.</p>
+      </div>
+      <div class="ms-rhythm-demo">
+        <blockquote class="ms-rhythm-demo__quote"><p><span>«Цитата раскрывает мысль и оставляет рядом свободное поле»</span></p></blockquote>
+      </div>
+    </div>
+    <details class="ms-details"><summary><b>голос и редактура</b><span>правила</span></summary><div class="ms-details__body">
+      <ul class="ms-semantic-list"><li>Начало блока обычно со строчной; короткие заголовки и подписи – без конечной точки. Имена и бренды сохраняют регистр. Акцентная плашка сохраняет тот же регистр, который задан в тексте.</li><li>Прямой русский, конкретные действия, люди и факты. После абстракции – пример. Короткие абзацы, немного выделений, главное в начале.</li><li>Тире – среднее «–», U+2013, с неразрывным пробелом перед ним. Дефисы внутри слов и адресов остаются дефисами. Авторская пунктуация и дословные цитаты сохраняются.</li><li>Фигурные скобки обозначают смысл, например название продукта. Стрелки ведут по действующим ссылкам. Названия действий объясняют, что произойдёт.</li><li>Без искусственной срочности и обещаний сильнее фактов. Новый текст не строится по шаблону «не X, а Y». Правила редакционного текста задаются для конкретного продукта.</li></ul>
+    </div></details>
+    <details class="ms-details"><summary><b>сетка, ритм и раскрытие</b><span>код</span></summary><div class="ms-details__body">
+      <pre class="ms-code"><code>.sec-head {
+  display:flex; justify-content:space-between; align-items:baseline;
+  gap:16px; margin-bottom:34px;
+}
+.sec-head .num { font-size:11px; line-height:1.45; letter-spacing:.14em; text-transform:none; color:var(--text-muted); }
+.sec-head .num:first-child { padding:4px 7px 3px; background:var(--accent-primary); color:var(--on-primary); font-weight:600; }
+.sec-head:has(+ .sec-headline) { margin-bottom:14px; }
+.sec-headline { font-size:44px; line-height:1.10; font-weight:600; letter-spacing:-.025em; max-width:22ch; margin:0 0 48px; }
+.marketing-section {
+  padding: clamp(104px,9vw,148px) 0 clamp(92px,7.5vw,124px);
+  border: 0;
+}
+.structural-grid {
+  display: grid;
+  grid-template-columns: repeat(8,minmax(0,1fr));
+  gap: var(--grid-gap);
+}
+.quote-group { margin-block: var(--space-64); }
+.quote-group--spacious { margin-block: var(--space-96); }
+.quote-group blockquote { grid-column: 4 / 9; }
+.quote-group p { font-size:var(--type-24); line-height:1.45; letter-spacing:-.01em; }
+.quote-group .rhythm-highlight {
+  background: var(--text-primary); color: var(--surface-base); padding: 3px 4px;
+  box-decoration-break: clone;
+}
+@media (max-width:700px) {
+  .marketing-section { padding-block: var(--space-64) var(--space-48); }
+  .structural-grid { grid-template-columns: 1fr; }
+  .structural-grid > * { grid-column: 1 / -1; }
+  .quote-group p { font-size:var(--type-18); }
+}
+@media (max-width:640px) {
+  .sec-head { flex-wrap:wrap; align-items:flex-start; }
+  .sec-headline { font-size:32px; margin-bottom:40px; }
+}</code></pre>
+      <p>Кнопка раскрытия использует <code>aria-expanded</code> и <code>aria-controls</code>. Скрытые карточки исключаются из клавиатурного обхода; после сворачивания фокус остаётся на кнопке.</p>
+      <ul class="ms-semantic-list"><li>Меню и футер используют общий компонент; словомарка сохраняет отдельные гарнитуру, вес и трекинг, заданные проектом.</li><li>Структурные пролёты совпадают с восьмиколоночной сеткой и общим межколонником.</li><li>Секция начинается одним .sec-head. Выносная цитата занимает отдельную строку; пространство разделяет группы без линий.</li><li>Каждая стрелка перехода кликабельна вместе с подписью.</li><li>Цвет, описание и порядок кейсов сохраняются при раскрытии и сворачивании.</li></ul>
+    </div></details>
+  </div>
+</section>
+<section id="program-morphs" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head"><p class="ms-num">мини-ASCII</p><h2>Небольшая графика в карточках</h2></div>
+    <p class="ms-lead">Пять последовательностей для коротких акцентов рядом с содержанием. Прозрачная подложка, компактный размер и одна общая анимация сохраняют спокойный ритм страницы.</p>
+    <div class="ms-morph-catalogue">
+<figure class="ms-morph-card"><div class="program-card__morph" data-morph-preset="practice" data-morph-neutral data-morph-phase="0" aria-hidden="true"></div><figcaption><b>Практика</b><span>Процесс и результат</span></figcaption></figure>
+<figure class="ms-morph-card"><div class="program-card__morph" data-morph-preset="community" data-morph-neutral data-morph-phase="0" aria-hidden="true"></div><figcaption><b>Сообщество</b><span>Участник и связи</span></figcaption></figure>
+<figure class="ms-morph-card"><div class="program-card__morph" data-morph-preset="personal" data-morph-neutral data-morph-phase=".3" aria-hidden="true"></div><figcaption><b>Личная траектория</b><span>Поиск и фокус</span></figcaption></figure>
+<figure class="ms-morph-card"><div class="program-card__morph" data-morph-preset="network" data-morph-neutral data-morph-phase=".5" aria-hidden="true"></div><figcaption><b>Система</b><span>Структура и сеть</span></figcaption></figure>
+<figure class="ms-morph-card"><div class="program-card__morph" data-morph-preset="torus" data-morph-neutral data-morph-phase=".7" aria-hidden="true"></div><figcaption><b>Форма</b><span>Символы и объём</span></figcaption></figure>
+    </div>
+    <div class="ms-specimen ms-np-specimen">
+      <div class="ms-specimen__title"><h3>семантические варианты</h3><span>форма по смыслу</span></div>
+      <div class="ms-np-morphs">
+        <figure class="ms-np-morph"><div class="program-card__morph" data-morph-preset="np-benefit" data-morph-neutral  data-morph-phase="0" aria-hidden="true"></div><figcaption><b>ценность</b><span>Общее направление и смысловая цель</span></figcaption></figure>
+        <figure class="ms-np-morph"><div class="program-card__morph" data-morph-preset="np-ai-project" data-morph-neutral  data-morph-phase=".173" aria-hidden="true"></div><figcaption><b>результат</b><span>Один конкретный созданный результат</span></figcaption></figure>
+        <figure class="ms-np-morph"><div class="program-card__morph" data-morph-preset="np-sharing" data-morph-neutral  data-morph-phase=".346" aria-hidden="true"></div><figcaption><b>связи</b><span>Обмен между участниками</span></figcaption></figure>
+        <figure class="ms-np-morph"><div class="program-card__morph" data-morph-preset="np-active-learning" data-morph-neutral  data-morph-phase=".519" aria-hidden="true"></div><figcaption><b>процесс</b><span>Переход от начала к активной итерации</span></figcaption></figure>
+      </div>
+      <details class="ms-details"><summary><b>семантические пресеты</b><span>параметры</span></summary><div class="ms-details__body">
+        <table class="ms-table ms-table--params"><thead><tr><th>пресет</th><th>кадры галереи</th><th>базовая длительность</th></tr></thead><tbody><tr><td><code>np-benefit</code></td><td>ascii-14</td><td>36000ms</td></tr><tr><td><code>np-ai-project</code></td><td>только ascii-24</td><td>30000ms</td></tr><tr><td><code>np-sharing</code></td><td>ascii-20</td><td>33000ms</td></tr><tr><td><code>np-active-learning</code></td><td>ascii-22 → ascii-23</td><td>27000ms</td></tr></tbody></table>
+        <p>Смысловой вариант сохраняет отдельный кадр; другие варианты допускают плавный переход. В переходе активной практики разлёт сегментов отключён. След не рисуется. Фазы экземпляров различаются. Вне экрана и в скрытой вкладке движение приостановлено, при reduced motion остаётся статический кадр.</p>
+        <p>Смысловые пресеты дополняют каталог. Его прежние последовательности и стандартные 3000ms сохраняются.</p>
+        <pre class="ms-code"><code>&lt;div class="program-card__morph" data-morph-preset="np-ai-project"
+  data-morph-neutral
+  data-morph-phase=".173" aria-hidden="true"&gt;&lt;/div&gt;</code></pre>
+      </div></details>
+    </div>
+    <p class="ms-specimen__note">Компактный акцент занимает 88 × 62px; самостоятельная врезка — до 136 × 128px. Фоновая метафора маркетинговой карточки — отдельная роль с более крупным масштабом и спокойным движением. Обе роли сохраняют описание, обложку и доступ к кнопке.</p>
+    <details class="ms-details"><summary><b>Параметры и подключение</b><span>код</span></summary><div class="ms-details__body">
+      <table class="ms-table ms-table--params"><tbody><tr><td>Геометрия</td><td>100 × 100; 150 сегментов</td></tr><tr><td>Переход</td><td>3000ms; 25% удержание, 50% морфинг, 25% удержание</td></tr><tr><td>Интерполяция</td><td>easeInOutQuad; CHAOS = 10</td></tr><tr><td>Нейтральное оформление</td><td>прозрачный фон; цвет контура задаётся токеном; толщина .85</td></tr><tr><td>Остановка</td><td>статический кадр при prefers-reduced-motion; обновления приостановлены вне области просмотра и в скрытой вкладке</td></tr></tbody></table>
+      <pre class="ms-code"><code>&lt;div class="program-card__morph"
+  data-morph-preset="practice" data-morph-neutral
+  aria-hidden="true"&gt;&lt;/div&gt;
+&lt;script src="site/program-morph.js?v=616bf94d03" defer&gt;&lt;/script&gt;
+
+.program-card__morph { width:88px; height:62px; pointer-events:none }
+.program-card__morph svg { display:block; width:100%; height:100%; overflow:visible }</code></pre>
+      <h3>Фоновая роль маркетинговой карточки</h3>
+      <table class="ms-table ms-table--params"><tbody><tr><td>Размер</td><td>120–240px</td></tr><tr><td>Непрозрачность</td><td>.10–.18; прозрачная подложка</td></tr><tr><td>Один переход</td><td>24000–36000ms для каждого экземпляра; соседние фазы различаются</td></tr><tr><td>Метафоры</td><td>29 ASCII-форм: архитектура, обратная связь, синтез данных, мост и другие формы по смыслу содержания</td></tr><tr><td>Доступность</td><td>Пауза вне области просмотра и в скрытой вкладке; статический кадр при prefers-reduced-motion</td></tr></tbody></table>
+      <p>Фоновая роль не меняет стандартные 3000ms компактного каталога. Цвет формы согласован с категорией и поверхностью карточки.</p>
+      <p><a href="site/program-morph.js?v=616bf94d03" download>Код компонента</a></p>
+    </div></details>
+  </div>
+</section>
+
+<section id="grid" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">08 · сетка</p>
+      <h2>Адаптивная сетка</h2>
+    </div>
+    <p class="ms-lead">Максимальная ширина оболочки — 1320px.
+      Сетка содержит восемь колонок; при ширине окна 700px и меньше — одну.</p>
+    <div id="grid-mobile" class="ms-responsive-spec">
+      <h3>Сетка: десктоп и мобильная версия</h3>
+      <div class="ms-device-pair">
+        <article><h4>Десктоп · больше 700px</h4><p>Восемь структурных колонок, пролёты 2/3/4/5. Оболочка ограничена 1320px; внутренние поля 32–64px, межколонник 18–24px. На&nbsp;очень широком экране добавляется внешнее свободное поле.</p></article>
+        <article><h4>Мобильная версия · до 700px</h4><p>Одна структурная колонка, все дочерние пролёты&nbsp;— <code>1/-1</code>. При 641–700px поля вычисляются прежним clamp, около 32px; до&nbsp;640px включительно&nbsp;— 16px.</p><p>У&nbsp;одноколоночной внешней сетки межколонник равен нулю. Токен 14px до&nbsp;640px используется только во&nbsp;внутренних сетках компонентов.</p></article>
+      </div>
+      <table class="ms-device-table"><caption>Ширина окна в CSS-px · без масштабирования</caption><thead><tr><th scope="col">Окно</th><th scope="col">Ширина контента</th><th scope="col">Структура</th></tr></thead><tbody>
+        <tr><th scope="row">320</th><td>288px</td><td>1 колонка</td></tr><tr><th scope="row">390</th><td>358px</td><td>1 колонка</td></tr><tr><th scope="row">430</th><td>398px</td><td>1 колонка</td></tr><tr><th scope="row">640</th><td>608px</td><td>1 колонка</td></tr><tr><th scope="row">700</th><td>635.6px</td><td>1 колонка</td></tr><tr><th scope="row">1440</th><td>1192px</td><td>8 колонок</td></tr>
+      </tbody></table>
+      <p>Оболочка включает собственные padding. При 1440px: 1320 − 2&nbsp;×&nbsp;64 = 1192px контента. На&nbsp;700px clamp даёт 32.2px с&nbsp;каждой стороны; 32px достигается около 696px.</p>
+      <p>Текст и&nbsp;структурные карточки не&nbsp;прокручивают всю страницу по&nbsp;горизонтали. Исключения&nbsp;— локальный контейнер таблицы, кода или пространственной карты; рядом остаётся доступное текстовое содержание. <a href="https://www.w3.org/WAI/WCAG22/Understanding/reflow.html">WCAG: reflow на&nbsp;320 CSS-px</a>.</p>
+    </div>
+
+    <div class="ms-grid-demo" aria-hidden="true">
+      <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span>
+    </div>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>Ширина колонок и полей</h3><code>--page-gutter / --grid-gap</code></div>
+      <p class="ms-specimen__note">Поля и межколонник заданы через <code>clamp</code> и зависят от ширины окна.
+        Боковые поля достигают минимума 32px при ширине около 696px.</p>
+      <div class="ms-gsteps" data-grid-steps></div>
+    </div>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>Занятые пролёты</h3><code>grid-column</code></div>
+      <p class="ms-specimen__note">По умолчанию блок занимает <code>1/-1</code>.
+        Другие пролёты задаются свойством <code>grid-column</code>.</p>
+      <div class="ms-grid-spans" data-grid-spans></div>
+    </div>
+
+    <details class="ms-details">
+      <summary><b>Контрольные ширины</b><span>подробности</span></summary>
+      <div class="ms-details__body"><p class="ms-specimen__note">700px и&nbsp;640px&nbsp;— структурные границы страницы. Остальные переходы относятся к&nbsp;указанным компонентам.</p><div class="ms-rows" data-breakpoints></div></div>
+    </details>
+
+    <details class="ms-details">
+      <summary><b>Живой предпросмотр</b> — та же страница в трёх ширинах <span>откроется по клику</span></summary>
+      <div class="ms-details__body">
+        <p class="ms-specimen__note">Предпросмотр опубликованной страницы загружается по кнопке.</p>
+        <div class="ms-widths" data-widths></div>
+      </div>
+    </details>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>Оболочка и ритм</h3><code>--page-* / section</code></div>
+      <div class="ms-rows" data-grid-rows></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= 04 ИНТЕРВАЛЫ ============================ -->
+<section id="space" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">09 · интервалы</p>
+      <h2>Шкала интервалов</h2>
+    </div>
+
+    <div class="ms-rule-box ms-rule-box--warn">
+      <b>Статус: предложение.</b> Шкала для <code>margin</code>, <code>padding</code> и <code>gap</code>.
+      Переход на шкалу интервалов проверяется на компонентах и адаптивных состояниях.
+    </div>
+
+    <div class="ms-space-scale" data-space-scale></div>
+    <div id="space-mobile" class="ms-responsive-spec">
+      <h3>Интервалы: десктоп и мобильная версия</h3>
+      <p>Внешний ритм секции, зазоры между группами и&nbsp;поля карточки&nbsp;— разные роли. Мобильные интервалы не&nbsp;получаются умножением всех значений на&nbsp;один коэффициент.</p>
+      <table class="ms-device-table"><caption>Ритм макета · шкала интервалов сохраняет статус предложения</caption><thead><tr><th scope="col">Роль</th><th scope="col">Десктоп</th><th scope="col">До 700px</th></tr></thead><tbody>
+        <tr><th scope="row">Маркетинговая секция: до / после</th><td>104–148 / 92–124px</td><td>64 / 48px</td></tr>
+        <tr><th scope="row">Выносная маркетинговая цитата: до / после</th><td>64–96 / 64–96px</td><td>64–96 / 64–96px</td></tr>
+        <tr><th scope="row">Заголовок → содержание</th><td>32px</td><td>24px</td></tr>
+        <tr><th scope="row">Группа → группа</th><td>32–48px</td><td>24–32px</td></tr>
+        <tr><th scope="row">Поля карточки</th><td>16–24px</td><td>16px</td></tr>
+        <tr><th scope="row">Заголовок → описание</th><td>12px</td><td>12px</td></tr>
+        <tr><th scope="row">Мета внутри группы</th><td>8px</td><td>8px</td></tr>
+        <tr><th scope="row">Описание → CTA</th><td>24px</td><td>24px</td></tr>
+      </tbody></table>
+      <div class="ms-device-pair"><article><h4>Десктоп</h4><p>Пролёты и&nbsp;паузы поддерживают композицию. Строки соседних карточек выравниваются по&nbsp;ролям, без пустых фиксированных блоков под коротким текстом.</p></article><article><h4>Мобильная версия</h4><p>Одна карточка не&nbsp;наследует высоту десктопного ряда. Отступы не&nbsp;съедают ширину текста и&nbsp;не&nbsp;суммируются случайно между секциями. Блок обучения может быть длиннее экрана: содержание не&nbsp;уменьшается ради «одного экрана».</p></article></div>
+    </div>
+
+    <div class="ms-space-demos">
+      <div class="ms-space-demo">
+        <p class="ms-space-demo__bar">вертикальный ритм</p>
+        <div class="ms-space-demo__stage"><div class="ms-vstack" data-space-vertical></div></div>
+      </div>
+      <div class="ms-space-demo">
+        <p class="ms-space-demo__bar">горизонтальные отступы</p>
+        <div class="ms-space-demo__stage"><div class="ms-hbars" data-space-horizontal></div></div>
+      </div>
+    </div>
+
+    <details class="ms-details">
+      <summary><b>Вертикальный ритм</b> — что каким шагом разделяется <span>подробности</span></summary>
+      <div class="ms-details__body"><div class="ms-rows" data-space-vertical-rows></div></div>
+    </details>
+
+    <details class="ms-details">
+      <summary><b>Горизонтальные отступы</b> — поля, межколонник, внутренние поля <span>подробности</span></summary>
+      <div class="ms-details__body"><div class="ms-rows" data-space-horizontal-rows></div></div>
+    </details>
+
+    <details class="ms-details">
+      <summary><b>Соответствие текущих и предлагаемых значений</b><span>подробности</span></summary>
+      <div class="ms-details__body"><div class="ms-rows" data-space-migration></div></div>
+    </details>
+
+    <div class="ms-space-export">
+      <div class="ms-export__head"><b>Интервалы для переноса в проект</b><button class="ms-btn" type="button" data-copy="spacing">копировать</button></div>
+      <pre class="ms-code" data-code="spacing"></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== 05 ГРАФИКА И ДВИЖЕНИЕ ======================== -->
+<section id="graphics" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">10 · графика и движение</p>
+      <h2>Графика и движение</h2>
+    </div>
+    <div id="motion-mobile" class="ms-responsive-spec">
+      <h3>Движение: десктоп и мобильная версия</h3>
+      <div class="ms-device-pair">
+        <article><h4>Десктоп</h4><p>Реакция на&nbsp;указатель включается только при <code>(hover:hover) and (pointer:fine)</code>. Движение дополняет содержание. Наведение на&nbsp;видео не&nbsp;является единственным способом воспроизведения.</p></article>
+        <article><h4>Мобильная версия</h4><p>Курсорные хвосты, лупы и&nbsp;преследующие указатель персонажи не&nbsp;требуются для чтения и&nbsp;навигации. Прокрутка страницы имеет приоритет перед рисованием. Свайп по&nbsp;сцене не&nbsp;блокирует вертикальное движение страницы.</p><p>Декоративный слой не&nbsp;перехватывает касания. Компактный ASCII сохраняет свой характер, но&nbsp;получает отдельное место в&nbsp;потоке; плотность и&nbsp;размер холста не&nbsp;задаются шириной десктопа.</p></article>
+      </div>
+      <h4>Уменьшение движения</h4>
+      <p>При <code>prefers-reduced-motion:reduce</code> остаётся читаемый статический кадр без мерцания, параллакса и&nbsp;следования за&nbsp;указателем. Содержание и&nbsp;действия не&nbsp;исчезают. В&nbsp;скрытой вкладке и&nbsp;вне области просмотра декоративный цикл приостанавливается.</p>
+      <p>Ширина окна и&nbsp;тип ввода проверяются отдельно: узкое окно с&nbsp;мышью не&nbsp;равно телефону. Видео имеет обложку и&nbsp;явное управление; звук не&nbsp;включается от&nbsp;скролла или случайного касания.</p>
+    </div>
+
+    <div class="ms-rule-box">
+      <b>Графические элементы.</b> Стрелка <b>↗</b> обозначает внешний переход,
+      точка <b>●</b> — активный статус. Символьные поля используют глифы <b>· ~ ≈ ≋ #</b>.
+      Линии связей строятся в SVG, анимационные сцены — на canvas.
+      Растровые изображения применяются для фотографий и превью.
+    </div>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>Холсты по секциям</h3><code>canvas</code></div>
+      <div class="ms-rows" data-canvas-rows></div>
+    </div>
+
+    <div class="ms-specimen">
+      <div class="ms-specimen__title"><h3>Семантика движения</h3><code>шесть смыслов</code></div>
+      <p class="ms-specimen__note">Типы движения: вращение, пульсация, смещение, масштабирование,
+        движение пунктира и ступенчатый переход.</p>
+      <div class="ms-motion-grid">
+        <div class="ms-motion-card"><div class="ms-motion-card__stage"><i class="ms-mo-dot ms-mo-rotate"></i></div><b>Rotation</b><small>Непрерывное вращение: 16s linear infinite.</small></div>
+        <div class="ms-motion-card"><div class="ms-motion-card__stage"><i class="ms-mo-dot ms-mo-pulse"></i></div><b>Pulse</b><small>Активные статусы и наборы: 2.4–2.8s.</small></div>
+        <div class="ms-motion-card"><div class="ms-motion-card__stage"><i class="ms-mo-dot ms-mo-float"></i></div><b>Float</b><small>Плавное смещение: 4.4s ease-in-out, не больше 9px.</small></div>
+        <div class="ms-motion-card"><div class="ms-motion-card__stage"><i class="ms-mo-ring"></i></div><b>Scale</b><small>Масштаб кольца от .55 до 1.7 с затуханием.</small></div>
+        <div class="ms-motion-card"><div class="ms-motion-card__stage"><i class="ms-mo-dash"></i></div><b>Dash flow</b><small>передача данных. Пунктир 3.2s, связь между узлами.</small></div>
+        <div class="ms-motion-card"><div class="ms-motion-card__stage"><i class="ms-mo-dot ms-mo-steps"></i></div><b>Steps</b><small>Переход между состояниями с фиксированным числом шагов.</small></div>
+      </div>
+    </div>
+
+    <div class="ms-rule-box">
+      <b>Safe zone.</b> Анимация не проходит поверх текста. Слои читают прямоугольники заголовков,
+      абзацев, кнопок и карточек и исключают эти области из отрисовки.
+    </div>
+    <div class="ms-rule-box">
+      <b>Уменьшение движения.</b> При остановке анимации сохраняется статическое изображение сцены.
+      Поддержка <code>prefers-reduced-motion</code> проверяется отдельно для каждого слоя.
+    </div>
+
+    <details class="ms-details">
+      <summary><b>Тайминги</b> — диапазоны длительности анимаций <span>подробности</span></summary>
+      <div class="ms-details__body">
+        <p class="ms-specimen__note">Отклик — до <code>.22s</code>, ступенчатый ховер кнопок —
+          <code>.18s steps(3,end)</code>, перестройка сцены — до <code>.65s</code>,
+          фоновая анимация — от <code>4.2s</code> до <code>16s</code>.</p>
+        <div class="ms-rows" data-motion-rows></div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- =========================== 06 РЕЦЕПТЫ СЕКЦИЙ ========================= -->
+<section id="layouts" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">11 · рецепты секций</p>
+      <h2>Рецепты секций</h2>
+    </div>
+    <p class="ms-lead">Варианты композиции: список, карточки, продукт, цитата и герой.</p>
+    <div class="ms-rows" data-layout-rows></div>
+  </div>
+</section>
+
+<!-- ============================== 07 ВЫГРУЗКА ============================ -->
+<section id="mobile-checks" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head"><p class="ms-num">проверка</p><h2>Мобильный макет перед передачей</h2></div>
+    <p class="ms-lead">Проверяются не&nbsp;только размеры экрана, но&nbsp;и&nbsp;текст, касания, клавиатура, движение и&nbsp;состояния компонентов.</p>
+    <ul class="ms-mobile-checks">
+      <li><b>Ширины</b>320, 360, 390, 430 и&nbsp;768px; контроль границ 639/640/641 и&nbsp;699/700/701px. Десктоп: 1280 и&nbsp;1440px. Планшетная ширина сама по&nbsp;себе не&nbsp;означает наличие мыши.</li>
+      <li><b>Чтение</b>Заголовки и&nbsp;абзацы не&nbsp;обрезаны. Основной текст 16px. Короткие слова и&nbsp;пунктуация проверены на&nbsp;отрисованных строках; увеличение текста до&nbsp;200% не&nbsp;теряет содержание.</li>
+      <li><b>Сетка</b>До&nbsp;700px структурные карточки занимают полную колонку. Нет горизонтальной прокрутки страницы; локальные таблицы и&nbsp;код прокручиваются отдельно.</li>
+      <li><b>Касание</b>Основные отдельные цели 44&nbsp;×&nbsp;44px, не&nbsp;пересекаются. Ссылка срабатывает с&nbsp;первого тапа. Все действия доступны без ховера.</li>
+      <li><b>Навигация</b>Последний пункт меню достижим. Якорь не&nbsp;скрывается за&nbsp;шапкой. Меню открывается и&nbsp;закрывается кнопкой, состояние и&nbsp;фокус видимы.</li>
+      <li><b>Форма</b>Поля и&nbsp;закрытие доступны с&nbsp;экранной клавиатурой. Ошибка не&nbsp;стирает ввод. Повторная отправка заблокирована, результат объявляется только после ответа.</li>
+      <li><b>Раскрытие</b>Скрытые карточки не&nbsp;получают фокус. После сворачивания фокус остаётся на&nbsp;кнопке. Полный набор и&nbsp;порядок материалов сохраняются.</li>
+      <li><b>Движение</b>Проверены обычный режим и&nbsp;reduced-motion, вкладка в&nbsp;фоне и&nbsp;возврат. Графика не&nbsp;перекрывает текст и&nbsp;не&nbsp;мешает скроллу. Видео имеет явное управление.</li>
+      <li><b>Контраст</b>Обычный текст: не&nbsp;ниже 4.5:1; крупный: 3:1. Подпись, статус и&nbsp;ошибка читаются на&nbsp;фактической подложке. Цвет не&nbsp;единственный признак состояния. <a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html">WCAG: контраст текста</a>.</li>
+      <li><b>Устройства</b>Safari на&nbsp;iPhone и&nbsp;Chrome на&nbsp;Android: портрет, горизонтальное положение, системный крупный текст, клавиатура и&nbsp;safe-area. Узкий браузер на&nbsp;компьютере не&nbsp;заменяет эту проверку.</li>
+    </ul>
+    <details class="ms-details"><summary><b>Что передаётся с компонентом</b><span>состав</span></summary><div class="ms-details__body"><p>Десктопный и&nbsp;мобильный макеты с&nbsp;одинаковым содержанием; размеры и&nbsp;пролёты; обычное состояние, hover, focus, active и&nbsp;применимые загрузка/ошибка/успех; поведение без наведения и&nbsp;с&nbsp;уменьшенным движением. Для формы&nbsp;— состояние с&nbsp;клавиатурой, для карусели&nbsp;— доступ к&nbsp;последнему элементу.</p></div></details>
+  </div>
+</section>
+<section id="handoff" class="ms-section">
+  <div class="ms-wrap">
+    <div class="ms-head">
+      <p class="ms-num">12 · выгрузка</p>
+      <h2>CSS-токены и HTML</h2>
+    </div>
+    <p class="ms-lead">CSS-токены и HTML-шаблон секции для подключения к проекту.</p>
+
+    <div class="ms-export">
+      <div>
+        <div class="ms-export__head"><b>Токены</b><button class="ms-btn" type="button" data-copy="tokens">копировать</button></div>
+        <pre class="ms-code" data-code="tokens"></pre>
+      </div>
+      <div>
+        <div class="ms-export__head"><b>Стартовая разметка</b><button class="ms-btn" type="button" data-copy="starter">копировать</button></div>
+        <pre class="ms-code" data-code="starter"></pre>
+      </div>
+    </div>
+
+    <details class="ms-details">
+      <summary><b>Проверка перед сдачей</b> — правила композиции и компонентов <span>подробности</span></summary>
+      <div class="ms-details__body"><div class="ms-rows" data-qa-rows></div></div>
+    </details>
+  </div>
+</section>
+
+</main>
+
+<footer class="ms-foot">
+  <div class="ms-wrap">
+    <span>Шаблон дизайн-системы</span>
+    <span></span>
+    <span><a href="template-values.json">правила текстом</a></span>
+  </div>
+</footer>
+
+<script src="aim-material-system.js"></script>
+<script src="site/program-morph.js" defer></script>
+<link rel="stylesheet" href="components/section-card.css">
+<script src="components/section-card-scenes.js" defer></script>
+<script src="components/live-examples.js" defer></script>
+<script src="components/editorial-copy.js"></script>
+</body>
+</html>
