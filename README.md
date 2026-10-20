@@ -1,5 +1,9 @@
 # marketing harness · live build
 
+Папка маркетинга и инструмент для работы с ней: контекст, роли, скиллы и проверки. Демо и быстрый старт описаны ниже.
+
+[Текущие программы AI Mindset](https://aimindset.org/?utm_source=website&utm_medium=article&utm_campaign=start&utm_content=github-marketing-harness) · [База знаний и практик](https://base.aimindset.org/?utm_source=website&utm_medium=article&utm_campaign=start&utm_content=github-marketing-harness-base)
+
 ![marketing harness](docs/social-preview.png)
 
 **Маркетинг-харнесс маркетинг-спринта AI Mindset (n25).** Папка, в которой живёт маркетинг продукта: контекст, правила, роли, скиллы, гейты, evals и агенты в одном git. Инструмент рядом рисует эту папку живым графом: как она растёт из пустой за 10 фаз, какие агенты в ней работают и что они закоммитили.
