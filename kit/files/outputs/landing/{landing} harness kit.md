@@ -6,7 +6,7 @@ segment: P1
 code: P1-H4-A2-F7
 status: checked
 score: 81
-cta_url: https://aimindset.org
+cta_url: "https://aimindset.org?utm_source=website&utm_medium=article&utm_campaign=start&utm_content=github-marketing-harness"
 fig_title: из пустой папки – в машину, которая _сама_ проверяет тексты
 ---
 ## hero
